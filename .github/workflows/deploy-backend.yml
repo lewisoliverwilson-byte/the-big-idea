@@ -1,0 +1,57 @@
+name: Deploy Backend
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'backend/**'
+      - 'infrastructure/**'
+      - 'scrapers/**'
+
+jobs:
+  deploy:
+    name: Deploy to AWS Lambda
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Set up AWS SAM CLI
+        uses: aws-actions/setup-sam@v2
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Install backend dependencies
+        run: |
+          pip install -r backend/requirements.txt -t backend/vendor/
+
+      - name: SAM Build
+        run: sam build --template infrastructure/template.yaml
+
+      - name: SAM Deploy
+        run: |
+          sam deploy \
+            --no-confirm-changeset \
+            --no-fail-on-empty-changeset \
+            --stack-name the-big-idea \
+            --region us-east-1 \
+            --capabilities CAPABILITY_IAM \
+            --parameter-overrides \
+              DatabaseUrl="${{ secrets.DATABASE_URL }}" \
+              OpenAIApiKey="${{ secrets.OPENAI_API_KEY }}" \
+              StripeSecretKey="${{ secrets.STRIPE_SECRET_KEY }}" \
+              StripeWebhookSecret="${{ secrets.STRIPE_WEBHOOK_SECRET }}" \
+              StripeProPriceId="${{ secrets.STRIPE_PRO_PRICE_ID }}" \
+              CognitoUserPoolId="${{ secrets.COGNITO_USER_POOL_ID }}" \
+              CognitoClientId="${{ secrets.COGNITO_CLIENT_ID }}" \
+              FrontendUrl="${{ secrets.FRONTEND_URL }}"

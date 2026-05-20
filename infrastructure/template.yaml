@@ -1,0 +1,137 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: The Big Idea — Dropshipping Research Platform API
+
+Globals:
+  Function:
+    Runtime: python3.11
+    Timeout: 30
+    MemorySize: 512
+    Environment:
+      Variables:
+        DATABASE_URL: !Ref DatabaseUrl
+        OPENAI_API_KEY: !Ref OpenAIApiKey
+        STRIPE_SECRET_KEY: !Ref StripeSecretKey
+        STRIPE_WEBHOOK_SECRET: !Ref StripeWebhookSecret
+        STRIPE_PRO_PRICE_ID: !Ref StripeProPriceId
+        COGNITO_USER_POOL_ID: !Ref CognitoUserPoolId
+        COGNITO_CLIENT_ID: !Ref CognitoClientId
+        COGNITO_REGION: !Ref AWS::Region
+        FRONTEND_URL: !Ref FrontendUrl
+
+Parameters:
+  DatabaseUrl:
+    Type: String
+    NoEcho: true
+  OpenAIApiKey:
+    Type: String
+    NoEcho: true
+  StripeSecretKey:
+    Type: String
+    NoEcho: true
+  StripeWebhookSecret:
+    Type: String
+    NoEcho: true
+    Default: "placeholder"
+  StripeProPriceId:
+    Type: String
+  CognitoUserPoolId:
+    Type: String
+  CognitoClientId:
+    Type: String
+  FrontendUrl:
+    Type: String
+    Default: "https://localhost:3000"
+
+Resources:
+  # ─── API Lambda ─────────────────────────────────────────────────────────────
+  ApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: the-big-idea-api
+      CodeUri: ../backend/
+      Handler: app.main.handler
+      Description: The Big Idea FastAPI backend
+      Events:
+        ApiProxy:
+          Type: Api
+          Properties:
+            Path: /{proxy+}
+            Method: ANY
+            RestApiId: !Ref ApiGateway
+        RootPath:
+          Type: Api
+          Properties:
+            Path: /
+            Method: ANY
+            RestApiId: !Ref ApiGateway
+
+  # ─── API Gateway ─────────────────────────────────────────────────────────────
+  ApiGateway:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: the-big-idea-api
+      StageName: prod
+      Cors:
+        AllowMethods: "'*'"
+        AllowHeaders: "'Content-Type,Authorization,X-Amz-Date'"
+        AllowOrigin: "'*'"
+      BinaryMediaTypes:
+        - "image/*"
+        - "application/octet-stream"
+
+  # ─── Scraper Lambda (scheduled) ──────────────────────────────────────────────
+  ScraperFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: the-big-idea-scraper
+      CodeUri: ../scrapers/
+      Handler: scheduler.handler.lambda_handler
+      Timeout: 900  # 15 minutes
+      MemorySize: 1024
+      Description: Scheduled product scraper
+      Environment:
+        Variables:
+          DATABASE_URL: !Ref DatabaseUrl
+      Events:
+        ScheduleEvent:
+          Type: Schedule
+          Properties:
+            Schedule: rate(6 hours)
+            Name: big-idea-scraper-schedule
+            Description: Run scrapers every 6 hours
+            Enabled: true
+
+  # ─── SQS Queue for on-demand scraping ────────────────────────────────────────
+  OnDemandScrapeQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: the-big-idea-scrape-queue
+      VisibilityTimeout: 900
+      MessageRetentionPeriod: 3600
+
+  # ─── S3 Bucket for report snapshots ─────────────────────────────────────────
+  ReportsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub "the-big-idea-reports-${AWS::AccountId}"
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+
+Outputs:
+  ApiEndpoint:
+    Description: API Gateway endpoint URL
+    Value: !Sub "https://${ApiGateway}.execute-api.${AWS::Region}.amazonaws.com/prod"
+    Export:
+      Name: TheBigIdeaApiEndpoint
+
+  ScraperFunctionArn:
+    Description: Scraper Lambda ARN
+    Value: !GetAtt ScraperFunction.Arn
+
+  SqsQueueUrl:
+    Description: On-demand scrape queue URL
+    Value: !Ref OnDemandScrapeQueue
