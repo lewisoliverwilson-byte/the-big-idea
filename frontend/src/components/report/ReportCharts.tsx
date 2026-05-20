@@ -8,7 +8,6 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  Legend,
 } from 'recharts'
 import { TrendDataPoint } from '../../types'
 import { Card, CardBody, CardHeader } from '../ui/Card'

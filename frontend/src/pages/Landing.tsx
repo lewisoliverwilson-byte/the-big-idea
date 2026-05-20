@@ -4,7 +4,6 @@ import {
   Search,
   BarChart2,
   DollarSign,
-  CheckCircle,
   ArrowRight,
   Zap,
   Shield,
@@ -49,7 +48,7 @@ const FAQ = [
     a: 'Our scrapers pull live data from major platforms every 6 hours. Buy prices come directly from Temu, AliExpress, and Alibaba. Sell estimates are based on actual completed listings on Amazon, eBay, and Etsy.',
   },
   {
-    q: 'What's included in the free tier?',
+    q: "What's included in the free tier?",
     a: 'You get 2 complete market research reports for free. Each report includes the full AI analysis, margin calculator, trend charts, and platform comparison — no features withheld.',
   },
   {

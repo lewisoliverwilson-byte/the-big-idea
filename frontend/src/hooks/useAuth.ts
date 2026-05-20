@@ -5,7 +5,7 @@ import { useAuthStore } from '../store/authStore'
 import { syncUser, getMe } from '../services/api'
 
 export function useAuth() {
-  const { user, isAuthenticated, isLoading, setUser, setLoading, logout } = useAuthStore()
+  const { user, isAuthenticated, isLoading, setUser, logout } = useAuthStore()
 
   useEffect(() => {
     // Initial auth check

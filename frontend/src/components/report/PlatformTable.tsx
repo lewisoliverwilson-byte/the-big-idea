@@ -14,12 +14,6 @@ const PLATFORM_LINKS: Record<string, string> = {
   shopify: 'https://www.shopify.com/uk',
 }
 
-const PLATFORM_COLORS: Record<string, string> = {
-  amazon: 'bg-orange-50 border-orange-200',
-  ebay: 'bg-blue-50 border-blue-200',
-  etsy: 'bg-orange-50 border-orange-100',
-  shopify: 'bg-green-50 border-green-200',
-}
 
 export function PlatformTable({ platforms }: PlatformTableProps) {
   const difficultyVariant = (d: string): 'green' | 'amber' | 'red' => {

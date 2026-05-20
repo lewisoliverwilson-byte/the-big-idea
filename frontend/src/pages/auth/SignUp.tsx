@@ -6,7 +6,6 @@ import { z } from 'zod'
 import {
   signUp,
   confirmSignUp,
-  signIn,
   signInWithRedirect,
 } from 'aws-amplify/auth'
 import { TrendingUp } from 'lucide-react'
