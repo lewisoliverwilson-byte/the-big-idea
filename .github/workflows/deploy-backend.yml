@@ -32,7 +32,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
-      - name: SAM Build
+      - name: SAM Build (native Python, no container)
         run: sam build --template infrastructure/template.yaml
 
       - name: SAM Deploy
@@ -43,6 +43,7 @@ jobs:
             --stack-name the-big-idea \
             --region us-east-1 \
             --capabilities CAPABILITY_IAM \
+            --resolve-s3 \
             --parameter-overrides \
               DatabaseUrl="${{ secrets.DATABASE_URL }}" \
               OpenAIApiKey="${{ secrets.OPENAI_API_KEY }}" \
