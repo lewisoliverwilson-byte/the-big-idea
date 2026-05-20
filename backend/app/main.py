@@ -16,10 +16,12 @@ app = FastAPI(
     redoc_url="/api/redoc",
 )
 
-# CORS
+# CORS — starlette does not support wildcard subdomains in allow_origins,
+# so use allow_origin_regex for the Amplify preview URLs plus explicit origins.
+_frontend_url = os.environ.get("FRONTEND_URL", "http://localhost:3000")
+
 ALLOWED_ORIGINS = [
-    os.environ.get("FRONTEND_URL", "http://localhost:3000"),
-    "https://*.amplifyapp.com",
+    _frontend_url,
     "http://localhost:3000",
     "http://localhost:5173",
 ]
@@ -27,6 +29,7 @@ ALLOWED_ORIGINS = [
 app.add_middleware(
     CORSMiddleware,
     allow_origins=ALLOWED_ORIGINS,
+    allow_origin_regex=r"https://[a-zA-Z0-9\-]+\.amplifyapp\.com",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
