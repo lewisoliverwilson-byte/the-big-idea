@@ -13,7 +13,7 @@ if (!DATABASE_URL) {
   process.exit(1)
 }
 
-const client = new Client({ connectionString: DATABASE_URL, ssl: { rejectUnauthorized: false } })
+const client = new Client({ connectionString: DATABASE_URL.replace('sslmode=require', 'sslmode=no-verify'), ssl: { rejectUnauthorized: false } })
 
 const SQL = `
 -- Enums
