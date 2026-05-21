@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { useMutation } from '@tanstack/react-query'
-import { CheckCircle, Crown, Zap, X } from 'lucide-react'
+import { CheckCircle, Zap, X } from 'lucide-react'
 import { Button } from '../components/ui/Button'
 import { createCheckoutSession } from '../services/api'
 import { useAuthStore } from '../store/authStore'
@@ -53,16 +53,18 @@ export function Pricing() {
   const isPro = user?.subscriptionStatus === 'active'
 
   return (
-    <div className="min-h-screen bg-[#080D1A]">
+    <div className="min-h-screen bg-white">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
 
         {/* Header */}
         <div className="text-center mb-16">
-          <p className="text-amber-400 text-sm font-semibold tracking-widest uppercase mb-3">Pricing</p>
-          <h1 className="text-4xl sm:text-5xl font-extrabold text-white mb-4">
+          <h1
+            className="text-4xl sm:text-5xl font-extrabold text-slate-900 mb-4"
+            style={{ fontFamily: '"Barlow Condensed","Arial Narrow",sans-serif', textTransform: 'uppercase', letterSpacing: '-0.01em' }}
+          >
             Simple, honest pricing
           </h1>
-          <p className="text-slate-400 text-lg max-w-xl mx-auto">
+          <p className="text-slate-500 text-lg max-w-xl mx-auto">
             Start free. Upgrade when you want more ideas, deeper analysis, and all four platforms.
           </p>
         </div>
@@ -71,90 +73,91 @@ export function Pricing() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
 
           {/* Free */}
-          <div className="bg-slate-900/50 border border-slate-700 rounded-2xl p-8 flex flex-col">
-            <div>
-              <h2 className="text-xl font-bold text-white mb-1">Free</h2>
-              <p className="text-slate-400 text-sm mb-6">Get a feel for the product</p>
+          <div className="bg-white border border-slate-200 rounded-2xl p-8 flex flex-col">
+            <div className="flex-1">
+              <h2 className="text-xl font-bold text-slate-900 mb-1">Free</h2>
+              <p className="text-slate-500 text-sm mb-6">Get a feel for the product</p>
               <div className="mb-8">
-                <span className="text-4xl font-extrabold text-white">£0</span>
+                <span
+                  className="text-4xl font-extrabold text-slate-900"
+                  style={{ fontFamily: '"Barlow Condensed","Arial Narrow",sans-serif' }}
+                >
+                  £0
+                </span>
                 <span className="text-slate-400 text-sm ml-1">/forever</span>
               </div>
 
-              <p className="text-xs text-slate-500 font-semibold uppercase tracking-wider mb-3">Includes</p>
+              <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider mb-3">Includes</p>
               <ul className="space-y-2.5 mb-6">
                 {FREE_FEATURES.map((f) => (
-                  <li key={f} className="flex items-start gap-2 text-sm text-slate-300">
-                    <CheckCircle className="h-4 w-4 text-slate-500 flex-shrink-0 mt-0.5" />
+                  <li key={f} className="flex items-start gap-2 text-sm text-slate-600">
+                    <CheckCircle className="h-4 w-4 text-slate-400 flex-shrink-0 mt-0.5" />
                     {f}
                   </li>
                 ))}
               </ul>
 
-              <p className="text-xs text-slate-600 font-semibold uppercase tracking-wider mb-3">Not included</p>
+              <p className="text-xs text-slate-300 font-semibold uppercase tracking-wider mb-3">Not included</p>
               <ul className="space-y-2 mb-8">
                 {FREE_LIMITS.map((f) => (
-                  <li key={f} className="flex items-start gap-2 text-sm text-slate-600">
-                    <X className="h-4 w-4 text-slate-700 flex-shrink-0 mt-0.5" />
+                  <li key={f} className="flex items-start gap-2 text-sm text-slate-400">
+                    <X className="h-4 w-4 text-slate-300 flex-shrink-0 mt-0.5" />
                     {f}
                   </li>
                 ))}
               </ul>
             </div>
 
-            <div className="mt-auto">
-              <Button
-                variant="outline"
-                size="lg"
-                className="w-full border-slate-600 text-slate-300 hover:border-slate-400 hover:text-white"
-                onClick={() => navigate(isAuthenticated ? '/dashboard' : '/auth/signup')}
-              >
-                {isAuthenticated ? 'Go to Dashboard' : 'Start for free'}
-              </Button>
-            </div>
+            <Button
+              variant="outline"
+              size="lg"
+              className="w-full border-slate-200 text-slate-600 hover:border-slate-400 hover:text-slate-900"
+              onClick={() => navigate(isAuthenticated ? '/dashboard' : '/auth/signup')}
+            >
+              {isAuthenticated ? 'Go to Dashboard' : 'Start for free'}
+            </Button>
           </div>
 
-          {/* Pro — the hero card */}
-          <div className="relative bg-slate-900 border border-amber-400/40 rounded-2xl p-8 flex flex-col overflow-hidden shadow-2xl shadow-amber-400/10">
-            {/* Glow effects */}
-            <div className="absolute -top-24 -right-24 w-64 h-64 rounded-full bg-amber-400/10 blur-3xl pointer-events-none" />
-            <div className="absolute -bottom-16 -left-16 w-48 h-48 rounded-full bg-amber-400/5 blur-2xl pointer-events-none" />
-
+          {/* Pro — hero card */}
+          <div className="relative bg-indigo-50 border-2 border-indigo-600 rounded-2xl p-8 flex flex-col overflow-hidden shadow-xl shadow-indigo-600/10">
             {/* Popular badge */}
             <div className="absolute top-6 right-6">
-              <span className="inline-flex items-center gap-1 bg-amber-400 text-slate-900 text-xs font-bold px-3 py-1 rounded-full">
+              <span className="inline-flex items-center gap-1 bg-indigo-600 text-white text-xs font-bold px-3 py-1 rounded-full">
                 <Zap className="h-3 w-3" />
                 Most popular
               </span>
             </div>
 
-            <div className="relative z-10 flex flex-col h-full">
-              <div>
-                <div className="flex items-center gap-2 mb-1">
-                  <Crown className="h-4 w-4 text-amber-400" />
-                  <h2 className="text-xl font-bold text-white">Pro</h2>
+            <div className="flex flex-col h-full">
+              <div className="flex-1">
+                <h2 className="text-xl font-bold text-slate-900 mb-1">Pro</h2>
+                <p className="text-slate-500 text-sm mb-6">For serious dropshippers</p>
+                <div className="mb-2">
+                  <span
+                    className="text-4xl font-extrabold text-slate-900"
+                    style={{ fontFamily: '"Barlow Condensed","Arial Narrow",sans-serif' }}
+                  >
+                    £10
+                  </span>
+                  <span className="text-slate-500 text-sm ml-1">/month</span>
                 </div>
-                <p className="text-slate-400 text-sm mb-6">For serious dropshippers</p>
-                <div className="mb-8">
-                  <span className="text-4xl font-extrabold text-white">£10</span>
-                  <span className="text-slate-400 text-sm ml-1">/month</span>
-                  <p className="text-amber-400/70 text-xs mt-1">That's less than £0.35 per idea</p>
-                </div>
+                <p className="text-indigo-600 text-xs mb-8">That's less than £0.35 per idea</p>
 
                 <ul className="space-y-3 mb-8">
                   {PRO_FEATURES.map((f) => (
-                    <li key={f} className="flex items-start gap-2.5 text-sm text-slate-200">
-                      <CheckCircle className="h-4 w-4 text-amber-400 flex-shrink-0 mt-0.5" />
+                    <li key={f} className="flex items-start gap-2.5 text-sm text-slate-700">
+                      <CheckCircle className="h-4 w-4 text-indigo-600 flex-shrink-0 mt-0.5" />
                       {f}
                     </li>
                   ))}
                 </ul>
               </div>
 
-              <div className="mt-auto">
+              <div>
                 {isPro ? (
                   <button
                     onClick={() => navigate('/account')}
-                    className="w-full bg-amber-400 hover:bg-amber-300 text-slate-900 font-bold px-6 py-3.5 rounded-xl text-sm transition-colors"
+                    className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 py-3.5 rounded-xl text-sm transition-colors"
                   >
                     Manage subscription
                   </button>
@@ -162,16 +165,16 @@ export function Pricing() {
                   <button
                     onClick={handleSubscribe}
                     disabled={checkoutMutation.isPending}
-                    className="w-full flex items-center justify-center gap-2 bg-amber-400 hover:bg-amber-300 disabled:opacity-60 text-slate-900 font-bold px-6 py-3.5 rounded-xl text-base transition-colors shadow-lg shadow-amber-400/20"
+                    className="w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 text-white font-bold px-6 py-3.5 rounded-xl text-base transition-colors shadow-lg shadow-indigo-600/25"
                   >
                     {checkoutMutation.isPending ? (
-                      <div className="h-5 w-5 border-2 border-slate-900 border-t-transparent rounded-full animate-spin" />
+                      <div className="h-5 w-5 border-2 border-white/40 border-t-white rounded-full animate-spin" />
                     ) : (
                       'Subscribe — £10/mo'
                     )}
                   </button>
                 )}
-                <p className="text-center text-slate-500 text-xs mt-3">
+                <p className="text-center text-slate-400 text-xs mt-3">
                   Cancel anytime. No long-term commitment.
                 </p>
               </div>
@@ -179,9 +182,9 @@ export function Pricing() {
           </div>
         </div>
 
-        {/* Value prop comparison */}
+        {/* Value props */}
         <div className="mt-16 max-w-3xl mx-auto">
-          <h2 className="text-center text-xl font-bold text-white mb-8">
+          <h2 className="text-center text-xl font-bold text-slate-900 mb-8">
             What you get with Pro that Free doesn't have
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -202,10 +205,10 @@ export function Pricing() {
                 desc: 'Free gives you 2 ideas, ever. Pro resets every 7 days so you always have fresh ammunition.',
               },
             ].map(({ icon, title, desc }) => (
-              <div key={title} className="bg-slate-900/60 border border-slate-800 rounded-xl p-5">
+              <div key={title} className="bg-white border border-slate-100 rounded-xl p-5 shadow-sm">
                 <div className="text-3xl mb-3">{icon}</div>
-                <h3 className="font-semibold text-white mb-2">{title}</h3>
-                <p className="text-slate-400 text-sm leading-relaxed">{desc}</p>
+                <h3 className="font-semibold text-slate-900 mb-2">{title}</h3>
+                <p className="text-slate-500 text-sm leading-relaxed">{desc}</p>
               </div>
             ))}
           </div>
@@ -213,7 +216,7 @@ export function Pricing() {
 
         {/* FAQ */}
         <div className="mt-16 max-w-2xl mx-auto">
-          <h2 className="text-center text-xl font-bold text-white mb-8">Common questions</h2>
+          <h2 className="text-center text-xl font-bold text-slate-900 mb-8">Common questions</h2>
           <div className="space-y-3">
             {[
               {
@@ -235,13 +238,13 @@ export function Pricing() {
             ].map(({ q, a }) => (
               <details
                 key={q}
-                className="group bg-slate-900/50 border border-slate-700 rounded-xl px-5 py-4"
+                className="group bg-slate-50 border border-slate-200 rounded-xl px-5 py-4"
               >
-                <summary className="flex items-center justify-between cursor-pointer list-none font-semibold text-white text-sm">
+                <summary className="flex items-center justify-between cursor-pointer list-none font-semibold text-slate-900 text-sm">
                   {q}
-                  <span className="text-slate-500 group-open:rotate-180 transition-transform ml-3">▾</span>
+                  <span className="text-slate-400 group-open:rotate-180 transition-transform ml-3">▾</span>
                 </summary>
-                <p className="text-slate-400 text-sm leading-relaxed mt-3">{a}</p>
+                <p className="text-slate-500 text-sm leading-relaxed mt-3">{a}</p>
               </details>
             ))}
           </div>

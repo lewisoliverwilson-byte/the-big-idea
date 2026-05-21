@@ -20,7 +20,7 @@ function ProtectedRoute({ children }: { children: ReactNode }) {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-slate-950 flex items-center justify-center">
-        <div className="animate-spin h-8 w-8 border-4 border-amber-400 border-t-transparent rounded-full" />
+        <div className="animate-spin h-8 w-8 border-4 border-indigo-500 border-t-transparent rounded-full" />
       </div>
     )
   }
@@ -29,9 +29,13 @@ function ProtectedRoute({ children }: { children: ReactNode }) {
 }
 
 function AppShell({ children }: { children: ReactNode }) {
-  const location = useLocation()
+  const location  = useLocation()
   const isLanding = location.pathname === '/'
-  const isDark = ['/pricing', '/dashboard', '/account'].some(p => location.pathname.startsWith(p)) || location.pathname === '/'
+
+  // App pages (dashboard, account, reports) keep the dark slate theme.
+  // Public pages (landing, pricing, auth) use white.
+  const isDark = ['/dashboard', '/account'].some(p => location.pathname.startsWith(p))
+    || location.pathname.startsWith('/report/')
 
   return (
     <div className={`min-h-screen flex flex-col ${isDark ? 'bg-slate-950' : 'bg-white'}`}>
@@ -51,11 +55,11 @@ export default function App() {
   return (
     <AppShell>
       <Routes>
-        <Route path="/" element={<Landing />} />
-        <Route path="/auth/signup" element={<SignUp />} />
-        <Route path="/auth/signin" element={<SignIn />} />
-        <Route path="/auth/callback" element={<AuthCallback />} />
-        <Route path="/pricing" element={<Pricing />} />
+        <Route path="/"               element={<Landing />} />
+        <Route path="/auth/signup"    element={<SignUp />} />
+        <Route path="/auth/signin"    element={<SignIn />} />
+        <Route path="/auth/callback"  element={<AuthCallback />} />
+        <Route path="/pricing"        element={<Pricing />} />
         <Route
           path="/dashboard"
           element={

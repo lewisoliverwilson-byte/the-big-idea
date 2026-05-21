@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { CheckCircle, X, Crown } from 'lucide-react'
+import { CheckCircle, X, Sparkles } from 'lucide-react'
 
 interface PaywallModalProps {
   onClose: () => void
@@ -19,9 +19,9 @@ export function PaywallModal({ onClose }: PaywallModalProps) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
-      <div className="bg-slate-900 border border-amber-400/20 rounded-2xl shadow-2xl w-full max-w-md mx-4 p-8 relative overflow-hidden">
+      <div className="bg-slate-900 border border-indigo-500/20 rounded-2xl shadow-2xl w-full max-w-md mx-4 p-8 relative overflow-hidden">
         {/* Glow */}
-        <div className="absolute -top-16 -right-16 w-48 h-48 rounded-full bg-amber-400/10 blur-3xl pointer-events-none" />
+        <div className="absolute -top-16 -right-16 w-48 h-48 rounded-full bg-indigo-500/10 blur-3xl pointer-events-none" />
 
         <button
           onClick={onClose}
@@ -32,8 +32,8 @@ export function PaywallModal({ onClose }: PaywallModalProps) {
 
         <div className="relative z-10">
           <div className="text-center mb-6">
-            <div className="inline-flex items-center justify-center w-14 h-14 bg-amber-400/10 border border-amber-400/30 rounded-full mb-4">
-              <Crown className="h-6 w-6 text-amber-400" />
+            <div className="inline-flex items-center justify-center w-14 h-14 bg-indigo-500/10 border border-indigo-500/30 rounded-full mb-4">
+              <Sparkles className="h-6 w-6 text-indigo-400" />
             </div>
             <h2 className="text-2xl font-bold text-white">
               {`You've hit your free limit`}
@@ -47,12 +47,12 @@ export function PaywallModal({ onClose }: PaywallModalProps) {
             <div className="flex items-baseline gap-1 mb-4">
               <span className="text-3xl font-bold text-white">£10</span>
               <span className="text-slate-400 text-sm">/month</span>
-              <span className="ml-2 text-amber-400 text-xs">· Cancel anytime</span>
+              <span className="ml-2 text-indigo-400 text-xs">· Cancel anytime</span>
             </div>
             <ul className="space-y-2.5">
               {PRO_FEATURES.map((feature) => (
                 <li key={feature} className="flex items-start gap-2 text-sm text-slate-300">
-                  <CheckCircle className="h-4 w-4 text-amber-400 flex-shrink-0 mt-0.5" />
+                  <CheckCircle className="h-4 w-4 text-indigo-400 flex-shrink-0 mt-0.5" />
                   {feature}
                 </li>
               ))}
@@ -64,7 +64,7 @@ export function PaywallModal({ onClose }: PaywallModalProps) {
               onClose()
               navigate('/pricing')
             }}
-            className="w-full flex items-center justify-center gap-2 bg-amber-400 hover:bg-amber-300 text-slate-900 font-bold px-6 py-3.5 rounded-xl text-base transition-colors shadow-lg shadow-amber-400/20"
+            className="w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-6 py-3.5 rounded-xl text-base transition-colors shadow-lg shadow-indigo-600/20"
           >
             Upgrade to Pro — £10/mo
           </button>
