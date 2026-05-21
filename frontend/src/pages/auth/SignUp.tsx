@@ -5,6 +5,8 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import {
   signUp,
+  signIn,
+  signOut,
   confirmSignUp,
   signInWithRedirect,
 } from 'aws-amplify/auth'
@@ -33,6 +35,7 @@ export function SignUp() {
   const navigate = useNavigate()
   const [stage, setStage] = useState<'signup' | 'confirm'>('signup')
   const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [error, setError] = useState('')
 
   const {
@@ -61,6 +64,7 @@ export function SignUp() {
         },
       })
       setEmail(data.email)
+      setPassword(data.password) // keep for auto-sign-in after confirmation
       setStage('confirm')
     } catch (err: any) {
       setError(err.message || 'Sign up failed. Please try again.')
@@ -71,7 +75,15 @@ export function SignUp() {
     setError('')
     try {
       await confirmSignUp({ username: email, confirmationCode: data.code })
-      // Auto sign in after confirm - handled by Hub listener in useAuth
+
+      // confirmSignUp does NOT create a session — sign in explicitly.
+      // If another session is lingering, clear it first.
+      try {
+        await signOut({ global: false })
+      } catch {
+        // ignore — no active session to clear
+      }
+      await signIn({ username: email, password })
       navigate('/dashboard')
     } catch (err: any) {
       setError(err.message || 'Invalid code. Please try again.')

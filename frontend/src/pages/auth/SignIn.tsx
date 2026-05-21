@@ -1,12 +1,13 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { signIn, signInWithRedirect, resetPassword, confirmResetPassword } from 'aws-amplify/auth'
+import { signIn, signOut, signInWithRedirect, resetPassword, confirmResetPassword } from 'aws-amplify/auth'
 import { TrendingUp } from 'lucide-react'
 import { Button } from '../../components/ui/Button'
 import { Input } from '../../components/ui/Input'
+import { useAuthStore } from '../../store/authStore'
 
 const schema = z.object({
   email: z.string().email('Invalid email'),
@@ -30,10 +31,18 @@ type Stage = 'signin' | 'forgot' | 'reset-confirm'
 
 export function SignIn() {
   const navigate = useNavigate()
+  const { isAuthenticated, isLoading } = useAuthStore()
   const [stage, setStage] = useState<Stage>('signin')
   const [resetEmail, setResetEmail] = useState('')
   const [error, setError] = useState('')
   const [successMsg, setSuccessMsg] = useState('')
+
+  // If already authenticated, redirect to dashboard immediately
+  useEffect(() => {
+    if (!isLoading && isAuthenticated) {
+      navigate('/dashboard', { replace: true })
+    }
+  }, [isAuthenticated, isLoading, navigate])
 
   const {
     register,
@@ -59,7 +68,23 @@ export function SignIn() {
       await signIn({ username: data.email, password: data.password })
       navigate('/dashboard')
     } catch (err: any) {
-      setError(err.message || 'Sign in failed. Check your credentials.')
+      // Amplify throws this when a session is already active (e.g. from a
+      // previous sign-up that was auto-confirmed). Sign out the stale
+      // session first, then retry once.
+      if (
+        err.name === 'UserAlreadyAuthenticatedException' ||
+        err.message?.includes('already a signed in user')
+      ) {
+        try {
+          await signOut({ global: false })
+          await signIn({ username: data.email, password: data.password })
+          navigate('/dashboard')
+        } catch (retryErr: any) {
+          setError(retryErr.message || 'Sign in failed. Please try again.')
+        }
+      } else {
+        setError(err.message || 'Sign in failed. Check your credentials.')
+      }
     }
   }
 
