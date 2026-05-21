@@ -1,5 +1,4 @@
 import { useNavigate } from 'react-router-dom'
-import { Button } from './Button'
 import { CheckCircle, X, Crown } from 'lucide-react'
 
 interface PaywallModalProps {
