@@ -1,27 +1,66 @@
 import { useState } from 'react'
-import type { ElementType, ReactNode } from 'react'
+import type { ReactNode, CSSProperties } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useMutation } from '@tanstack/react-query'
 import { useAuthStore } from '../store/authStore'
 import { createPortalSession, deleteAccount } from '../services/api'
 import { formatDate } from '../utils/formatters'
-import { User, CreditCard, Trash2, Shield, Crown } from 'lucide-react'
 
-function Section({ icon: Icon, title, children, danger = false }: {
-  icon: ElementType
-  title: string
+// ─── Design tokens ────────────────────────────────────────────────────────────
+const C = {
+  bg:      '#070511',
+  border:  'rgba(139,92,246,0.15)',
+  text:    '#F0EEFF',
+  textDim: '#9B8ECF',
+  textMut: '#5A4F7A',
+}
+const GRAD = 'linear-gradient(135deg, #C084FC 0%, #818CF8 50%, #22D3EE 100%)'
+const GBTN = 'linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%)'
+const GLASS: CSSProperties = {
+  background:           'rgba(14,10,28,0.80)',
+  backdropFilter:       'blur(20px)',
+  WebkitBackdropFilter: 'blur(20px)',
+  border:               `1px solid ${C.border}`,
+  borderRadius:         16,
+  overflow:             'hidden',
+}
+
+// Deterministic stars
+const STARS = Array.from({ length: 20 }, (_, i) => {
+  const g = 137.508
+  return {
+    left:  `${((i * g)        % 100).toFixed(1)}%`,
+    top:   `${((i * g * 0.61) % 100).toFixed(1)}%`,
+    size:  [1, 1, 1.5][i % 3],
+    delay: `${((i * 0.37) % 4.5).toFixed(2)}s`,
+    dur:   `${(2.8 + (i % 6) * 0.45).toFixed(1)}s`,
+  }
+})
+
+function Section({ icon, title, children, danger = false }: {
+  icon:     string
+  title:    string
   children: ReactNode
-  danger?: boolean
+  danger?:  boolean
 }) {
   return (
-    <div className={`rounded-xl border ${danger ? 'border-red-500/20' : 'border-slate-700'} overflow-hidden`}>
-      <div className={`px-5 py-4 border-b ${danger ? 'border-red-500/20 bg-red-500/5' : 'border-slate-700/50 bg-slate-900'}`}>
-        <div className="flex items-center gap-2">
-          <Icon className={`h-4 w-4 ${danger ? 'text-red-400' : 'text-slate-400'}`} />
-          <h2 className={`font-semibold text-sm ${danger ? 'text-red-400' : 'text-white'}`}>{title}</h2>
-        </div>
+    <div style={{
+      ...GLASS,
+      border: danger ? '1px solid rgba(248,113,113,0.2)' : `1px solid ${C.border}`,
+      marginBottom: 16,
+    }}>
+      <div style={{
+        padding:     '14px 20px',
+        borderBottom: danger ? '1px solid rgba(248,113,113,0.15)' : `1px solid ${C.border}`,
+        background:   danger ? 'rgba(248,113,113,0.05)' : 'rgba(139,92,246,0.04)',
+        display:     'flex',
+        alignItems:  'center',
+        gap:         8,
+      }}>
+        <span style={{ fontSize: 15 }}>{icon}</span>
+        <h2 style={{ fontSize: 14, fontWeight: 600, color: danger ? '#F87171' : C.text }}>{title}</h2>
       </div>
-      <div className="px-5 py-5 bg-slate-900">
+      <div style={{ padding: '20px' }}>
         {children}
       </div>
     </div>
@@ -29,15 +68,13 @@ function Section({ icon: Icon, title, children, danger = false }: {
 }
 
 export function Account() {
-  const { user, signOut } = useAuthStore()
-  const navigate = useNavigate()
+  const { user, signOut }    = useAuthStore()
+  const navigate             = useNavigate()
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
 
   const portalMutation = useMutation({
     mutationFn: createPortalSession,
-    onSuccess: (data) => {
-      window.location.href = data.url
-    },
+    onSuccess: (data) => { window.location.href = data.url },
   })
 
   const deleteMutation = useMutation({
@@ -50,86 +87,177 @@ export function Account() {
 
   const isPro = user?.subscriptionStatus === 'active'
 
+  const rowStyle = {
+    display:        'flex',
+    justifyContent: 'space-between',
+    fontSize:       13,
+    paddingBottom:  10,
+    borderBottom:   `1px solid ${C.border}`,
+    marginBottom:   10,
+  }
+
   return (
-    <div className="min-h-screen bg-slate-950">
-      <div className="max-w-2xl mx-auto px-4 sm:px-6 py-10 space-y-5">
-        <h1 className="text-2xl font-bold text-white">Account Settings</h1>
+    <div style={{ minHeight: '100vh', background: C.bg, position: 'relative', overflow: 'hidden' }}>
+
+      {/* Starfield */}
+      <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0 }}>
+        {STARS.map((s, i) => (
+          <div key={i} className="animate-twinkle" style={{
+            position:          'absolute',
+            left:              s.left,
+            top:               s.top,
+            width:             s.size,
+            height:            s.size,
+            borderRadius:      '50%',
+            background:        i % 2 === 0 ? '#A78BFA' : '#22D3EE',
+            animationDelay:    s.delay,
+            animationDuration: s.dur,
+          }} />
+        ))}
+      </div>
+
+      <div style={{ maxWidth: 680, margin: '0 auto', padding: '40px 24px', position: 'relative', zIndex: 1 }}>
+
+        <h1 style={{ fontSize: 24, fontWeight: 700, color: C.text, marginBottom: 24 }}>Account Settings</h1>
 
         {/* Profile */}
-        <Section icon={User} title="Profile">
-          <div className="space-y-3">
-            {[
-              { label: 'Full name', value: user?.fullName || '—' },
-              { label: 'Email', value: user?.email },
-              { label: 'Member since', value: user?.createdAt ? formatDate(user.createdAt) : '—' },
-            ].map(({ label, value }) => (
-              <div key={label} className="flex justify-between text-sm border-b border-slate-800 pb-3 last:border-0">
-                <span className="text-slate-500">{label}</span>
-                <span className="font-medium text-white">{value}</span>
-              </div>
-            ))}
-          </div>
+        <Section icon="👤" title="Profile">
+          {[
+            { label: 'Full name',    value: user?.fullName || '—' },
+            { label: 'Email',        value: user?.email || '—' },
+            { label: 'Member since', value: user?.createdAt ? formatDate(user.createdAt) : '—' },
+          ].map(({ label, value }) => (
+            <div key={label} style={rowStyle}>
+              <span style={{ color: C.textDim }}>{label}</span>
+              <span style={{ fontWeight: 600, color: C.text }}>{value}</span>
+            </div>
+          ))}
         </Section>
 
         {/* Subscription */}
-        <Section icon={CreditCard} title="Subscription">
-          <div className="flex items-start justify-between mb-4">
+        <Section icon="⚡" title="Subscription">
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 16 }}>
             <div>
-              <p className="text-xs text-slate-500 mb-2">Current plan</p>
+              <p style={{ fontSize: 11, color: C.textMut, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8 }}>
+                Current plan
+              </p>
               {isPro ? (
-                <span className="inline-flex items-center gap-1.5 bg-amber-400/10 text-amber-400 border border-amber-400/30 text-sm font-semibold px-3 py-1 rounded-full">
-                  <Crown className="h-3.5 w-3.5" />
-                  Pro — Active
+                <span style={{
+                  display:    'inline-flex',
+                  alignItems: 'center',
+                  gap:        6,
+                  background: GRAD,
+                  borderRadius: 99,
+                  padding:    '6px 16px',
+                  fontSize:   13,
+                  fontWeight: 700,
+                  color:      '#fff',
+                }}>
+                  ✦ Sorcerer — Active
                 </span>
               ) : user?.subscriptionStatus === 'cancelled' ? (
-                <span className="inline-flex text-sm text-amber-400 bg-amber-400/10 border border-amber-400/20 px-3 py-1 rounded-full">Cancelled</span>
+                <span style={{ fontSize: 13, color: '#FBBF24', background: 'rgba(251,191,36,0.1)', border: '1px solid rgba(251,191,36,0.2)', borderRadius: 99, padding: '6px 14px' }}>
+                  Cancelled
+                </span>
               ) : user?.subscriptionStatus === 'past_due' ? (
-                <span className="inline-flex text-sm text-red-400 bg-red-400/10 border border-red-400/20 px-3 py-1 rounded-full">Past Due</span>
+                <span style={{ fontSize: 13, color: '#F87171', background: 'rgba(248,113,113,0.1)', border: '1px solid rgba(248,113,113,0.2)', borderRadius: 99, padding: '6px 14px' }}>
+                  Past Due
+                </span>
               ) : (
-                <span className="inline-flex text-sm text-slate-400 bg-slate-800 border border-slate-700 px-3 py-1 rounded-full">Free</span>
+                <span style={{ fontSize: 13, color: C.textDim, background: 'rgba(90,79,122,0.2)', border: `1px solid ${C.border}`, borderRadius: 99, padding: '6px 14px' }}>
+                  Apprentice (Free)
+                </span>
               )}
             </div>
             {!isPro && (
               <Link
                 to="/pricing"
-                className="inline-flex items-center gap-1.5 bg-amber-400 hover:bg-amber-300 text-slate-900 font-bold px-4 py-2 rounded-full text-sm transition-colors"
+                style={{
+                  display:        'inline-flex',
+                  alignItems:     'center',
+                  gap:            6,
+                  background:     GBTN,
+                  border:         '1px solid rgba(139,92,246,0.4)',
+                  borderRadius:   99,
+                  padding:        '8px 18px',
+                  color:          '#fff',
+                  fontSize:       12,
+                  fontWeight:     700,
+                  textDecoration: 'none',
+                }}
               >
-                <Crown className="h-3.5 w-3.5" />
-                Upgrade to Pro
+                ✦ Upgrade
               </Link>
             )}
           </div>
 
           {isPro ? (
-            <div className="space-y-3">
-              <div className="bg-slate-800/50 border border-slate-700 rounded-lg px-4 py-3 text-sm">
-                <p className="text-slate-400">
-                  Weekly ideas used:{' '}
-                  <span className="text-white font-semibold">{user?.proReportsUsedThisWeek || 0} / 20</span>
-                </p>
+            <div>
+              <div style={{
+                background:   'rgba(139,92,246,0.06)',
+                border:       `1px solid ${C.border}`,
+                borderRadius: 10,
+                padding:      '10px 14px',
+                fontSize:     13,
+                color:        C.textDim,
+                marginBottom: 12,
+              }}>
+                Weekly ideas used:{' '}
+                <span style={{ fontWeight: 700, color: C.text }}>
+                  {user?.proReportsUsedThisWeek || 0} / 20
+                </span>
               </div>
               <button
                 onClick={() => portalMutation.mutate()}
                 disabled={portalMutation.isPending}
-                className="flex items-center gap-2 text-sm text-amber-400 hover:underline disabled:opacity-50"
+                style={{
+                  background:  'none',
+                  border:      'none',
+                  cursor:      portalMutation.isPending ? 'not-allowed' : 'pointer',
+                  fontSize:    13,
+                  color:       '#A78BFA',
+                  display:     'flex',
+                  alignItems:  'center',
+                  gap:         6,
+                  opacity:     portalMutation.isPending ? 0.6 : 1,
+                  textDecoration: 'underline',
+                }}
               >
-                {portalMutation.isPending ? (
-                  <div className="h-3 w-3 border border-amber-400 border-t-transparent rounded-full animate-spin" />
-                ) : null}
+                {portalMutation.isPending && (
+                  <div style={{
+                    width:        12,
+                    height:       12,
+                    border:       '1.5px solid rgba(167,139,250,0.3)',
+                    borderTopColor: '#A78BFA',
+                    borderRadius: '50%',
+                    animation:    'spin 0.9s linear infinite',
+                  }} />
+                )}
                 Manage billing in Stripe →
               </button>
             </div>
           ) : (
-            <p className="text-sm text-slate-500">
-              {Math.max(0, 2 - (user?.reportsUsedFree || 0))} of 2 free ideas remaining.
+            <p style={{ fontSize: 13, color: C.textDim }}>
+              {Math.max(0, 2 - (user?.reportsUsedFree || 0))} of 2 free spells remaining.
             </p>
           )}
         </Section>
 
         {/* Security */}
-        <Section icon={Shield} title="Security">
+        <Section icon="🛡️" title="Security">
           <button
-            className="text-sm text-slate-400 hover:text-white transition-colors underline"
+            style={{
+              background:  'none',
+              border:      'none',
+              cursor:      'pointer',
+              fontSize:    13,
+              color:       C.textDim,
+              textDecoration: 'underline',
+              transition:  'color 0.15s',
+              padding:     0,
+            }}
+            onMouseEnter={e => ((e.currentTarget as HTMLButtonElement).style.color = C.text)}
+            onMouseLeave={e => ((e.currentTarget as HTMLButtonElement).style.color = C.textDim)}
             onClick={async () => {
               await signOut()
               navigate('/')
@@ -140,36 +268,59 @@ export function Account() {
         </Section>
 
         {/* Danger Zone */}
-        <Section icon={Trash2} title="Danger Zone" danger>
-          <p className="text-sm text-slate-400 mb-4">
+        <Section icon="🗑️" title="Danger Zone" danger>
+          <p style={{ fontSize: 13, color: C.textDim, marginBottom: 16 }}>
             Permanently delete your account and all data. This cannot be undone.
           </p>
           {!showDeleteConfirm ? (
             <button
               onClick={() => setShowDeleteConfirm(true)}
-              className="text-sm text-red-400 hover:text-red-300 border border-red-500/30 hover:border-red-400/50 px-4 py-2 rounded-lg transition-colors"
+              style={{
+                fontSize:    13,
+                color:       '#F87171',
+                background:  'none',
+                border:      '1px solid rgba(248,113,113,0.3)',
+                borderRadius: 8,
+                padding:     '8px 16px',
+                cursor:      'pointer',
+                transition:  'border-color 0.15s',
+              }}
+              onMouseEnter={e => ((e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(248,113,113,0.6)')}
+              onMouseLeave={e => ((e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(248,113,113,0.3)')}
             >
               Delete account
             </button>
           ) : (
-            <div className="space-y-3">
-              <p className="text-sm font-semibold text-red-400">
+            <div>
+              <p style={{ fontSize: 13, fontWeight: 700, color: '#F87171', marginBottom: 12 }}>
                 Are you absolutely sure? All your reports will be permanently deleted.
               </p>
-              <div className="flex items-center gap-3">
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                 <button
                   onClick={() => deleteMutation.mutate()}
                   disabled={deleteMutation.isPending}
-                  className="flex items-center gap-2 text-sm bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 px-4 py-2 rounded-lg transition-colors disabled:opacity-50"
+                  style={{
+                    display:    'flex',
+                    alignItems: 'center',
+                    gap:        6,
+                    fontSize:   13,
+                    color:      '#F87171',
+                    background: 'rgba(248,113,113,0.1)',
+                    border:     '1px solid rgba(248,113,113,0.3)',
+                    borderRadius: 8,
+                    padding:    '8px 16px',
+                    cursor:     deleteMutation.isPending ? 'not-allowed' : 'pointer',
+                    opacity:    deleteMutation.isPending ? 0.6 : 1,
+                  }}
                 >
-                  {deleteMutation.isPending ? (
-                    <div className="h-3 w-3 border border-red-400 border-t-transparent rounded-full animate-spin" />
-                  ) : null}
+                  {deleteMutation.isPending && (
+                    <div style={{ width: 12, height: 12, border: '1.5px solid rgba(248,113,113,0.3)', borderTopColor: '#F87171', borderRadius: '50%', animation: 'spin 0.9s linear infinite' }} />
+                  )}
                   Yes, delete my account
                 </button>
                 <button
                   onClick={() => setShowDeleteConfirm(false)}
-                  className="text-sm text-slate-400 hover:text-white transition-colors"
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, color: C.textDim }}
                 >
                   Cancel
                 </button>
@@ -178,6 +329,7 @@ export function Account() {
           )}
         </Section>
       </div>
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   )
 }

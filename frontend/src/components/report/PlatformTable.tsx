@@ -1,5 +1,4 @@
 import { PlatformComparison } from '../../types'
-import { Card, CardBody, CardHeader } from '../ui/Card'
 import { Badge } from '../ui/Badge'
 import { formatCurrency } from '../../utils/formatters'
 
@@ -8,103 +7,98 @@ interface PlatformTableProps {
 }
 
 const PLATFORM_LINKS: Record<string, string> = {
-  amazon: 'https://sellercentral.amazon.co.uk',
-  ebay: 'https://www.ebay.co.uk/sell',
-  etsy: 'https://www.etsy.com/uk/sell',
+  amazon:  'https://sellercentral.amazon.co.uk',
+  ebay:    'https://www.ebay.co.uk/sell',
+  etsy:    'https://www.etsy.com/uk/sell',
   shopify: 'https://www.shopify.com/uk',
 }
 
+const C = {
+  text:    '#F0EEFF',
+  textDim: '#9B8ECF',
+  textMut: '#5A4F7A',
+  border:  'rgba(139,92,246,0.12)',
+}
 
 export function PlatformTable({ platforms }: PlatformTableProps) {
-  const difficultyVariant = (d: string): 'green' | 'amber' | 'red' => {
-    if (d === 'Low') return 'green'
-    if (d === 'Medium') return 'amber'
-    return 'red'
-  }
+  const difficultyVariant = (d: string): 'green' | 'amber' | 'red' =>
+    d === 'Low' ? 'green' : d === 'Medium' ? 'amber' : 'red'
 
   return (
-    <Card>
-      <CardHeader>
-        <h3 className="font-semibold text-gray-900">Platform Comparison</h3>
-        <p className="text-sm text-gray-500 mt-0.5">
-          Where you can sell this product and what margins to expect
-        </p>
-      </CardHeader>
-      <CardBody className="p-0">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="bg-gray-50 border-b border-gray-200">
-                <th className="text-left py-3 px-6 font-semibold text-gray-600">Platform</th>
-                <th className="text-right py-3 px-4 font-semibold text-gray-600">Avg. Sell Price</th>
-                <th className="text-right py-3 px-4 font-semibold text-gray-600">Fee</th>
-                <th className="text-right py-3 px-4 font-semibold text-gray-600">Net Margin</th>
-                <th className="text-right py-3 px-4 font-semibold text-gray-600">Est. Sales/mo</th>
-                <th className="text-center py-3 px-4 font-semibold text-gray-600">Difficulty</th>
-                <th className="py-3 px-4" />
-              </tr>
-            </thead>
-            <tbody>
-              {platforms.map((p) => (
-                <tr
-                  key={p.platform}
-                  className={`border-b border-gray-100 last:border-0 ${
-                    p.recommended ? 'bg-indigo-50/40' : ''
-                  }`}
+    <div style={{ overflowX: 'auto' }}>
+      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+        <thead>
+          <tr style={{ borderBottom: `1px solid ${C.border}` }}>
+            {['Platform', 'Avg. Sell Price', 'Fee', 'Net Margin', 'Est. Sales/mo', 'Difficulty', ''].map((h) => (
+              <th key={h} style={{
+                padding:    '10px 14px',
+                textAlign:  h === 'Platform' || h === '' ? 'left' : 'right',
+                fontSize:   11,
+                fontWeight: 700,
+                color:      C.textMut,
+                textTransform: 'uppercase',
+                letterSpacing: '0.06em',
+                whiteSpace: 'nowrap',
+              }}>
+                {h}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {platforms.map((p) => (
+            <tr
+              key={p.platform}
+              style={{
+                borderBottom:  `1px solid ${C.border}`,
+                background:    p.recommended ? 'rgba(139,92,246,0.06)' : 'transparent',
+                transition:    'background 0.15s',
+              }}
+            >
+              <td style={{ padding: '14px', whiteSpace: 'nowrap' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ fontWeight: 600, color: C.text, textTransform: 'capitalize' }}>
+                    {p.platform}
+                  </span>
+                  {p.recommended && <Badge variant="blue" size="sm">Best pick</Badge>}
+                </div>
+              </td>
+              <td style={{ padding: '14px', textAlign: 'right', fontWeight: 600, color: C.text }}>
+                {formatCurrency(p.estimatedSellPrice)}
+              </td>
+              <td style={{ padding: '14px', textAlign: 'right', color: C.textDim }}>
+                {p.feePercent}%
+              </td>
+              <td style={{ padding: '14px', textAlign: 'right' }}>
+                <span style={{
+                  fontWeight: 700,
+                  color: p.netMargin >= 20 ? '#34D399' : p.netMargin >= 10 ? '#FBBF24' : '#F87171',
+                }}>
+                  {p.netMargin.toFixed(1)}%
+                </span>
+              </td>
+              <td style={{ padding: '14px', textAlign: 'right', color: C.textDim }}>
+                ~{p.estimatedMonthlySales}
+              </td>
+              <td style={{ padding: '14px', textAlign: 'right' }}>
+                <Badge variant={difficultyVariant(p.difficulty)} size="sm">
+                  {p.difficulty}
+                </Badge>
+              </td>
+              <td style={{ padding: '14px' }}>
+                <a
+                  href={PLATFORM_LINKS[p.platform]}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ color: '#A78BFA', fontSize: 12, fontWeight: 600, textDecoration: 'none', whiteSpace: 'nowrap' }}
                 >
-                  <td className="py-4 px-6">
-                    <div className="flex items-center gap-2">
-                      <span className="capitalize font-medium text-gray-900">
-                        {p.platform}
-                      </span>
-                      {p.recommended && (
-                        <Badge variant="blue" size="sm">Recommended</Badge>
-                      )}
-                    </div>
-                  </td>
-                  <td className="py-4 px-4 text-right font-medium text-gray-900">
-                    {formatCurrency(p.estimatedSellPrice)}
-                  </td>
-                  <td className="py-4 px-4 text-right text-gray-600">
-                    {p.feePercent}%
-                  </td>
-                  <td className="py-4 px-4 text-right">
-                    <span
-                      className={`font-semibold ${
-                        p.netMargin >= 20
-                          ? 'text-green-600'
-                          : p.netMargin >= 10
-                          ? 'text-amber-600'
-                          : 'text-red-600'
-                      }`}
-                    >
-                      {p.netMargin.toFixed(1)}%
-                    </span>
-                  </td>
-                  <td className="py-4 px-4 text-right text-gray-700">
-                    ~{p.estimatedMonthlySales}
-                  </td>
-                  <td className="py-4 px-4 text-center">
-                    <Badge variant={difficultyVariant(p.difficulty)} size="sm">
-                      {p.difficulty}
-                    </Badge>
-                  </td>
-                  <td className="py-4 px-4">
-                    <a
-                      href={PLATFORM_LINKS[p.platform]}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-indigo-600 hover:underline text-xs font-medium"
-                    >
-                      Start selling →
-                    </a>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </CardBody>
-    </Card>
+                  Start selling →
+                </a>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   )
 }

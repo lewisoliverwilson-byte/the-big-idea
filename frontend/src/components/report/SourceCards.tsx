@@ -1,6 +1,4 @@
 import { Product, SourcePlatform } from '../../types'
-import { Card, CardBody } from '../ui/Card'
-import { Badge } from '../ui/Badge'
 import { formatCurrency } from '../../utils/formatters'
 import { ExternalLink } from 'lucide-react'
 
@@ -9,111 +7,157 @@ interface SourceCardsProps {
 }
 
 const PLATFORM_NAMES: Record<SourcePlatform, string> = {
-  temu: 'Temu',
+  temu:       'Temu',
   aliexpress: 'AliExpress',
-  alibaba: 'Alibaba',
+  alibaba:    'Alibaba',
 }
 
 const PLATFORM_COLORS: Record<SourcePlatform, string> = {
-  temu: 'bg-orange-500',
-  aliexpress: 'bg-red-500',
-  alibaba: 'bg-orange-600',
+  temu:       '#F97316',
+  aliexpress: '#EF4444',
+  alibaba:    '#EA580C',
 }
 
+const C = {
+  text:    '#F0EEFF',
+  textDim: '#9B8ECF',
+  textMut: '#5A4F7A',
+  border:  'rgba(139,92,246,0.15)',
+}
+const GBTN = 'linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%)'
+
 export function SourceCards({ product }: SourceCardsProps) {
+  const platformColor = PLATFORM_COLORS[product.sourcePlatform] || '#8B5CF6'
+
   return (
-    <div className="space-y-4">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {/* Primary source card */}
-        <Card className="border-2 border-indigo-200 relative">
-          <Badge variant="blue" className="absolute -top-2.5 left-4 text-xs">
-            Best Value
-          </Badge>
-          <CardBody className="pt-6">
-            <div className="flex items-center gap-2 mb-3">
-              <div
-                className={`w-8 h-8 rounded-lg ${PLATFORM_COLORS[product.sourcePlatform]} flex items-center justify-center`}
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16 }}>
+
+      {/* Primary source card */}
+      <div style={{
+        background:   'rgba(139,92,246,0.08)',
+        border:       '1px solid rgba(139,92,246,0.3)',
+        borderRadius: 16,
+        padding:      '20px',
+        position:     'relative',
+      }}>
+        {/* Best Value tag */}
+        <div style={{
+          position:   'absolute',
+          top:        -10,
+          left:       16,
+          background: GBTN,
+          borderRadius: 99,
+          padding:    '3px 12px',
+          fontSize:   10,
+          fontWeight: 700,
+          color:      '#fff',
+          border:     '1px solid rgba(139,92,246,0.4)',
+        }}>
+          ✦ Best Value
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14, marginTop: 6 }}>
+          <div style={{
+            width:          34,
+            height:         34,
+            borderRadius:   10,
+            background:     platformColor,
+            display:        'flex',
+            alignItems:     'center',
+            justifyContent: 'center',
+            fontSize:       14,
+            fontWeight:     700,
+            color:          '#fff',
+            flexShrink:     0,
+          }}>
+            {PLATFORM_NAMES[product.sourcePlatform][0]}
+          </div>
+          <span style={{ fontSize: 14, fontWeight: 700, color: C.text }}>
+            {PLATFORM_NAMES[product.sourcePlatform]}
+          </span>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, fontSize: 13 }}>
+          {[
+            { label: 'Unit price',    value: formatCurrency(product.sourcePriceUsd),          highlight: true  },
+            { label: 'Min. order',    value: `${product.sourceMinOrderQty} units`,             highlight: false },
+            { label: 'Shipping est.', value: formatCurrency(product.sourceShippingEstimateUsd), highlight: false },
+            { label: 'Delivery time', value: '7–14 days',                                      highlight: false },
+          ].map(({ label, value, highlight }) => (
+            <div key={label} style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span style={{ color: C.textDim }}>{label}</span>
+              <span style={{ fontWeight: 600, color: highlight ? '#34D399' : C.text }}>{value}</span>
+            </div>
+          ))}
+        </div>
+
+        <a
+          href={product.sourceUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            marginTop:      16,
+            display:        'flex',
+            alignItems:     'center',
+            justifyContent: 'center',
+            gap:            6,
+            width:          '100%',
+            padding:        '10px',
+            background:     GBTN,
+            border:         '1px solid rgba(139,92,246,0.4)',
+            borderRadius:   10,
+            color:          '#fff',
+            fontSize:       13,
+            fontWeight:     600,
+            textDecoration: 'none',
+            boxSizing:      'border-box',
+          }}
+        >
+          View listing
+          <ExternalLink size={13} />
+        </a>
+      </div>
+
+      {/* Alternative sources note */}
+      <div style={{
+        background:   'rgba(14,10,28,0.6)',
+        border:       `1px dashed ${C.border}`,
+        borderRadius: 16,
+        padding:      '20px',
+        display:      'flex',
+        alignItems:   'center',
+      }}>
+        <div>
+          <p style={{ fontSize: 13, fontWeight: 600, color: C.text, marginBottom: 10 }}>
+            💡 Also check these platforms
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {[
+              {
+                label: `Search AliExpress for "${product.name.slice(0, 30)}${product.name.length > 30 ? '…' : ''}"`,
+                href:  `https://www.aliexpress.com/wholesale?SearchText=${encodeURIComponent(product.name)}`,
+              },
+              {
+                label: 'Search Alibaba wholesale',
+                href:  `https://www.alibaba.com/trade/search?SearchText=${encodeURIComponent(product.name)}`,
+              },
+              {
+                label: 'Search Temu',
+                href:  `https://www.temu.com/search_result.html?search_key=${encodeURIComponent(product.name)}`,
+              },
+            ].map(({ label, href }) => (
+              <a
+                key={href}
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: '#A78BFA', fontSize: 13, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 4 }}
+                onMouseEnter={e => ((e.currentTarget as HTMLAnchorElement).style.textDecoration = 'underline')}
+                onMouseLeave={e => ((e.currentTarget as HTMLAnchorElement).style.textDecoration = 'none')}
               >
-                <span className="text-white text-xs font-bold">
-                  {PLATFORM_NAMES[product.sourcePlatform][0]}
-                </span>
-              </div>
-              <span className="font-semibold text-gray-900">
-                {PLATFORM_NAMES[product.sourcePlatform]}
-              </span>
-            </div>
-
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-gray-500">Unit price</span>
-                <span className="font-bold text-green-600">
-                  {formatCurrency(product.sourcePriceUsd)}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-500">Min. order</span>
-                <span className="font-medium">{product.sourceMinOrderQty} units</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-500">Shipping est.</span>
-                <span className="font-medium">
-                  {formatCurrency(product.sourceShippingEstimateUsd)}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-500">Delivery time</span>
-                <span className="font-medium">7–14 days</span>
-              </div>
-            </div>
-
-            <a
-              href={product.sourceUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-4 flex items-center justify-center gap-2 w-full py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors"
-            >
-              View listing
-              <ExternalLink className="h-3.5 w-3.5" />
-            </a>
-          </CardBody>
-        </Card>
-
-        {/* Alternative source note */}
-        <div className="sm:col-span-1 lg:col-span-2 bg-gray-50 rounded-xl border border-dashed border-gray-300 p-4 flex items-center">
-          <div className="text-sm text-gray-500">
-            <p className="font-medium text-gray-700 mb-1">💡 Also check these platforms</p>
-            <ul className="space-y-1">
-              <li>
-                <a
-                  href={`https://www.aliexpress.com/wholesale?SearchText=${encodeURIComponent(product.name)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-indigo-600 hover:underline"
-                >
-                  Search AliExpress for "{product.name.slice(0, 40)}"
-                </a>
-              </li>
-              <li>
-                <a
-                  href={`https://www.alibaba.com/trade/search?SearchText=${encodeURIComponent(product.name)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-indigo-600 hover:underline"
-                >
-                  Search Alibaba wholesale
-                </a>
-              </li>
-              <li>
-                <a
-                  href={`https://www.temu.com/search_result.html?search_key=${encodeURIComponent(product.name)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-indigo-600 hover:underline"
-                >
-                  Search Temu
-                </a>
-              </li>
-            </ul>
+                {label}
+              </a>
+            ))}
           </div>
         </div>
       </div>

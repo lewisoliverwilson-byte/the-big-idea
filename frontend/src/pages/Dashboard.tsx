@@ -7,87 +7,134 @@ import { useReportStore } from '../store/reportStore'
 import { SearchForm } from '../components/search/SearchForm'
 import { PaywallModal } from '../components/ui/PaywallModal'
 import { UpgradeBanner } from '../components/ui/UpgradeBanner'
-import { Card, CardBody, CardHeader } from '../components/ui/Card'
 import { ScoreBadge } from '../components/ui/Badge'
 import { formatDate, USD_TO_GBP } from '../utils/formatters'
-import { Search, FileText, ArrowRight, Crown } from 'lucide-react'
 import { getQuizFromStorage, clearQuizFromStorage } from './Landing'
 import { SearchParams, SellPlatform } from '../types'
+import type { CSSProperties } from 'react'
+
+// ─── Design tokens ────────────────────────────────────────────────────────────
+const C = {
+  bg:      '#070511',
+  border:  'rgba(139,92,246,0.15)',
+  purple:  '#8B5CF6',
+  purpleB: '#A78BFA',
+  cyan:    '#22D3EE',
+  text:    '#F0EEFF',
+  textDim: '#9B8ECF',
+  textMut: '#5A4F7A',
+}
+const GRAD = 'linear-gradient(135deg, #C084FC 0%, #818CF8 50%, #22D3EE 100%)'
+const GBTN = 'linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%)'
+
+const GLASS: CSSProperties = {
+  background:           'rgba(14,10,28,0.80)',
+  backdropFilter:       'blur(20px)',
+  WebkitBackdropFilter: 'blur(20px)',
+  border:               `1px solid ${C.border}`,
+  borderRadius:         20,
+  boxShadow:            '0 0 0 1px rgba(139,92,246,0.06), 0 16px 32px rgba(0,0,0,0.5)',
+}
+
+// ─── Deterministic starfield ───────────────────────────────────────────────────
+const STARS = Array.from({ length: 30 }, (_, i) => {
+  const g = 137.508
+  return {
+    left:  `${((i * g)        % 100).toFixed(1)}%`,
+    top:   `${((i * g * 0.61) % 100).toFixed(1)}%`,
+    size:  [1, 1, 1.5][i % 3],
+    delay: `${((i * 0.37) % 4.5).toFixed(2)}s`,
+    dur:   `${(2.8 + (i % 6) * 0.45).toFixed(1)}s`,
+  }
+})
 
 // ─── Weekly quota bar ─────────────────────────────────────────────────────────
-
 function WeeklyQuotaBar({ used, limit, resetAt }: { used: number; limit: number; resetAt?: string }) {
   const remaining = Math.max(0, limit - used)
-  const pct = Math.min(100, Math.round((used / limit) * 100))
+  const pct       = Math.min(100, Math.round((used / limit) * 100))
   const resetDate = resetAt ? new Date(resetAt) : null
   const daysUntilReset = resetDate
     ? Math.max(0, Math.ceil((resetDate.getTime() + 7 * 86400000 - Date.now()) / 86400000))
     : 7
 
-  const barColor = remaining === 0 ? 'bg-red-500' : remaining <= 3 ? 'bg-amber-400' : 'bg-emerald-400'
+  const barColor = remaining === 0 ? '#F87171' : remaining <= 3 ? '#FBBF24' : '#34D399'
 
   return (
-    <div className="bg-slate-900 rounded-xl border border-slate-700 p-4">
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2">
-          <Crown className="h-4 w-4 text-amber-400" />
-          <span className="text-sm font-semibold text-white">Weekly ideas</span>
+    <div style={{ ...GLASS, padding: '16px 20px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{ fontSize: 14 }}>✦</span>
+          <span style={{ fontSize: 13, fontWeight: 600, color: C.text }}>Weekly spells</span>
         </div>
-        <span className="text-xs text-slate-400">
+        <span style={{ fontSize: 11, color: C.textDim }}>
           Resets in {daysUntilReset} day{daysUntilReset !== 1 ? 's' : ''}
         </span>
       </div>
-      <div className="flex items-end justify-between mb-2">
-        <span className="text-2xl font-bold text-white">{remaining}</span>
-        <span className="text-slate-500 text-sm">/ {limit} remaining</span>
+      <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 8 }}>
+        <span style={{ fontSize: 28, fontWeight: 700, color: C.text, lineHeight: 1 }}>{remaining}</span>
+        <span style={{ fontSize: 12, color: C.textDim }}>/ {limit} remaining</span>
       </div>
-      <div className="h-2 bg-slate-800 rounded-full overflow-hidden">
-        <div
-          className={`h-full rounded-full transition-all duration-500 ${barColor}`}
-          style={{ width: `${pct}%` }}
-        />
+      <div style={{ height: 4, background: 'rgba(139,92,246,0.12)', borderRadius: 2, overflow: 'hidden' }}>
+        <div style={{ height: '100%', borderRadius: 2, background: barColor, width: `${pct}%`, transition: 'width 0.5s' }} />
       </div>
     </div>
   )
 }
 
 // ─── Tier badge ───────────────────────────────────────────────────────────────
-
 function TierBadge({ tier }: { tier: 'free' | 'pro' }) {
   if (tier === 'pro') {
     return (
-      <span className="inline-flex items-center gap-1 bg-amber-400/10 text-amber-400 border border-amber-400/30 text-xs font-semibold px-2 py-0.5 rounded-full">
-        <Crown className="h-2.5 w-2.5" />
-        Pro
+      <span style={{
+        display:    'inline-flex',
+        alignItems: 'center',
+        gap:        4,
+        background: GRAD,
+        borderRadius: 99,
+        padding:    '2px 10px',
+        fontSize:   10,
+        fontWeight: 700,
+        color:      '#fff',
+      }}>
+        ✦ Pro
       </span>
     )
   }
   return (
-    <span className="inline-flex items-center text-xs text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">
+    <span style={{
+      display:    'inline-flex',
+      alignItems: 'center',
+      background: 'rgba(90,79,122,0.25)',
+      border:     '1px solid rgba(139,92,246,0.2)',
+      borderRadius: 99,
+      padding:    '2px 10px',
+      fontSize:   10,
+      fontWeight: 600,
+      color:      C.textDim,
+    }}>
       Free
     </span>
   )
 }
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
-
 export function Dashboard() {
-  const { user } = useAuthStore()
-  const navigate = useNavigate()
-  const queryClient = useQueryClient()
+  const { user }      = useAuthStore()
+  const navigate      = useNavigate()
+  const queryClient   = useQueryClient()
   const { setCurrentReportId, setIsGenerating } = useReportStore()
   const [showPaywall, setShowPaywall] = useState(false)
 
   const { data: reports, isLoading: reportsLoading } = useQuery({
     queryKey: ['my-reports'],
-    queryFn: getMyReports,
+    queryFn:  getMyReports,
   })
 
-  const isPro = user?.subscriptionStatus === 'active'
+  const isPro          = user?.subscriptionStatus === 'active'
   const freeReportsLeft = Math.max(0, 2 - (user?.reportsUsedFree || 0))
-  const proUsed = user?.proReportsUsedThisWeek || 0
-  const proLeft = Math.max(0, 20 - proUsed)
-  const isAtLimit = isPro ? proLeft === 0 : freeReportsLeft === 0
+  const proUsed        = user?.proReportsUsedThisWeek || 0
+  const proLeft        = Math.max(0, 20 - proUsed)
+  const isAtLimit      = isPro ? proLeft === 0 : freeReportsLeft === 0
 
   // Auto-run search from quiz answers stored in localStorage
   const autoSearchMutation = useMutation({
@@ -116,202 +163,287 @@ export function Dashboard() {
       return
     }
 
-    // Map quiz answers to search params
-    const budgetUsd = (quiz.budgetGbp / USD_TO_GBP)
+    const budgetUsd = quiz.budgetGbp / USD_TO_GBP
     const params: SearchParams = {
       budgetUsd,
-      currency: 'GBP',
-      unitSize: quiz.unitSize,
-      category: quiz.category !== 'No preference' ? quiz.category : undefined,
+      currency:        'GBP',
+      unitSize:        quiz.unitSize,
+      category:        quiz.category !== 'No preference' ? quiz.category : undefined,
       targetPlatforms: quiz.platform !== 'any' ? [quiz.platform as SellPlatform] : undefined,
-      trendingOnly: quiz.goal === 'trending',
+      trendingOnly:    quiz.goal === 'trending',
       minMarginPercent: quiz.goal === 'margin' ? 35 : quiz.goal === 'safe' ? 20 : 15,
     }
 
     autoSearchMutation.mutate(params)
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []) // Only run once on mount
+  }, [])
 
   return (
-    <div className="min-h-screen bg-slate-950">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div style={{ minHeight: '100vh', background: C.bg, position: 'relative', overflow: 'hidden' }}>
+
+      {/* Starfield */}
+      <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0 }}>
+        {STARS.map((s, i) => (
+          <div key={i} className="animate-twinkle" style={{
+            position:          'absolute',
+            left:              s.left,
+            top:               s.top,
+            width:             s.size,
+            height:            s.size,
+            borderRadius:      '50%',
+            background:        i % 3 === 0 ? C.purpleB : i % 3 === 1 ? C.cyan : '#fff',
+            animationDelay:    s.delay,
+            animationDuration: s.dur,
+          }} />
+        ))}
+      </div>
+
+      {/* Ambient orb */}
+      <div className="animate-float-orb" style={{
+        position:      'fixed',
+        top:           0,
+        left:          '50%',
+        transform:     'translateX(-50%)',
+        width:         600,
+        height:        400,
+        background:    'radial-gradient(ellipse, rgba(124,58,237,0.1) 0%, transparent 70%)',
+        borderRadius:  '50%',
+        pointerEvents: 'none',
+        zIndex:        0,
+      }} />
+
+      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '40px 24px', position: 'relative', zIndex: 1 }}>
 
         {/* Header */}
-        <div className="mb-8 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+        <div style={{ marginBottom: 32, display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16 }}>
           <div>
-            <h1 className="text-2xl font-bold text-white">
+            <h1 style={{ fontSize: 26, fontWeight: 700, color: C.text, marginBottom: 4 }}>
               {user?.fullName
-                ? `Welcome back, ${user.fullName.split(' ')[0]} 👋`
-                : 'Your Dashboard'}
+                ? `Welcome back, ${user.fullName.split(' ')[0]} ✦`
+                : 'Your Grimoire'}
             </h1>
-            <p className="text-slate-400 mt-1 text-sm">
+            <p style={{ fontSize: 13, color: C.textDim }}>
               {isPro
-                ? `Pro plan · ${proLeft} idea${proLeft !== 1 ? 's' : ''} left this week`
-                : `Free plan · ${freeReportsLeft} idea${freeReportsLeft !== 1 ? 's' : ''} remaining (lifetime)`}
+                ? `Sorcerer plan · ${proLeft} spell${proLeft !== 1 ? 's' : ''} remaining this week`
+                : `Apprentice plan · ${freeReportsLeft} free spell${freeReportsLeft !== 1 ? 's' : ''} remaining`}
             </p>
           </div>
           {isPro && (
-            <span className="inline-flex items-center gap-1.5 bg-amber-400/10 text-amber-400 border border-amber-400/30 text-sm font-semibold px-4 py-1.5 rounded-full">
-              <Crown className="h-3.5 w-3.5" />
-              Pro Member
+            <span style={{
+              display:    'inline-flex',
+              alignItems: 'center',
+              gap:        8,
+              background: GRAD,
+              borderRadius: 99,
+              padding:    '8px 20px',
+              fontSize:   13,
+              fontWeight: 700,
+              color:      '#fff',
+              boxShadow:  '0 0 16px rgba(124,58,237,0.3)',
+            }}>
+              ✦ Sorcerer Member
             </span>
           )}
         </div>
 
-        {/* Auto-search loading overlay */}
+        {/* Auto-search loading banner */}
         {autoSearchMutation.isPending && (
-          <div className="mb-6 bg-slate-900 border border-amber-400/30 rounded-xl p-5 flex items-center gap-4">
-            <div className="h-8 w-8 border-2 border-amber-400 border-t-transparent rounded-full animate-spin flex-shrink-0" />
+          <div style={{ ...GLASS, padding: '16px 20px', marginBottom: 24, display: 'flex', alignItems: 'center', gap: 16 }}>
+            <div className="h-7 w-7 border-2 border-t-transparent rounded-full animate-spin flex-shrink-0"
+                 style={{ borderColor: 'rgba(139,92,246,0.3)', borderTopColor: '#8B5CF6' }} />
             <div>
-              <p className="text-white font-semibold">Finding your best opportunity…</p>
-              <p className="text-slate-400 text-sm mt-0.5">Scanning 1,000+ products to match your criteria</p>
+              <p style={{ fontSize: 14, fontWeight: 600, color: C.text }}>Summoning your best opportunity…</p>
+              <p style={{ fontSize: 12, color: C.textDim, marginTop: 2 }}>Scanning 1,000+ products to match your criteria. This takes ~20 seconds.</p>
             </div>
           </div>
         )}
 
         {/* Free limit banner */}
         {!isPro && freeReportsLeft === 0 && !autoSearchMutation.isPending && (
-          <div className="mb-6">
+          <div style={{ marginBottom: 24 }}>
             <UpgradeBanner
               variant="full"
-              title="You've used your 2 free ideas"
-              description="Pro gives you 20 fresh ideas every week — plus full AI analysis, all 4 platform comparisons, and trend charts. Everything you need to find your next profitable product."
-              ctaLabel="Unlock Pro — £10/month"
+              title="Your free spells are spent"
+              description="Sorcerer gives you 20 fresh ideas every week — plus full AI analysis, all 4 platform comparisons, and trend charts."
+              ctaLabel="✦ Ascend to Sorcerer — £10/mo"
             />
           </div>
         )}
 
-        {/* Free tier low notice */}
+        {/* Last free spell nudge */}
         {!isPro && freeReportsLeft > 0 && freeReportsLeft <= 1 && (
-          <div className="mb-6 bg-slate-900 border border-amber-400/20 rounded-xl p-4 flex items-center justify-between gap-4">
-            <p className="text-slate-300 text-sm">
-              <span className="font-semibold text-amber-400">Last free idea.</span>{' '}
-              Upgrade to Pro to keep the momentum going.
+          <div style={{ ...GLASS, padding: '12px 20px', marginBottom: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
+            <p style={{ fontSize: 13, color: C.text }}>
+              <span style={{ fontWeight: 700, color: C.purpleB }}>Last free spell.</span>{' '}
+              <span style={{ color: C.textDim }}>Upgrade to Sorcerer to keep discovering.</span>
             </p>
             <Link
               to="/pricing"
-              className="flex-shrink-0 bg-amber-400 hover:bg-amber-300 text-slate-900 font-bold px-4 py-2 rounded-full text-xs transition-colors"
+              style={{
+                flexShrink:     0,
+                background:     GBTN,
+                border:         '1px solid rgba(139,92,246,0.4)',
+                borderRadius:   99,
+                padding:        '8px 18px',
+                color:          '#fff',
+                fontSize:       12,
+                fontWeight:     700,
+                textDecoration: 'none',
+              }}
             >
               Go Pro
             </Link>
           </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+        {/* Main grid */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 24 }}>
 
-          {/* Left column: Search + Pro quota */}
-          <div className="lg:col-span-2 space-y-4">
+          {/* Left: Search + quota */}
+          <div style={{ maxWidth: 420 }}>
 
             {/* Weekly quota (Pro only) */}
             {isPro && (
-              <WeeklyQuotaBar
-                used={proUsed}
-                limit={20}
-                resetAt={user?.proWeekResetAt}
-              />
+              <div style={{ marginBottom: 16 }}>
+                <WeeklyQuotaBar
+                  used={proUsed}
+                  limit={20}
+                  resetAt={user?.proWeekResetAt}
+                />
+              </div>
             )}
 
             {/* Search form */}
-            <Card className="bg-slate-900 border-slate-700">
-              <CardHeader className="border-slate-700/50">
-                <div className="flex items-center gap-2">
-                  <Search className="h-4 w-4 text-amber-400" />
-                  <h2 className="font-semibold text-white">Find a product</h2>
-                </div>
-              </CardHeader>
-              <CardBody>
-                <SearchForm onPaywallHit={() => setShowPaywall(true)} />
-              </CardBody>
-            </Card>
+            <div style={{ ...GLASS, padding: '20px 24px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16, paddingBottom: 12, borderBottom: `1px solid ${C.border}` }}>
+                <span style={{ fontSize: 16 }}>🔮</span>
+                <h2 style={{ fontSize: 15, fontWeight: 600, color: C.text }}>Configure your spell</h2>
+              </div>
+              <SearchForm onPaywallHit={() => setShowPaywall(true)} />
+            </div>
 
-            {/* Upgrade CTA (free only, inline) */}
+            {/* Inline upgrade nudge (free only, still has spells) */}
             {!isPro && freeReportsLeft > 0 && (
-              <UpgradeBanner
-                variant="inline"
-                title="Want 20 ideas a week?"
-                description="Pro upgrades your analysis from 1 paragraph to 5 — and unlocks all 4 platform comparisons."
-              />
+              <div style={{ marginTop: 16 }}>
+                <UpgradeBanner
+                  variant="inline"
+                  title="Want 20 ideas a week?"
+                  description="Sorcerer upgrades your analysis from 1 paragraph to 5 — plus all 4 platform comparisons."
+                />
+              </div>
             )}
           </div>
 
-          {/* Right column: Reports */}
-          <div className="lg:col-span-3">
-            <Card className="bg-slate-900 border-slate-700">
-              <CardHeader className="border-slate-700/50">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <FileText className="h-4 w-4 text-amber-400" />
-                    <h2 className="font-semibold text-white">My Reports</h2>
-                  </div>
-                  {reports && reports.length > 0 && (
-                    <span className="text-xs text-slate-500">
-                      {reports.length} report{reports.length !== 1 ? 's' : ''}
-                    </span>
-                  )}
+          {/* Right: Past reports */}
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ ...GLASS, overflow: 'hidden' }}>
+              <div style={{ padding: '16px 24px 12px', borderBottom: `1px solid ${C.border}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ fontSize: 16 }}>📜</span>
+                  <h2 style={{ fontSize: 15, fontWeight: 600, color: C.text }}>My Reports</h2>
                 </div>
-              </CardHeader>
-              <CardBody className="p-0">
-                {reportsLoading ? (
-                  <div className="flex items-center justify-center py-12">
-                    <div className="animate-spin h-6 w-6 border-2 border-amber-400 border-t-transparent rounded-full" />
+                {reports && reports.length > 0 && (
+                  <span style={{ fontSize: 11, color: C.textMut }}>
+                    {reports.length} report{reports.length !== 1 ? 's' : ''}
+                  </span>
+                )}
+              </div>
+
+              {reportsLoading ? (
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px 24px' }}>
+                  <div className="h-6 w-6 border-2 border-t-transparent rounded-full animate-spin"
+                       style={{ borderColor: 'rgba(139,92,246,0.3)', borderTopColor: '#8B5CF6' }} />
+                </div>
+              ) : !reports || reports.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '64px 24px' }}>
+                  <div style={{
+                    width:          48,
+                    height:         48,
+                    borderRadius:   '50%',
+                    background:     'rgba(139,92,246,0.1)',
+                    display:        'flex',
+                    alignItems:     'center',
+                    justifyContent: 'center',
+                    margin:         '0 auto 16px',
+                    fontSize:       20,
+                  }}>
+                    📜
                   </div>
-                ) : reports?.length === 0 || !reports ? (
-                  <div className="text-center py-16 px-6">
-                    <div className="w-12 h-12 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-3">
-                      <FileText className="h-5 w-5 text-slate-600" />
-                    </div>
-                    <p className="text-slate-300 font-medium">No reports yet</p>
-                    <p className="text-slate-500 text-sm mt-1">
-                      Use the search form to generate your first idea
-                    </p>
-                  </div>
-                ) : (
-                  <div className="divide-y divide-slate-800">
-                    {reports.map((report) => (
-                      <Link
-                        key={report.id}
-                        to={`/report/${report.id}`}
-                        className="flex items-center justify-between px-6 py-4 hover:bg-slate-800/50 transition-colors group"
+                  <p style={{ fontSize: 14, fontWeight: 600, color: C.text }}>No reports yet</p>
+                  <p style={{ fontSize: 12, color: C.textDim, marginTop: 4 }}>
+                    Cast your first spell using the form on the left
+                  </p>
+                </div>
+              ) : (
+                <div>
+                  {reports.map((report) => (
+                    <Link
+                      key={report.id}
+                      to={`/report/${report.id}`}
+                      style={{ textDecoration: 'none' }}
+                    >
+                      <div
+                        style={{
+                          display:       'flex',
+                          alignItems:    'center',
+                          justifyContent: 'space-between',
+                          padding:       '14px 24px',
+                          borderBottom:  `1px solid ${C.border}`,
+                          transition:    'background 0.15s',
+                          cursor:        'pointer',
+                        }}
+                        onMouseEnter={e => (e.currentTarget.style.background = 'rgba(139,92,246,0.06)')}
+                        onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
                       >
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-0.5">
-                            <p className="font-medium text-white truncate">
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2 }}>
+                            <p style={{ fontSize: 13, fontWeight: 600, color: C.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                               {report.productName}
                             </p>
                             <TierBadge tier={report.tier} />
                           </div>
-                          <p className="text-xs text-slate-500">
+                          <p style={{ fontSize: 11, color: C.textDim }}>
                             {report.category} · {formatDate(report.createdAt)}
                           </p>
                         </div>
-                        <div className="flex items-center gap-4 ml-4">
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginLeft: 16, flexShrink: 0 }}>
                           <ScoreBadge score={report.opportunityScore} label="Opportunity" />
-                          <ArrowRight className="h-4 w-4 text-slate-600 group-hover:text-amber-400 transition-colors" />
+                          <span style={{ color: C.textMut, fontSize: 16 }}>›</span>
                         </div>
-                      </Link>
-                    ))}
-                  </div>
-                )}
-              </CardBody>
-            </Card>
-
-            {/* Bottom upgrade nudge for Pro inside reports list */}
-            {!isPro && reports && reports.length >= 1 && (
-              <div className="mt-4">
-                <div className="bg-slate-900 border border-amber-400/20 rounded-xl p-4 text-center">
-                  <p className="text-slate-300 text-sm mb-3">
-                    Free reports show <span className="text-white font-semibold">1 platform</span> and a{' '}
-                    <span className="text-white font-semibold">brief summary</span>.{' '}
-                    Pro unlocks the full picture.
-                  </p>
-                  <Link
-                    to="/pricing"
-                    className="inline-flex items-center gap-1.5 bg-amber-400 hover:bg-amber-300 text-slate-900 font-bold px-5 py-2.5 rounded-full text-sm transition-colors"
-                  >
-                    <Crown className="h-3.5 w-3.5" />
-                    Upgrade to Pro — £10/mo
-                  </Link>
+                      </div>
+                    </Link>
+                  ))}
                 </div>
+              )}
+            </div>
+
+            {/* Bottom upgrade nudge */}
+            {!isPro && reports && reports.length >= 1 && (
+              <div style={{ marginTop: 16, ...GLASS, padding: '20px 24px', textAlign: 'center' }}>
+                <p style={{ fontSize: 13, color: C.textDim, marginBottom: 12 }}>
+                  Free reports show <span style={{ color: C.text, fontWeight: 600 }}>1 platform</span> and a{' '}
+                  <span style={{ color: C.text, fontWeight: 600 }}>brief summary</span>.{' '}
+                  Sorcerer unlocks the full oracle.
+                </p>
+                <Link
+                  to="/pricing"
+                  style={{
+                    display:        'inline-flex',
+                    alignItems:     'center',
+                    gap:            8,
+                    background:     GBTN,
+                    border:         '1px solid rgba(139,92,246,0.4)',
+                    borderRadius:   99,
+                    padding:        '10px 24px',
+                    color:          '#fff',
+                    fontSize:       13,
+                    fontWeight:     700,
+                    textDecoration: 'none',
+                    boxShadow:      '0 0 16px rgba(124,58,237,0.25)',
+                  }}
+                >
+                  ✦ Upgrade to Sorcerer — £10/mo
+                </Link>
               </div>
             )}
           </div>

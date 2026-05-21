@@ -8,16 +8,17 @@ import { useReportStore } from '../../store/reportStore'
 import { useAuthStore } from '../../store/authStore'
 import { SearchParams } from '../../types'
 import { USD_TO_GBP } from '../../utils/formatters'
+import type { CSSProperties } from 'react'
 
 const schema = z.object({
-  budgetGbp: z.number().min(10, 'Minimum £10').max(100000, 'Maximum £100,000'),
-  currency: z.enum(['GBP', 'USD']),
-  unitSize: z.enum(['small', 'medium', 'large', 'xlarge']),
-  category: z.string().optional(),
-  minMarginPercent: z.number().min(0).max(80).optional(),
-  trendingOnly: z.boolean().optional(),
-  keywordsToAvoid: z.string().optional(),
-  targetPlatforms: z.array(z.enum(['amazon', 'ebay', 'etsy', 'shopify'])).optional(),
+  budgetGbp:         z.number().min(10, 'Minimum £10').max(100000, 'Maximum £100,000'),
+  currency:          z.enum(['GBP', 'USD']),
+  unitSize:          z.enum(['small', 'medium', 'large', 'xlarge']),
+  category:          z.string().optional(),
+  minMarginPercent:  z.number().min(0).max(80).optional(),
+  trendingOnly:      z.boolean().optional(),
+  keywordsToAvoid:   z.string().optional(),
+  targetPlatforms:   z.array(z.enum(['amazon', 'ebay', 'etsy', 'shopify'])).optional(),
 })
 
 type FormData = z.infer<typeof schema>
@@ -43,9 +44,31 @@ interface SearchFormProps {
   onPaywallHit?: () => void
 }
 
-// Dark-themed shared styles
-const inputCls = "w-full bg-slate-800 border border-slate-600 rounded-lg px-3 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400/20 transition-colors text-sm"
-const labelCls = "block text-xs font-medium text-slate-400 mb-1"
+// ─── Styles ───────────────────────────────────────────────────────────────────
+
+const inputStyle: CSSProperties = {
+  width:        '100%',
+  background:   'rgba(7,5,17,0.8)',
+  border:       '1px solid rgba(139,92,246,0.2)',
+  borderRadius: 10,
+  padding:      '10px 14px',
+  color:        '#F0EEFF',
+  fontSize:     13,
+  outline:      'none',
+  transition:   'border-color 0.15s, box-shadow 0.15s',
+  boxSizing:    'border-box',
+  appearance:   'none',
+}
+
+const labelStyle: CSSProperties = {
+  display:      'block',
+  fontSize:     12,
+  fontWeight:   500,
+  color:        '#9B8ECF',
+  marginBottom: 5,
+}
+
+const GBTN = 'linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%)'
 
 export function SearchForm({ onPaywallHit }: SearchFormProps) {
   const navigate = useNavigate()
@@ -61,16 +84,16 @@ export function SearchForm({ onPaywallHit }: SearchFormProps) {
   } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
-      budgetGbp: 200,
-      currency: 'GBP',
-      unitSize: 'medium',
-      category: 'No preference',
+      budgetGbp:        200,
+      currency:         'GBP',
+      unitSize:         'medium',
+      category:         'No preference',
       minMarginPercent: 20,
-      trendingOnly: false,
+      trendingOnly:     false,
     },
   })
 
-  const currency = watch('currency')
+  const currency        = watch('currency')
   const targetPlatforms = watch('targetPlatforms') || []
 
   const mutation = useMutation({
@@ -98,24 +121,17 @@ export function SearchForm({ onPaywallHit }: SearchFormProps) {
 
   const onSubmit = (data: FormData) => {
     const budgetUsd =
-      data.currency === 'GBP'
-        ? data.budgetGbp / USD_TO_GBP
-        : data.budgetGbp
+      data.currency === 'GBP' ? data.budgetGbp / USD_TO_GBP : data.budgetGbp
 
     const params: SearchParams = {
       budgetUsd,
-      currency: data.currency,
-      unitSize: data.unitSize,
-      category:
-        data.category && data.category !== 'No preference'
-          ? data.category
-          : undefined,
-      targetPlatforms: data.targetPlatforms?.length
-        ? data.targetPlatforms
-        : undefined,
+      currency:         data.currency,
+      unitSize:         data.unitSize,
+      category:         data.category && data.category !== 'No preference' ? data.category : undefined,
+      targetPlatforms:  data.targetPlatforms?.length ? data.targetPlatforms : undefined,
       minMarginPercent: data.minMarginPercent,
-      trendingOnly: data.trendingOnly,
-      keywordsToAvoid: data.keywordsToAvoid,
+      trendingOnly:     data.trendingOnly,
+      keywordsToAvoid:  data.keywordsToAvoid,
     }
 
     mutation.mutate(params)
@@ -124,25 +140,36 @@ export function SearchForm({ onPaywallHit }: SearchFormProps) {
   const isAtFreeLimit =
     user?.subscriptionStatus === 'free' && (user.reportsUsedFree || 0) >= 2
 
+  const focusStyle = {
+    borderColor: '#8B5CF6',
+    boxShadow: '0 0 0 3px rgba(139,92,246,0.15)',
+  }
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      {/* Budget */}
-      <div className="grid grid-cols-3 gap-2">
-        <div className="col-span-2">
-          <label className={labelCls}>Budget ({currency === 'GBP' ? '£' : '$'})</label>
+    <form onSubmit={handleSubmit(onSubmit)} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+
+      {/* Budget + Currency */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 8 }}>
+        <div>
+          <label style={labelStyle}>Budget ({currency === 'GBP' ? '£' : '$'})</label>
           <input
             type="number"
             min={10}
             max={100000}
             placeholder="200"
-            className={inputCls}
+            style={inputStyle}
+            onFocus={e => Object.assign(e.currentTarget.style, focusStyle)}
             {...register('budgetGbp', { valueAsNumber: true })}
           />
-          {errors.budgetGbp && <p className="text-red-400 text-xs mt-1">{errors.budgetGbp.message}</p>}
+          {errors.budgetGbp && <p style={{ color: '#F87171', fontSize: 11, marginTop: 3 }}>{errors.budgetGbp.message}</p>}
         </div>
         <div>
-          <label className={labelCls}>Currency</label>
-          <select className={inputCls} {...register('currency')}>
+          <label style={labelStyle}>Currency</label>
+          <select
+            style={{ ...inputStyle, width: 80 }}
+            onFocus={e => Object.assign(e.currentTarget.style, focusStyle)}
+            {...register('currency')}
+          >
             <option value="GBP">GBP</option>
             <option value="USD">USD</option>
           </select>
@@ -151,8 +178,12 @@ export function SearchForm({ onPaywallHit }: SearchFormProps) {
 
       {/* Unit Size */}
       <div>
-        <label className={labelCls}>Product size</label>
-        <select className={inputCls} {...register('unitSize')}>
+        <label style={labelStyle}>Product size</label>
+        <select
+          style={inputStyle}
+          onFocus={e => Object.assign(e.currentTarget.style, focusStyle)}
+          {...register('unitSize')}
+        >
           <option value="small">Small — envelope size</option>
           <option value="medium">Medium — shoebox</option>
           <option value="large">Large — carries freely</option>
@@ -162,74 +193,87 @@ export function SearchForm({ onPaywallHit }: SearchFormProps) {
 
       {/* Category */}
       <div>
-        <label className={labelCls}>Category</label>
-        <select className={inputCls} {...register('category')}>
-          {CATEGORIES.map((c) => (
-            <option key={c} value={c}>{c}</option>
-          ))}
+        <label style={labelStyle}>Category</label>
+        <select
+          style={inputStyle}
+          onFocus={e => Object.assign(e.currentTarget.style, focusStyle)}
+          {...register('category')}
+        >
+          {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
         </select>
       </div>
 
-      {/* Target Platforms */}
+      {/* Sell on */}
       <div>
-        <label className={labelCls}>Sell on (optional)</label>
-        <div className="flex flex-wrap gap-1.5 mt-1">
-          {PLATFORMS.map((platform) => (
-            <button
-              key={platform}
-              type="button"
-              onClick={() => togglePlatform(platform)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors capitalize ${
-                targetPlatforms.includes(platform)
-                  ? 'bg-amber-400 text-slate-900 border-amber-400'
-                  : 'bg-slate-800 text-slate-400 border-slate-600 hover:border-slate-400'
-              }`}
-            >
-              {platform}
-            </button>
-          ))}
+        <label style={labelStyle}>Sell on (optional)</label>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 4 }}>
+          {PLATFORMS.map((platform) => {
+            const active = targetPlatforms.includes(platform)
+            return (
+              <button
+                key={platform}
+                type="button"
+                onClick={() => togglePlatform(platform)}
+                style={{
+                  padding:      '6px 12px',
+                  borderRadius: 8,
+                  fontSize:     12,
+                  fontWeight:   600,
+                  border:       active ? '1px solid #8B5CF6' : '1px solid rgba(139,92,246,0.2)',
+                  background:   active ? 'rgba(139,92,246,0.25)' : 'rgba(7,5,17,0.6)',
+                  color:        active ? '#A78BFA' : '#9B8ECF',
+                  cursor:       'pointer',
+                  textTransform: 'capitalize',
+                  transition:   'all 0.15s',
+                }}
+              >
+                {platform}
+              </button>
+            )
+          })}
         </div>
       </div>
 
       {/* Min Margin */}
       <div>
-        <label className={labelCls}>
-          Min. margin: {watch('minMarginPercent') || 20}%
+        <label style={labelStyle}>
+          Min. margin: <span style={{ color: '#A78BFA' }}>{watch('minMarginPercent') || 20}%</span>
         </label>
         <input
           type="range"
           min={10}
           max={80}
           step={5}
+          style={{ width: '100%', accentColor: '#8B5CF6', height: 4, borderRadius: 2 }}
           {...register('minMarginPercent', { valueAsNumber: true })}
-          className="w-full accent-amber-400 h-1.5 rounded"
         />
-        <div className="flex justify-between text-xs text-slate-600 mt-1">
+        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: '#5A4F7A', marginTop: 4 }}>
           <span>10%</span>
           <span>80%</span>
         </div>
       </div>
 
       {/* Trending Only */}
-      <label className="flex items-center gap-3 cursor-pointer">
+      <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
         <input
           type="checkbox"
           {...register('trendingOnly')}
-          className="w-4 h-4 rounded accent-amber-400"
+          style={{ width: 16, height: 16, borderRadius: 4, accentColor: '#8B5CF6', cursor: 'pointer' }}
         />
         <div>
-          <span className="text-sm font-medium text-slate-300">Trending products only</span>
-          <p className="text-xs text-slate-500">Only return products with upward trend</p>
+          <span style={{ fontSize: 13, fontWeight: 600, color: '#F0EEFF' }}>Trending products only</span>
+          <p style={{ fontSize: 11, color: '#9B8ECF', marginTop: 2 }}>Only return products with an upward trend</p>
         </div>
       </label>
 
       {/* Keywords to Avoid */}
       <div>
-        <label className={labelCls}>Keywords to avoid (optional)</label>
+        <label style={labelStyle}>Keywords to avoid (optional)</label>
         <input
           type="text"
           placeholder="e.g. fragile, batteries"
-          className={inputCls}
+          style={inputStyle}
+          onFocus={e => Object.assign(e.currentTarget.style, focusStyle)}
           {...register('keywordsToAvoid')}
         />
       </div>
@@ -238,19 +282,36 @@ export function SearchForm({ onPaywallHit }: SearchFormProps) {
       <button
         type="submit"
         disabled={mutation.isPending || isAtFreeLimit}
-        className="w-full flex items-center justify-center gap-2 bg-amber-400 hover:bg-amber-300 disabled:opacity-50 text-slate-900 font-bold px-4 py-3 rounded-xl text-sm transition-colors"
+        style={{
+          width:          '100%',
+          display:        'flex',
+          alignItems:     'center',
+          justifyContent: 'center',
+          gap:            8,
+          background:     GBTN,
+          border:         '1px solid rgba(139,92,246,0.4)',
+          borderRadius:   12,
+          padding:        '12px 24px',
+          color:          '#fff',
+          fontSize:       13,
+          fontWeight:     700,
+          cursor:         mutation.isPending || isAtFreeLimit ? 'not-allowed' : 'pointer',
+          opacity:        mutation.isPending || isAtFreeLimit ? 0.6 : 1,
+          boxShadow:      '0 0 20px rgba(124,58,237,0.3)',
+          transition:     'opacity 0.15s',
+        }}
       >
         {mutation.isPending ? (
-          <div className="h-4 w-4 border-2 border-slate-900 border-t-transparent rounded-full animate-spin" />
+          <div className="h-4 w-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
         ) : isAtFreeLimit ? (
-          'Upgrade to Continue'
+          '🔒 Upgrade to Continue'
         ) : (
-          'Find My Product'
+          '✦ Reveal My Fortune'
         )}
       </button>
 
       {mutation.isError && (
-        <p className="text-sm text-red-400 text-center">
+        <p style={{ fontSize: 12, color: '#F87171', textAlign: 'center' }}>
           Something went wrong. Please try again.
         </p>
       )}

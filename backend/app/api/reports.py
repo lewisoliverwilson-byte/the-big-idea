@@ -3,12 +3,17 @@ Reports API — search, status polling, fetch, list.
 
 Free tier  : 2 lifetime reports, lite AI analysis, 1 platform
 Pro tier   : 20 reports per rolling 7-day window, full AI analysis, all 4 platforms
+
+NOTE: report assembly is done synchronously within the same Lambda invocation.
+BackgroundTasks are intentionally not used here because Mangum/Lambda runs them
+inside the invocation boundary anyway — using them gave no benefit while making
+error propagation impossible and leaving reports stuck in "processing" forever.
 """
 import os
 import uuid
 from datetime import datetime, timedelta
 from typing import List
-from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.db.database import get_db
@@ -104,7 +109,6 @@ def _product_to_schema(product: Product) -> ProductOut:
 @router.post("/search", response_model=ReportStatusResponse)
 async def search(
     params: SearchRequest,
-    background_tasks: BackgroundTasks,
     sub: dict = Depends(get_current_user_sub),
     db: Session = Depends(get_db),
 ):
@@ -179,17 +183,27 @@ async def search(
     db.commit()
     db.refresh(report)
 
-    background_tasks.add_task(
-        assemble_report,
-        db=db,
-        report=report,
-        product=product,
-        user=user,
-        search_params=params.model_dump(),
-        is_pro=is_pro,
-    )
+    # ── Assemble synchronously ──────────────────────────────────────────────
+    # We do NOT use BackgroundTasks: in Lambda/Mangum they run inside the
+    # invocation anyway (blocking the response), while swallowing all exceptions
+    # — leaving reports permanently stuck in "processing".  Inline execution
+    # gives us proper error propagation, a clean DB session, and a definitive
+    # "ready" or "failed" status before we respond.
+    try:
+        assemble_report(
+            db=db,
+            report=report,
+            product=product,
+            user=user,
+            search_params=params.model_dump(),
+            is_pro=is_pro,
+        )
+    except Exception:
+        # assemble_report has already set report.status = "failed" and committed.
+        pass
 
-    return ReportStatusResponse(reportId=str(report.id), status="processing")
+    db.refresh(report)
+    return ReportStatusResponse(reportId=str(report.id), status=report.status)
 
 
 @router.get("/{report_id}/status", response_model=ReportStatusResponse)
@@ -250,8 +264,11 @@ async def get_report(
     )
     if not report:
         raise HTTPException(status_code=404, detail="Report not found")
+    if report.status == "failed":
+        raise HTTPException(status_code=500, detail="Report generation failed. Please try again.")
     if report.status == "processing":
-        raise HTTPException(status_code=202, detail="Report still processing")
+        # Sync processing means this should rarely happen, but handle gracefully
+        raise HTTPException(status_code=425, detail="Report still processing")
 
     product = report.product
     return ReportOut(

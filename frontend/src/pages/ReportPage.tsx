@@ -9,147 +9,263 @@ import { PlatformTable } from '../components/report/PlatformTable'
 import { SourceCards } from '../components/report/SourceCards'
 import { LockedSection } from '../components/report/LockedSection'
 import { UpgradeBanner } from '../components/ui/UpgradeBanner'
-import { Card, CardBody, CardHeader } from '../components/ui/Card'
 import { Badge, ScoreBadge } from '../components/ui/Badge'
 import { formatCurrency, formatNumber, formatDate } from '../utils/formatters'
-import { Bookmark, Star, Package, Tag, Crown, Lock } from 'lucide-react'
 
+// ─── Design tokens ────────────────────────────────────────────────────────────
+const C = {
+  bg:      '#070511',
+  border:  'rgba(139,92,246,0.15)',
+  text:    '#F0EEFF',
+  textDim: '#9B8ECF',
+  textMut: '#5A4F7A',
+  purple:  '#8B5CF6',
+  purpleB: '#A78BFA',
+}
+
+const GLASS = {
+  background:           'rgba(14,10,28,0.80)',
+  backdropFilter:       'blur(20px)',
+  WebkitBackdropFilter: 'blur(20px)',
+  border:               `1px solid ${C.border}`,
+  borderRadius:         20,
+  overflow:             'hidden' as const,
+}
+
+const GBTN = 'linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%)'
+
+// ─── Deterministic starfield ──────────────────────────────────────────────────
+const STARS = Array.from({ length: 30 }, (_, i) => {
+  const g = 137.508
+  return {
+    left:  `${((i * g)        % 100).toFixed(1)}%`,
+    top:   `${((i * g * 0.61) % 100).toFixed(1)}%`,
+    size:  [1, 1, 1.5][i % 3],
+    delay: `${((i * 0.37) % 4.5).toFixed(2)}s`,
+    dur:   `${(2.8 + (i % 6) * 0.45).toFixed(1)}s`,
+  }
+})
+
+// ─── Section wrapper ─────────────────────────────────────────────────────────
+function Section({ title, icon, children, headerRight }: {
+  title:        string
+  icon?:        string
+  children:     React.ReactNode
+  headerRight?: React.ReactNode
+}) {
+  return (
+    <div style={{ ...GLASS, marginBottom: 20 }}>
+      <div style={{
+        padding:       '16px 24px',
+        borderBottom:  `1px solid ${C.border}`,
+        display:       'flex',
+        alignItems:    'center',
+        justifyContent: 'space-between',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          {icon && <span style={{ fontSize: 16 }}>{icon}</span>}
+          <h2 style={{ fontSize: 15, fontWeight: 600, color: C.text }}>{title}</h2>
+        </div>
+        {headerRight}
+      </div>
+      <div style={{ padding: '20px 24px' }}>
+        {children}
+      </div>
+    </div>
+  )
+}
+
+// ─── Main page ────────────────────────────────────────────────────────────────
 export function ReportPage() {
-  const { reportId } = useParams<{ reportId: string }>()
+  const { reportId }  = useParams<{ reportId: string }>()
   const { isGenerating } = useReportStore()
 
   const { data: report, isLoading, isError } = useQuery({
     queryKey: ['report', reportId],
-    queryFn: () => getReport(reportId!),
-    enabled: !!reportId && !isGenerating,
+    queryFn:  () => getReport(reportId!),
+    enabled:  !!reportId && !isGenerating,
     staleTime: 1000 * 60 * 60,
   })
 
+  // ── Loading states ──────────────────────────────────────────────────────────
   if (isGenerating && reportId) {
     return <ReportLoading reportId={reportId} />
   }
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
-        <div className="animate-spin h-8 w-8 border-4 border-amber-400 border-t-transparent rounded-full" />
+      <div style={{ minHeight: '100vh', background: C.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ position: 'relative', width: 48, height: 48 }}>
+          <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', border: '2px solid rgba(139,92,246,0.15)' }} />
+          <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', border: '2px solid transparent', borderTopColor: '#8B5CF6', animation: 'spin 0.9s linear infinite' }} />
+          <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>✦</div>
+        </div>
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </div>
     )
   }
 
-  if (isError || !report) {
+  // Guard: isError OR report missing OR report has wrong shape (e.g. a 425/503
+  // response returned {"detail":"..."} instead of the full report).
+  if (isError || !report || !('product' in report) || !report.product) {
     return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-slate-300 text-lg font-medium">Report not found</p>
-          <p className="text-slate-500 text-sm mt-1">
-            This report may not exist or you don't have access.
+      <div style={{ minHeight: '100vh', background: C.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ textAlign: 'center', ...GLASS, padding: '48px 40px', maxWidth: 400 }}>
+          <div style={{ fontSize: 32, marginBottom: 16 }}>🔮</div>
+          <p style={{ fontSize: 16, fontWeight: 600, color: C.text, marginBottom: 8 }}>Report not found</p>
+          <p style={{ fontSize: 13, color: C.textDim, marginBottom: 24 }}>
+            This oracle may not exist or is still being summoned.
           </p>
+          <Link
+            to="/dashboard"
+            style={{
+              display:        'inline-flex',
+              alignItems:     'center',
+              gap:            8,
+              background:     GBTN,
+              border:         '1px solid rgba(139,92,246,0.4)',
+              borderRadius:   99,
+              padding:        '10px 24px',
+              color:          '#fff',
+              fontSize:       13,
+              fontWeight:     700,
+              textDecoration: 'none',
+            }}
+          >
+            ← Back to Dashboard
+          </Link>
         </div>
       </div>
     )
   }
 
   const { product } = report
-  // A report generated as 'free' tier shows locked sections even if user has since upgraded
-  // — they can re-run it as a Pro report from dashboard
+  // A report generated as 'free' tier shows locked sections even if user upgraded —
+  // they can re-run it as a Sorcerer report from dashboard.
   const showLocked = report.tier === 'free'
 
   return (
-    <div className="min-h-screen bg-slate-950">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-6">
+    <div style={{ minHeight: '100vh', background: C.bg, position: 'relative', overflow: 'hidden' }}>
 
-        {/* Free tier nudge at top */}
+      {/* Starfield */}
+      <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0 }}>
+        {STARS.map((s, i) => (
+          <div key={i} className="animate-twinkle" style={{
+            position:          'absolute',
+            left:              s.left,
+            top:               s.top,
+            width:             s.size,
+            height:            s.size,
+            borderRadius:      '50%',
+            background:        i % 3 === 0 ? C.purpleB : i % 3 === 1 ? '#22D3EE' : '#fff',
+            animationDelay:    s.delay,
+            animationDuration: s.dur,
+          }} />
+        ))}
+      </div>
+
+      <div style={{ maxWidth: 1100, margin: '0 auto', padding: '36px 24px', position: 'relative', zIndex: 1 }}>
+
+        {/* Free tier notice */}
         {showLocked && (
-          <div className="bg-slate-900 border border-amber-400/20 rounded-xl px-5 py-4 flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <Lock className="h-4 w-4 text-amber-400 flex-shrink-0" />
-              <p className="text-sm text-slate-300">
-                <span className="font-semibold text-white">Free report</span> — AI analysis, trend charts, and 3 more platforms are locked.{' '}
-                <span className="text-slate-500">Re-run this as a Pro report for the full picture.</span>
+          <div style={{
+            ...GLASS,
+            padding:      '14px 20px',
+            marginBottom: 20,
+            display:      'flex',
+            alignItems:   'center',
+            justifyContent: 'space-between',
+            gap:          16,
+            borderColor:  'rgba(139,92,246,0.25)',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <span style={{ fontSize: 14 }}>🔮</span>
+              <p style={{ fontSize: 13, color: C.textDim }}>
+                <span style={{ fontWeight: 700, color: C.text }}>Free report</span>
+                {' '}— AI analysis, trend charts, and 3 more platforms are sealed.{' '}
+                Re-run this as a Sorcerer report for the full oracle.
               </p>
             </div>
             <Link
               to="/pricing"
-              className="flex-shrink-0 bg-amber-400 hover:bg-amber-300 text-slate-900 font-bold px-4 py-2 rounded-full text-xs transition-colors whitespace-nowrap"
+              style={{
+                flexShrink:     0,
+                background:     GBTN,
+                border:         '1px solid rgba(139,92,246,0.4)',
+                borderRadius:   99,
+                padding:        '8px 18px',
+                color:          '#fff',
+                fontSize:       12,
+                fontWeight:     700,
+                textDecoration: 'none',
+                whiteSpace:     'nowrap',
+              }}
             >
-              Unlock Pro
+              ✦ Unlock Pro
             </Link>
           </div>
         )}
 
         {/* ── Section 1: Product Hero ── */}
-        <div className="bg-slate-900 border border-slate-700 rounded-2xl overflow-hidden shadow-sm">
-          <div className="p-6 sm:p-8">
-            <div className="flex flex-col sm:flex-row gap-6">
+        <div style={{ ...GLASS, marginBottom: 20 }}>
+          <div style={{ padding: '24px' }}>
+            <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>
+
               {/* Product image */}
-              <div className="flex-shrink-0">
-                <img
-                  src={product.sourceImageUrl || 'https://placehold.co/200x200?text=Product'}
-                  alt={product.name}
-                  className="w-36 h-36 object-cover rounded-xl border border-slate-700"
-                  onError={(e) => {
-                    ;(e.target as HTMLImageElement).src = 'https://placehold.co/200x200?text=Product'
-                  }}
-                />
-              </div>
+              <img
+                src={product.sourceImageUrl || 'https://placehold.co/160x160/0D0B1E/8B5CF6?text=✦'}
+                alt={product.name}
+                style={{ width: 140, height: 140, objectFit: 'cover', borderRadius: 14, border: `1px solid ${C.border}`, flexShrink: 0 }}
+                onError={(e) => { (e.target as HTMLImageElement).src = 'https://placehold.co/160x160/0D0B1E/8B5CF6?text=✦' }}
+              />
 
               {/* Product info */}
-              <div className="flex-1">
-                <div className="flex flex-wrap items-start justify-between gap-3 mb-3">
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, marginBottom: 10 }}>
                   <div>
-                    <div className="flex flex-wrap gap-2 mb-2">
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 8 }}>
                       <Badge variant="blue" size="sm">{product.category}</Badge>
-                      {product.isTrending && (
-                        <Badge variant="green" size="sm">🔥 Trending</Badge>
-                      )}
-                      {showLocked ? (
-                        <span className="inline-flex items-center gap-1 text-xs text-slate-500 bg-slate-800 border border-slate-700 px-2 py-0.5 rounded-full">
-                          Free report
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1 text-xs text-amber-400 bg-amber-400/10 border border-amber-400/20 px-2 py-0.5 rounded-full">
-                          <Crown className="h-2.5 w-2.5" />
-                          Pro report
-                        </span>
-                      )}
+                      {product.isTrending && <Badge variant="green" size="sm">🔥 Trending</Badge>}
+                      {showLocked
+                        ? <Badge variant="gray" size="sm">Free report</Badge>
+                        : <Badge variant="blue" size="sm">✦ Sorcerer report</Badge>
+                      }
                     </div>
-                    <h1 className="text-2xl font-bold text-white">{product.name}</h1>
-                    <p className="text-slate-400 text-sm mt-1 max-w-2xl">
-                      {product.description.slice(0, 200)}
-                      {product.description.length > 200 ? '…' : ''}
+                    <h1 style={{ fontSize: 22, fontWeight: 700, color: C.text, lineHeight: 1.2, marginBottom: 6 }}>
+                      {product.name}
+                    </h1>
+                    <p style={{ fontSize: 13, color: C.textDim, maxWidth: 600, lineHeight: 1.6 }}>
+                      {product.description.slice(0, 200)}{product.description.length > 200 ? '…' : ''}
                     </p>
                   </div>
-
-                  <div className="flex items-center gap-4">
+                  <div style={{ display: 'flex', gap: 16, flexShrink: 0 }}>
                     <ScoreBadge score={report.opportunityScore} label="Opportunity" />
                     <ScoreBadge score={report.riskScore} label="Risk" />
                   </div>
                 </div>
 
                 {/* Key stats */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))', gap: 10, marginTop: 14 }}>
                   {[
-                    { label: 'Buy price', value: formatCurrency(product.sourcePriceUsd), sub: product.sourcePlatform },
-                    { label: 'Avg. sell price', value: formatCurrency(product.avgSellPriceUsd), sub: product.bestSellPlatform },
+                    { label: 'Buy price',         value: formatCurrency(product.sourcePriceUsd),    sub: product.sourcePlatform },
+                    { label: 'Avg. sell price',    value: formatCurrency(product.avgSellPriceUsd),   sub: product.bestSellPlatform },
                     { label: 'Est. monthly sales', value: formatNumber(product.estimatedMonthlySales), sub: 'units/month' },
-                    { label: 'Avg. rating', value: `${product.avgReviewScore}/5`, sub: `${formatNumber(product.reviewCount)} reviews` },
+                    { label: 'Avg. rating',        value: `${product.avgReviewScore}/5`,              sub: `${formatNumber(product.reviewCount)} reviews` },
                   ].map(({ label, value, sub }) => (
-                    <div key={label} className="bg-slate-800 rounded-xl p-3">
-                      <p className="text-xs text-slate-500">{label}</p>
-                      <p className="text-lg font-bold text-white mt-0.5">{value}</p>
-                      <p className="text-xs text-slate-500 capitalize">{sub}</p>
+                    <div key={label} style={{ background: 'rgba(139,92,246,0.06)', border: `1px solid ${C.border}`, borderRadius: 12, padding: '10px 14px' }}>
+                      <p style={{ fontSize: 10, color: C.textMut, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>{label}</p>
+                      <p style={{ fontSize: 16, fontWeight: 700, color: C.text }}>{value}</p>
+                      <p style={{ fontSize: 11, color: C.textDim, textTransform: 'capitalize', marginTop: 2 }}>{sub}</p>
                     </div>
                   ))}
                 </div>
               </div>
             </div>
 
-            <div className="flex items-center gap-3 mt-4 pt-4 border-t border-slate-800">
-              <div className="flex items-center gap-1 text-xs text-slate-500">
-                <Bookmark className="h-3.5 w-3.5" />
-                Report saved · {formatDate(report.createdAt)}
-              </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 16, paddingTop: 14, borderTop: `1px solid ${C.border}` }}>
+              <span style={{ fontSize: 12, color: C.textMut }}>
+                📜 Report saved · {formatDate(report.createdAt)}
+              </span>
             </div>
           </div>
         </div>
@@ -157,44 +273,39 @@ export function ReportPage() {
         {/* ── Section 2: AI Analysis ── */}
         <LockedSection
           isLocked={showLocked}
-          featureName="Full AI Analysis"
-          subtitle="Pro reports include a 5-paragraph deep-dive: opportunity summary, target market, competitive landscape, recommended strategy, and trend outlook."
+          featureName="Full Oracle Analysis"
+          subtitle="Sorcerer reports include a 5-paragraph deep-dive: opportunity summary, target market, competitive landscape, recommended strategy, and trend outlook."
         >
-          <Card className="bg-slate-900 border-slate-700">
-            <CardHeader className="border-slate-700/50">
-              <div className="flex items-center gap-2">
-                <div className="bg-amber-400/10 rounded-lg p-1.5">
-                  <Star className="h-4 w-4 text-amber-400" />
-                </div>
-                <h2 className="font-semibold text-white">AI Analysis</h2>
-                {!showLocked ? (
-                  <span className="text-xs text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded-full border border-amber-400/20">
-                    GPT-4o · Pro
-                  </span>
-                ) : (
-                  <span className="text-xs text-slate-500 bg-slate-800 px-2 py-0.5 rounded-full">
-                    GPT-4o mini · Free
-                  </span>
-                )}
-              </div>
-            </CardHeader>
-            <CardBody>
-              <div className="prose prose-sm max-w-none">
-                {report.aiAnalysis.split('\n').filter(Boolean).map((paragraph, i) => (
-                  <p key={i} className="mb-3 leading-relaxed text-slate-300">
-                    {paragraph}
-                  </p>
-                ))}
-              </div>
+          <Section
+            title="Oracle Analysis"
+            icon="✨"
+            headerRight={
+              <span style={{
+                fontSize:   11,
+                color:      showLocked ? C.textDim : '#A78BFA',
+                background: showLocked ? 'rgba(90,79,122,0.2)' : 'rgba(139,92,246,0.12)',
+                border:     `1px solid ${showLocked ? 'rgba(90,79,122,0.3)' : 'rgba(139,92,246,0.3)'}`,
+                borderRadius: 99,
+                padding:    '3px 10px',
+                fontWeight: 600,
+              }}>
+                {showLocked ? 'GPT-4o mini · Free' : 'GPT-4o · Sorcerer'}
+              </span>
+            }
+          >
+            <div>
+              {report.aiAnalysis.split('\n').filter(Boolean).map((paragraph, i) => (
+                <p key={i} style={{ fontSize: 14, color: C.textDim, lineHeight: 1.75, marginBottom: 12 }}>
+                  {paragraph}
+                </p>
+              ))}
               {showLocked && (
-                <div className="mt-4 pt-4 border-t border-slate-800">
-                  <p className="text-slate-500 text-xs italic">
-                    This is a 1-paragraph summary. Pro reports include 5 full paragraphs with deeper market insights.
-                  </p>
-                </div>
+                <p style={{ fontSize: 12, color: C.textMut, fontStyle: 'italic', marginTop: 8, paddingTop: 12, borderTop: `1px solid ${C.border}` }}>
+                  This is a 1-paragraph summary. Sorcerer reports include 5 full paragraphs.
+                </p>
               )}
-            </CardBody>
-          </Card>
+            </div>
+          </Section>
         </LockedSection>
 
         {/* ── Section 3: Trend Charts ── */}
@@ -203,153 +314,146 @@ export function ReportPage() {
           featureName="Trend Charts"
           subtitle="See 6 months of search volume and sales trend data — so you know if this product is rising, falling, or seasonal."
         >
-          <div className="bg-slate-900 border border-slate-700 rounded-2xl p-6">
-            <h2 className="text-lg font-semibold text-white mb-4">Trend Data</h2>
+          <Section title="Trend Data" icon="📈">
             <ReportCharts trendData={product.trendData} productName={product.name} />
-          </div>
+          </Section>
         </LockedSection>
 
         {/* ── Section 4: Margin Calculator ── (always visible) */}
-        <div className="bg-slate-900 border border-slate-700 rounded-2xl p-6">
-          <h2 className="text-lg font-semibold text-white mb-4">Margin Calculator</h2>
+        <Section title="Margin Calculator" icon="⚖️">
           <MarginCalculator margin={report.marginAnalysis} />
-        </div>
+        </Section>
 
         {/* ── Section 5: Platform Comparison ── */}
         <LockedSection
           isLocked={showLocked}
           featureName="All 4 Platform Comparisons"
-          subtitle="Free reports show only the single best platform. Pro compares Amazon, eBay, Etsy, and Shopify side-by-side so you can choose the right one for your strategy."
+          subtitle="Free reports show only the best platform. Sorcerer compares Amazon, eBay, Etsy, and Shopify side-by-side."
         >
-          <div className="bg-slate-900 border border-slate-700 rounded-2xl p-6">
-            <h2 className="text-lg font-semibold text-white mb-4">Platform Comparison</h2>
+          <Section title="Platform Comparison" icon="🏪">
             <PlatformTable platforms={report.platformComparison} />
-          </div>
+          </Section>
         </LockedSection>
 
         {/* ── Section 6: Where to Buy ── (always visible) */}
-        <div className="bg-slate-900 border border-slate-700 rounded-2xl p-6">
-          <h2 className="text-lg font-semibold text-white mb-4">Where to Buy</h2>
+        <Section title="Where to Source" icon="📦">
           <SourceCards product={product} />
-        </div>
+        </Section>
 
         {/* ── Section 7: Where to Sell ── */}
-        <Card className="bg-slate-900 border-slate-700">
-          <CardHeader className="border-slate-700/50">
-            <h2 className="font-semibold text-white">
-              Where to Sell
-              {showLocked && (
-                <span className="ml-2 text-xs text-slate-500 font-normal">
-                  (best platform shown — Pro shows all 4)
-                </span>
-              )}
-            </h2>
-          </CardHeader>
-          <CardBody>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {report.platformComparison.map((p) => (
-                <div
-                  key={p.platform}
-                  className={`rounded-xl border p-4 ${
-                    p.recommended
-                      ? 'border-amber-400/40 bg-amber-400/5'
-                      : 'border-slate-700 bg-slate-800/50'
-                  }`}
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="font-semibold capitalize text-white">{p.platform}</span>
-                    {p.recommended && (
-                      <Badge variant="blue" size="sm">Best pick</Badge>
-                    )}
-                  </div>
-                  <p className="text-xl font-bold text-white">
-                    {formatCurrency(p.estimatedSellPrice)}
-                  </p>
-                  <p className="text-sm text-slate-400 mt-1">
-                    {p.netMargin.toFixed(1)}% margin · {p.feePercent}% fee
-                  </p>
-                  <a
-                    href={`https://www.${p.platform}.com`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mt-3 block text-center text-xs text-amber-400 font-medium hover:underline"
-                  >
-                    Start selling →
-                  </a>
+        <Section
+          title="Where to Sell"
+          icon="💰"
+          headerRight={showLocked ? (
+            <span style={{ fontSize: 12, color: C.textMut }}>(best platform shown — Pro shows all 4)</span>
+          ) : undefined}
+        >
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 12 }}>
+            {report.platformComparison.map((p) => (
+              <div
+                key={p.platform}
+                style={{
+                  borderRadius: 14,
+                  border:       p.recommended ? '1px solid rgba(139,92,246,0.4)' : `1px solid ${C.border}`,
+                  background:   p.recommended ? 'rgba(139,92,246,0.08)' : 'rgba(7,5,17,0.5)',
+                  padding:      '14px',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: C.text, textTransform: 'capitalize' }}>
+                    {p.platform}
+                  </span>
+                  {p.recommended && <Badge variant="blue" size="sm">Best pick</Badge>}
                 </div>
-              ))}
+                <p style={{ fontSize: 18, fontWeight: 700, color: C.text, marginBottom: 4 }}>
+                  {formatCurrency(p.estimatedSellPrice)}
+                </p>
+                <p style={{ fontSize: 12, color: C.textDim }}>
+                  {p.netMargin.toFixed(1)}% margin · {p.feePercent}% fee
+                </p>
+                <a
+                  href={`https://www.${p.platform}.com`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ display: 'block', marginTop: 10, fontSize: 12, color: '#A78BFA', fontWeight: 600, textDecoration: 'none' }}
+                >
+                  Start selling →
+                </a>
+              </div>
+            ))}
 
-              {/* Locked platform cards (for free tier visual effect) */}
-              {showLocked && (
-                <>
-                  {[1, 2, 3].map((i) => (
-                    <div
-                      key={`locked-${i}`}
-                      className="rounded-xl border border-slate-700 bg-slate-800/30 p-4 flex flex-col items-center justify-center opacity-40"
-                    >
-                      <Lock className="h-5 w-5 text-slate-500 mb-2" />
-                      <p className="text-xs text-slate-500">Pro only</p>
-                    </div>
-                  ))}
-                </>
-              )}
-            </div>
-          </CardBody>
-        </Card>
+            {/* Locked platform placeholders (free tier) */}
+            {showLocked && [1, 2, 3].map((i) => (
+              <div key={`locked-${i}`} style={{
+                borderRadius: 14,
+                border:       `1px solid ${C.border}`,
+                background:   'rgba(7,5,17,0.3)',
+                padding:      '14px',
+                display:      'flex',
+                flexDirection: 'column',
+                alignItems:   'center',
+                justifyContent: 'center',
+                opacity:      0.35,
+                minHeight:    100,
+              }}>
+                <span style={{ fontSize: 18, marginBottom: 4 }}>🔒</span>
+                <p style={{ fontSize: 11, color: C.textDim }}>Pro only</p>
+              </div>
+            ))}
+          </div>
+        </Section>
 
-        {/* Bottom upgrade banner for free reports */}
+        {/* Bottom upgrade CTA for free tier */}
         {showLocked && (
-          <UpgradeBanner
-            variant="full"
-            title="You're seeing the free version of this report"
-            description="Upgrade to Pro and re-run this search to get the full 5-paragraph analysis, all 4 platform comparisons, 6-month trend charts, and 20 fresh ideas every week."
-            ctaLabel="Upgrade to Pro — £10/mo"
-          />
+          <div style={{ marginBottom: 20 }}>
+            <UpgradeBanner
+              variant="full"
+              title="You're seeing the free version of this report"
+              description="Upgrade to Sorcerer and re-run this search to get the full 5-paragraph oracle, all 4 platform comparisons, 6-month trend charts, and 20 fresh ideas every week."
+              ctaLabel="✦ Ascend to Sorcerer — £10/mo"
+            />
+          </div>
         )}
 
         {/* ── Section 8: Product Details ── */}
-        <Card className="bg-slate-900 border-slate-700">
-          <CardHeader className="border-slate-700/50">
-            <div className="flex items-center gap-2">
-              <Package className="h-4 w-4 text-slate-400" />
-              <h2 className="font-semibold text-white">Product Details</h2>
+        <Section title="Product Details" icon="📋">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 24 }}>
+            <div>
+              <h3 style={{ fontSize: 12, fontWeight: 700, color: C.textMut, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 10 }}>
+                Full Description
+              </h3>
+              <p style={{ fontSize: 13, color: C.textDim, lineHeight: 1.7 }}>{product.description}</p>
             </div>
-          </CardHeader>
-          <CardBody>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <h3 className="text-sm font-semibold text-slate-300 mb-2">Full Description</h3>
-                <p className="text-sm text-slate-400 leading-relaxed">{product.description}</p>
-              </div>
-              <div className="space-y-3">
-                <h3 className="text-sm font-semibold text-slate-300 mb-2">Specifications</h3>
+            <div>
+              <h3 style={{ fontSize: 12, fontWeight: 700, color: C.textMut, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 10 }}>
+                Specifications
+              </h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {[
                   { label: 'Source Platform', value: product.sourcePlatform.toUpperCase() },
-                  { label: 'Category', value: product.category },
-                  { label: 'Min. Order Qty', value: `${product.sourceMinOrderQty} units` },
-                  ...(product.amazonAsin ? [{ label: 'Amazon ASIN', value: product.amazonAsin }] : []),
-                  ...(product.ebayItemId ? [{ label: 'eBay Item ID', value: product.ebayItemId }] : []),
-                  { label: 'Last Updated', value: formatDate(product.lastRefreshed) },
+                  { label: 'Category',        value: product.category },
+                  { label: 'Min. Order Qty',  value: `${product.sourceMinOrderQty} units` },
+                  ...(product.amazonAsin  ? [{ label: 'Amazon ASIN',  value: product.amazonAsin  }] : []),
+                  ...(product.ebayItemId  ? [{ label: 'eBay Item ID', value: product.ebayItemId  }] : []),
+                  { label: 'Last Updated',    value: formatDate(product.lastRefreshed) },
                 ].map(({ label, value }) => (
-                  <div key={label} className="flex justify-between text-sm border-b border-slate-800 pb-2 last:border-0">
-                    <span className="text-slate-500">{label}</span>
-                    <span className="font-medium text-slate-200">{value}</span>
+                  <div key={label} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, paddingBottom: 8, borderBottom: `1px solid ${C.border}` }}>
+                    <span style={{ color: C.textDim }}>{label}</span>
+                    <span style={{ fontWeight: 600, color: C.text }}>{value}</span>
                   </div>
                 ))}
               </div>
             </div>
-            {product.tags.length > 0 && (
-              <div className="mt-4 pt-4 border-t border-slate-800">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <Tag className="h-3.5 w-3.5 text-slate-500" />
-                  {product.tags.map((tag) => (
-                    <Badge key={tag} variant="gray" size="sm">{tag}</Badge>
-                  ))}
-                </div>
-              </div>
-            )}
-          </CardBody>
-        </Card>
+          </div>
+          {product.tags.length > 0 && (
+            <div style={{ marginTop: 16, paddingTop: 16, borderTop: `1px solid ${C.border}`, display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+              {product.tags.map((tag) => (
+                <Badge key={tag} variant="gray" size="sm">{tag}</Badge>
+              ))}
+            </div>
+          )}
+        </Section>
+
       </div>
     </div>
   )

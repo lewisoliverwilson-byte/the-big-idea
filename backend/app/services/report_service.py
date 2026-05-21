@@ -192,43 +192,59 @@ def assemble_report(
     Fill in all computed fields on the report model and persist it.
     is_pro=True → full GPT-4o analysis + all 4 platforms
     is_pro=False → lite GPT-4o-mini analysis + 1 platform (best only)
+
+    Wraps all work in a try/except so that any failure (OpenAI timeout,
+    DB error, bad data) marks the report as "failed" rather than leaving
+    it permanently stuck in "processing".
     """
-    target_platform = str(product.best_sell_platform or "amazon")
+    try:
+        target_platform = str(product.best_sell_platform or "amazon")
 
-    margin = calculate_margin(product, target_platform)
-    margin_pct = margin["marginPercent"]
+        margin = calculate_margin(product, target_platform)
+        margin_pct = margin["marginPercent"]
 
-    opp_score = compute_opportunity_score(product, margin_pct)
-    risk_score = compute_risk_score(product, float(search_params.get("budgetUsd", 200)))
+        opp_score = compute_opportunity_score(product, margin_pct)
+        risk_score = compute_risk_score(product, float(search_params.get("budgetUsd", 200)))
 
-    platform_comparison = build_platform_comparison(product, is_pro=is_pro)
+        platform_comparison = build_platform_comparison(product, is_pro=is_pro)
 
-    ai_text = generate_analysis(
-        product_name=str(product.name),
-        description=str(product.description or ""),
-        category=str(product.category or "General"),
-        source_platform=str(product.source_platform),
-        source_price=float(product.source_price_usd or 5),
-        min_order_qty=int(product.source_min_order_qty or 1),
-        best_sell_platform=target_platform,
-        avg_sell_price=float(product.avg_sell_price_usd or 20),
-        monthly_sales=int(product.estimated_monthly_sales or 100),
-        trend_summary=trend_summary(product),
-        review_count=int(product.review_count or 0),
-        avg_score=float(product.avg_review_score or 4.0),
-        margin_pct=margin_pct,
-        user_budget=float(search_params.get("budgetUsd", 200)),
-        is_pro=is_pro,
-    )
+        ai_text = generate_analysis(
+            product_name=str(product.name),
+            description=str(product.description or ""),
+            category=str(product.category or "General"),
+            source_platform=str(product.source_platform),
+            source_price=float(product.source_price_usd or 5),
+            min_order_qty=int(product.source_min_order_qty or 1),
+            best_sell_platform=target_platform,
+            avg_sell_price=float(product.avg_sell_price_usd or 20),
+            monthly_sales=int(product.estimated_monthly_sales or 100),
+            trend_summary=trend_summary(product),
+            review_count=int(product.review_count or 0),
+            avg_score=float(product.avg_review_score or 4.0),
+            margin_pct=margin_pct,
+            user_budget=float(search_params.get("budgetUsd", 200)),
+            is_pro=is_pro,
+        )
 
-    report.margin_analysis = margin
-    report.platform_comparison = platform_comparison
-    report.ai_analysis = ai_text
-    report.opportunity_score = opp_score
-    report.risk_score = risk_score
-    report.tier = "pro" if is_pro else "free"
-    report.status = "ready"
+        report.margin_analysis = margin
+        report.platform_comparison = platform_comparison
+        report.ai_analysis = ai_text
+        report.opportunity_score = opp_score
+        report.risk_score = risk_score
+        report.tier = "pro" if is_pro else "free"
+        report.status = "ready"
 
-    db.commit()
-    db.refresh(report)
-    return report
+        db.commit()
+        db.refresh(report)
+        return report
+
+    except Exception as exc:
+        # Roll back any partial writes and permanently mark this report failed
+        # so the frontend never polls forever waiting for it.
+        try:
+            db.rollback()
+            report.status = "failed"
+            db.commit()
+        except Exception:
+            pass
+        raise exc

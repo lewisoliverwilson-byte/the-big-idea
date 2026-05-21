@@ -14,6 +14,9 @@ import {
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || '/api',
   headers: { 'Content-Type': 'application/json' },
+  // 45 s — comfortably above API Gateway's 29 s hard limit so we always get
+  // the server's own error response rather than a silent client timeout.
+  timeout: 45_000,
 })
 
 // Attach Cognito JWT to every request

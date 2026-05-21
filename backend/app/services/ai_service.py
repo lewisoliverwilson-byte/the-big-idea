@@ -51,6 +51,7 @@ def generate_lite_analysis(
         ],
         temperature=0.7,
         max_tokens=200,
+        timeout=20,
     )
     return response.choices[0].message.content or ""
 
@@ -105,6 +106,7 @@ Total: under 500 words. Be direct and specific. Plain paragraphs, no section hea
         ],
         temperature=0.7,
         max_tokens=700,
+        timeout=22,
     )
     return response.choices[0].message.content or ""
 
