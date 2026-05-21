@@ -377,41 +377,48 @@ export function Dashboard() {
               ) : (
                 <div>
                   {reports.map((report) => (
-                    <Link
+                    <div
                       key={report.id}
-                      to={`/report/${report.id}`}
-                      style={{ textDecoration: 'none' }}
+                      style={{
+                        display:        'flex',
+                        alignItems:     'center',
+                        justifyContent: 'space-between',
+                        padding:        '14px 24px',
+                        borderBottom:   `1px solid ${C.border}`,
+                        transition:     'background 0.15s',
+                      }}
+                      onMouseEnter={e => (e.currentTarget.style.background = 'rgba(139,92,246,0.06)')}
+                      onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
                     >
-                      <div
-                        style={{
-                          display:       'flex',
-                          alignItems:    'center',
-                          justifyContent: 'space-between',
-                          padding:       '14px 24px',
-                          borderBottom:  `1px solid ${C.border}`,
-                          transition:    'background 0.15s',
-                          cursor:        'pointer',
-                        }}
-                        onMouseEnter={e => (e.currentTarget.style.background = 'rgba(139,92,246,0.06)')}
-                        onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                      {/* Clickable text area */}
+                      <Link
+                        to={`/report/${report.id}`}
+                        style={{ textDecoration: 'none', flex: 1, minWidth: 0, display: 'block' }}
                       >
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2 }}>
-                            <p style={{ fontSize: 13, fontWeight: 600, color: C.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                              {report.productName}
-                            </p>
-                            <TierBadge tier={report.tier} />
-                          </div>
-                          <p style={{ fontSize: 11, color: C.textDim }}>
-                            {report.category} · {formatDate(report.createdAt)}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2 }}>
+                          <p style={{ fontSize: 13, fontWeight: 600, color: C.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            {report.productName}
                           </p>
+                          <TierBadge tier={report.tier} />
                         </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginLeft: 16, flexShrink: 0 }}>
-                          <ScoreBadge score={report.opportunityScore} label="Opportunity" />
-                          <span style={{ color: C.textMut, fontSize: 16 }}>›</span>
-                        </div>
+                        <p style={{ fontSize: 11, color: C.textDim }}>
+                          {report.category} · {formatDate(report.createdAt)}
+                        </p>
+                      </Link>
+
+                      {/* Scores + open */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginLeft: 16, flexShrink: 0 }}>
+                        <ScoreBadge score={report.opportunityScore} label="Opp." />
+                        <ScoreBadge score={report.riskScore}        label="Risk" />
+                        <Link
+                          to={`/report/${report.id}`}
+                          style={{ color: C.textMut, fontSize: 18, textDecoration: 'none', lineHeight: 1 }}
+                          title="Open report"
+                        >
+                          ›
+                        </Link>
                       </div>
-                    </Link>
+                    </div>
                   ))}
                 </div>
               )}

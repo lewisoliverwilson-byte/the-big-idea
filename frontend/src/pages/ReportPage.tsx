@@ -11,6 +11,7 @@ import { LockedSection } from '../components/report/LockedSection'
 import { UpgradeBanner } from '../components/ui/UpgradeBanner'
 import { Badge, ScoreBadge } from '../components/ui/Badge'
 import { formatCurrency, formatNumber, formatDate } from '../utils/formatters'
+import type { Report } from '../types'
 
 // ─── Design tokens ────────────────────────────────────────────────────────────
 const C = {
@@ -45,6 +46,106 @@ const STARS = Array.from({ length: 30 }, (_, i) => {
     dur:   `${(2.8 + (i % 6) * 0.45).toFixed(1)}s`,
   }
 })
+
+// ─── CSV download ─────────────────────────────────────────────────────────────
+function downloadReportCsv(report: Report) {
+  const { product: p, marginAnalysis: m } = report
+
+  const escape = (v: unknown) => {
+    const s = String(v ?? '').replace(/"/g, '""')
+    return s.includes(',') || s.includes('"') || s.includes('\n') ? `"${s}"` : s
+  }
+
+  const rows: string[][] = [
+    // ── Overview
+    ['SOURCERY REPORT', '', ''],
+    ['Generated', formatDate(report.createdAt), ''],
+    ['Tier', report.tier === 'pro' ? 'Sorcerer (Pro)' : 'Free', ''],
+    ['', '', ''],
+
+    // ── Product
+    ['PRODUCT', '', ''],
+    ['Name',              p.name,                                ''],
+    ['Category',          p.category,                            ''],
+    ['Description',       p.description,                         ''],
+    ['Tags',              p.tags.join(', '),                     ''],
+    ['Trending',          p.isTrending ? 'Yes' : 'No',           ''],
+    ['', '', ''],
+
+    // ── Scores
+    ['SCORES', '', ''],
+    ['Opportunity Score', String(report.opportunityScore),        '/ 100'],
+    ['Risk Score',        String(report.riskScore),               '/ 100'],
+    ['', '', ''],
+
+    // ── Sourcing
+    ['SOURCING', '', ''],
+    ['Platform',          p.sourcePlatform,                       ''],
+    ['Source URL',        p.sourceUrl,                            ''],
+    ['Buy Price (USD)',   p.sourcePriceUsd.toFixed(2),            ''],
+    ['Min. Order Qty',    String(p.sourceMinOrderQty),            'units'],
+    ['Est. Shipping (USD)', p.sourceShippingEstimateUsd.toFixed(2), ''],
+    ['', '', ''],
+
+    // ── Market
+    ['MARKET', '', ''],
+    ['Best Sell Platform', p.bestSellPlatform,                    ''],
+    ['Avg. Sell Price (USD)', p.avgSellPriceUsd.toFixed(2),       ''],
+    ['Est. Monthly Sales',   String(p.estimatedMonthlySales),     'units'],
+    ['Avg. Review Score',    p.avgReviewScore.toFixed(1),         '/ 5'],
+    ['Review Count',         String(p.reviewCount),               ''],
+    ...(p.amazonAsin  ? [['Amazon ASIN',  p.amazonAsin,  '']] as string[][] : []),
+    ...(p.ebayItemId  ? [['eBay Item ID', p.ebayItemId,  '']] as string[][] : []),
+    ['', '', ''],
+
+    // ── Margins
+    ['MARGIN ANALYSIS', '', ''],
+    ['Source Price (USD)',      m.sourcePriceUsd.toFixed(2),             ''],
+    ['Shipping to UK (USD)',    m.shippingToUkUsd.toFixed(2),            ''],
+    ['Platform Fee',            `${m.platformFeePercent}%`,              ''],
+    ['Est. Sell Price (USD)',   m.estimatedSellPriceUsd.toFixed(2),      ''],
+    ['Profit per Unit (USD)',   m.profitPerUnit.toFixed(2),              ''],
+    ['Margin %',                `${m.marginPercent.toFixed(1)}%`,        ''],
+    ['Min. Viable Sell Price',  m.minimumViableSellPrice.toFixed(2),     'USD'],
+    ['Profit @ 50 units (USD)', m.profitAt50Units.toFixed(2),            ''],
+    ['Profit @ 100 units (USD)', m.profitAt100Units.toFixed(2),          ''],
+    ['Profit @ 200 units (USD)', m.profitAt200Units.toFixed(2),          ''],
+    ['', '', ''],
+
+    // ── Platform comparison
+    ['PLATFORM COMPARISON', '', ''],
+    ['Platform', 'Est. Sell Price (USD)', 'Fee %', 'Net Margin %', 'Monthly Sales', 'Difficulty', 'Recommended'],
+    ...report.platformComparison.map(pl => [
+      pl.platform,
+      pl.estimatedSellPrice.toFixed(2),
+      String(pl.feePercent),
+      pl.netMargin.toFixed(1),
+      String(pl.estimatedMonthlySales),
+      pl.difficulty,
+      pl.recommended ? 'Yes' : 'No',
+    ]),
+    ['', '', ''],
+
+    // ── AI analysis
+    ['AI ANALYSIS', '', ''],
+    [report.aiAnalysis, '', ''],
+  ]
+
+  const csv = rows
+    .map(row => row.map(escape).join(','))
+    .join('\n')
+
+  const slug = p.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+  const filename = `sourcery-${slug}-${report.id.slice(0, 8)}.csv`
+
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+  const url  = URL.createObjectURL(blob)
+  const a    = document.createElement('a')
+  a.href     = url
+  a.download = filename
+  a.click()
+  URL.revokeObjectURL(url)
+}
 
 // ─── Section wrapper ─────────────────────────────────────────────────────────
 function Section({ title, icon, children, headerRight }: {
@@ -105,8 +206,6 @@ export function ReportPage() {
     )
   }
 
-  // Guard: isError OR report missing OR report has wrong shape (e.g. a 425/503
-  // response returned {"detail":"..."} instead of the full report).
   if (isError || !report || !('product' in report) || !report.product) {
     return (
       <div style={{ minHeight: '100vh', background: C.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -140,8 +239,6 @@ export function ReportPage() {
   }
 
   const { product } = report
-  // A report generated as 'free' tier shows locked sections even if user upgraded —
-  // they can re-run it as a Sorcerer report from dashboard.
   const showLocked = report.tier === 'free'
 
   return (
@@ -165,6 +262,77 @@ export function ReportPage() {
       </div>
 
       <div style={{ maxWidth: 1100, margin: '0 auto', padding: '36px 24px', position: 'relative', zIndex: 1 }}>
+
+        {/* ── Top nav bar ─────────────────────────────────────────────────────── */}
+        <div style={{
+          display:        'flex',
+          alignItems:     'center',
+          justifyContent: 'space-between',
+          marginBottom:   20,
+          gap:            12,
+          flexWrap:       'wrap',
+        }}>
+          <Link
+            to="/dashboard"
+            style={{
+              display:        'inline-flex',
+              alignItems:     'center',
+              gap:            6,
+              background:     'rgba(14,10,28,0.80)',
+              backdropFilter: 'blur(20px)',
+              border:         `1px solid ${C.border}`,
+              borderRadius:   99,
+              padding:        '8px 16px',
+              color:          C.textDim,
+              fontSize:       13,
+              fontWeight:     600,
+              textDecoration: 'none',
+              transition:     'color 0.15s, border-color 0.15s',
+            }}
+            onMouseEnter={e => {
+              const el = e.currentTarget
+              el.style.color = C.text
+              el.style.borderColor = 'rgba(139,92,246,0.4)'
+            }}
+            onMouseLeave={e => {
+              const el = e.currentTarget
+              el.style.color = C.textDim
+              el.style.borderColor = C.border
+            }}
+          >
+            ← Dashboard
+          </Link>
+
+          <button
+            onClick={() => downloadReportCsv(report)}
+            style={{
+              display:    'inline-flex',
+              alignItems: 'center',
+              gap:        6,
+              background: 'rgba(139,92,246,0.1)',
+              border:     '1px solid rgba(139,92,246,0.3)',
+              borderRadius: 99,
+              padding:    '8px 18px',
+              color:      C.purpleB,
+              fontSize:   13,
+              fontWeight: 600,
+              cursor:     'pointer',
+              transition: 'background 0.15s, border-color 0.15s',
+            }}
+            onMouseEnter={e => {
+              const el = e.currentTarget
+              el.style.background = 'rgba(139,92,246,0.18)'
+              el.style.borderColor = 'rgba(139,92,246,0.55)'
+            }}
+            onMouseLeave={e => {
+              const el = e.currentTarget
+              el.style.background = 'rgba(139,92,246,0.1)'
+              el.style.borderColor = 'rgba(139,92,246,0.3)'
+            }}
+          >
+            ⬇ Download CSV
+          </button>
+        </div>
 
         {/* Free tier notice */}
         {showLocked && (
@@ -262,10 +430,39 @@ export function ReportPage() {
               </div>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 16, paddingTop: 14, borderTop: `1px solid ${C.border}` }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginTop: 16, paddingTop: 14, borderTop: `1px solid ${C.border}`, flexWrap: 'wrap' }}>
               <span style={{ fontSize: 12, color: C.textMut }}>
                 📜 Report saved · {formatDate(report.createdAt)}
               </span>
+              <button
+                onClick={() => downloadReportCsv(report)}
+                style={{
+                  display:    'inline-flex',
+                  alignItems: 'center',
+                  gap:        5,
+                  background: 'none',
+                  border:     `1px solid ${C.border}`,
+                  borderRadius: 99,
+                  padding:    '5px 14px',
+                  color:      C.textDim,
+                  fontSize:   11,
+                  fontWeight: 600,
+                  cursor:     'pointer',
+                  transition: 'color 0.15s, border-color 0.15s',
+                }}
+                onMouseEnter={e => {
+                  const el = e.currentTarget
+                  el.style.color = C.purpleB
+                  el.style.borderColor = 'rgba(139,92,246,0.4)'
+                }}
+                onMouseLeave={e => {
+                  const el = e.currentTarget
+                  el.style.color = C.textDim
+                  el.style.borderColor = C.border
+                }}
+              >
+                ⬇ Download CSV
+              </button>
             </div>
           </div>
         </div>
@@ -453,6 +650,29 @@ export function ReportPage() {
             </div>
           )}
         </Section>
+
+        {/* ── Bottom nav ── */}
+        <div style={{ display: 'flex', justifyContent: 'center', paddingTop: 8, paddingBottom: 16 }}>
+          <Link
+            to="/dashboard"
+            style={{
+              display:        'inline-flex',
+              alignItems:     'center',
+              gap:            8,
+              background:     'rgba(14,10,28,0.80)',
+              backdropFilter: 'blur(20px)',
+              border:         `1px solid ${C.border}`,
+              borderRadius:   99,
+              padding:        '10px 24px',
+              color:          C.textDim,
+              fontSize:       13,
+              fontWeight:     600,
+              textDecoration: 'none',
+            }}
+          >
+            ← Back to Dashboard
+          </Link>
+        </div>
 
       </div>
     </div>
