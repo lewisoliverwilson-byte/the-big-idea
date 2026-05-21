@@ -19,8 +19,41 @@ function ProtectedRoute({ children }: { children: ReactNode }) {
   const { isAuthenticated, isLoading } = useAuthStore()
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
-        <div className="animate-spin h-8 w-8 border-4 border-indigo-500 border-t-transparent rounded-full" />
+      <div style={{
+        minHeight:      '100vh',
+        background:     '#070511',
+        display:        'flex',
+        alignItems:     'center',
+        justifyContent: 'center',
+      }}>
+        {/* Magic spinner */}
+        <div style={{ position: 'relative', width: 48, height: 48 }}>
+          <div style={{
+            position:     'absolute',
+            inset:        0,
+            borderRadius: '50%',
+            border:       '2px solid rgba(139,92,246,0.15)',
+          }} />
+          <div style={{
+            position:     'absolute',
+            inset:        0,
+            borderRadius: '50%',
+            border:       '2px solid transparent',
+            borderTopColor: '#8B5CF6',
+            animation:    'spin 0.9s linear infinite',
+          }} />
+          <div style={{
+            position:       'absolute',
+            inset:          0,
+            display:        'flex',
+            alignItems:     'center',
+            justifyContent: 'center',
+            fontSize:       16,
+          }}>
+            ✦
+          </div>
+        </div>
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </div>
     )
   }
@@ -32,15 +65,10 @@ function AppShell({ children }: { children: ReactNode }) {
   const location  = useLocation()
   const isLanding = location.pathname === '/'
 
-  // App pages (dashboard, account, reports) keep the dark slate theme.
-  // Public pages (landing, pricing, auth) use white.
-  const isDark = ['/dashboard', '/account'].some(p => location.pathname.startsWith(p))
-    || location.pathname.startsWith('/report/')
-
   return (
-    <div className={`min-h-screen flex flex-col ${isDark ? 'bg-slate-950' : 'bg-white'}`}>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#070511' }}>
       <Navbar />
-      <main className="flex-1">
+      <main style={{ flex: 1 }}>
         {children}
       </main>
       {!isLanding && <Footer />}

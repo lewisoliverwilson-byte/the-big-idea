@@ -10,6 +10,9 @@ import {
   confirmSignUp,
   signInWithRedirect,
 } from 'aws-amplify/auth'
+import type { CSSProperties } from 'react'
+
+// ─── Schemas ──────────────────────────────────────────────────────────────────
 
 const schema = z.object({
   fullName: z.string().min(2, 'Enter your name'),
@@ -28,27 +31,111 @@ const confirmSchema = z.object({
 type FormData    = z.infer<typeof schema>
 type ConfirmData = z.infer<typeof confirmSchema>
 
-// ─── Shared style constants ───────────────────────────────────────────────────
+// ─── Design tokens ────────────────────────────────────────────────────────────
 
-const inputCls =
-  'w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 placeholder-slate-400 ' +
-  'focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-colors text-sm'
+const C = {
+  bg:      '#070511',
+  border:  'rgba(139,92,246,0.15)',
+  purple:  '#8B5CF6',
+  purpleB: '#A78BFA',
+  cyan:    '#22D3EE',
+  text:    '#F0EEFF',
+  textDim: '#9B8ECF',
+  textMut: '#5A4F7A',
+}
 
-const labelCls = 'block text-sm font-medium text-slate-700 mb-1.5'
+const GRAD = 'linear-gradient(135deg, #C084FC 0%, #818CF8 50%, #22D3EE 100%)'
+const GBTN = 'linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%)'
 
-const submitBtnCls =
-  'w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 ' +
-  'text-white font-bold px-6 py-3.5 rounded-xl text-sm transition-colors'
+const GTEXT: CSSProperties = {
+  background:           GRAD,
+  WebkitBackgroundClip: 'text',
+  WebkitTextFillColor:  'transparent',
+  backgroundClip:       'text',
+}
+
+const GLASS: CSSProperties = {
+  background:           'rgba(14,10,28,0.80)',
+  backdropFilter:       'blur(20px)',
+  WebkitBackdropFilter: 'blur(20px)',
+  border:               `1px solid ${C.border}`,
+  borderRadius:         20,
+  boxShadow:            '0 0 0 1px rgba(139,92,246,0.06), 0 32px 64px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.04)',
+}
+
+// ─── Shared styles ────────────────────────────────────────────────────────────
+
+const inputStyle: CSSProperties = {
+  width:     '100%',
+  background: 'rgba(7,5,17,0.8)',
+  border:    `1px solid ${C.border}`,
+  borderRadius: 12,
+  padding:   '12px 16px',
+  color:     C.text,
+  fontSize:  14,
+  outline:   'none',
+  transition: 'border-color 0.15s, box-shadow 0.15s',
+  boxSizing: 'border-box',
+}
+
+const labelStyle: CSSProperties = {
+  display:      'block',
+  fontSize:     13,
+  fontWeight:   500,
+  color:        C.textDim,
+  marginBottom: 6,
+}
+
+const submitBtnStyle: CSSProperties = {
+  width:          '100%',
+  display:        'flex',
+  alignItems:     'center',
+  justifyContent: 'center',
+  gap:            8,
+  background:     GBTN,
+  border:         '1px solid rgba(139,92,246,0.4)',
+  borderRadius:   12,
+  padding:        '13px 24px',
+  color:          '#fff',
+  fontSize:       14,
+  fontWeight:     700,
+  cursor:         'pointer',
+  boxShadow:      '0 0 20px rgba(124,58,237,0.3)',
+  transition:     'opacity 0.15s',
+}
+
+// ─── Stars (deterministic) ────────────────────────────────────────────────────
+
+const STARS = Array.from({ length: 30 }, (_, i) => {
+  const g = 137.508
+  return {
+    left:  `${((i * g) % 100).toFixed(1)}%`,
+    top:   `${((i * g * 0.61) % 100).toFixed(1)}%`,
+    size:  [1, 1, 1.5][i % 3],
+    delay: `${((i * 0.37) % 4.5).toFixed(2)}s`,
+    dur:   `${(2.8 + (i % 6) * 0.45).toFixed(1)}s`,
+  }
+})
+
+// ─── Logo icon ────────────────────────────────────────────────────────────────
 
 function SIcon() {
   return (
     <div style={{
-      width: 36, height: 36, background: '#4F46E5',
-      borderRadius: 9, display: 'inline-flex', alignItems: 'center',
+      width:          44,
+      height:         44,
+      background:     GRAD,
+      borderRadius:   12,
+      display:        'inline-flex',
+      alignItems:     'center',
       justifyContent: 'center',
-      fontFamily: '"Barlow Condensed","Arial Narrow",sans-serif',
-      fontWeight: 700, fontSize: 21, color: '#fff',
-      letterSpacing: '-0.02em', lineHeight: 1,
+      fontFamily:     '"Barlow Condensed","Arial Narrow",sans-serif',
+      fontWeight:     700,
+      fontSize:       26,
+      color:          '#fff',
+      letterSpacing:  '-0.02em',
+      lineHeight:     1,
+      boxShadow:      '0 0 20px rgba(139,92,246,0.4)',
     }}>
       S
     </div>
@@ -65,7 +152,6 @@ export function SignUp() {
   const [password, setPassword] = useState('')
   const [error,  setError]  = useState('')
 
-  // Pre-fill from quiz URL params
   const prefillEmail = searchParams.get('email') || ''
   const prefillName  = searchParams.get('name')  || ''
 
@@ -79,14 +165,13 @@ export function SignUp() {
     defaultValues: { email: prefillEmail, fullName: prefillName },
   })
 
-  // Apply prefills once on mount
   useEffect(() => {
     if (prefillEmail) setValue('email',    prefillEmail)
     if (prefillName)  setValue('fullName', prefillName)
   }, [prefillEmail, prefillName, setValue])
 
   const {
-    register: registerConfirm,
+    register:   registerConfirm,
     handleSubmit: handleConfirm,
     formState: { errors: confirmErrors, isSubmitting: isConfirming },
   } = useForm<ConfirmData>({ resolver: zodResolver(confirmSchema) })
@@ -111,7 +196,6 @@ export function SignUp() {
     setError('')
     try {
       await confirmSignUp({ username: email, confirmationCode: data.code })
-      // confirmSignUp does NOT create a session — sign in explicitly.
       try { await signOut({ global: false }) } catch { /* ignore */ }
       await signIn({ username: email, password })
       navigate('/dashboard')
@@ -121,120 +205,210 @@ export function SignUp() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-white px-4 py-12">
-      <div className="w-full max-w-sm">
+    <div style={{ minHeight: '100vh', background: C.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px 16px', position: 'relative', overflow: 'hidden' }}>
+
+      {/* Starfield */}
+      <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0 }}>
+        {STARS.map((s, i) => (
+          <div key={i} className="animate-twinkle" style={{
+            position:          'absolute',
+            left:              s.left,
+            top:               s.top,
+            width:             s.size,
+            height:            s.size,
+            borderRadius:      '50%',
+            background:        i % 3 === 0 ? C.purpleB : i % 3 === 1 ? C.cyan : '#fff',
+            animationDelay:    s.delay,
+            animationDuration: s.dur,
+          }} />
+        ))}
+      </div>
+
+      {/* Ambient orb */}
+      <div className="animate-float-orb" style={{
+        position:      'fixed',
+        top:           '15%',
+        left:          '50%',
+        transform:     'translateX(-50%)',
+        width:         500,
+        height:        350,
+        background:    'radial-gradient(ellipse, rgba(124,58,237,0.14) 0%, transparent 70%)',
+        borderRadius:  '50%',
+        pointerEvents: 'none',
+        zIndex:        0,
+      }} />
+
+      <div style={{ width: '100%', maxWidth: 400, position: 'relative', zIndex: 1 }}>
 
         {/* Logo */}
-        <div className="text-center mb-8">
-          <Link to="/" className="inline-flex flex-col items-center gap-3 mb-6 no-underline">
+        <div style={{ textAlign: 'center', marginBottom: 32 }}>
+          <Link to="/" style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: 12, textDecoration: 'none' }}>
             <SIcon />
             <span style={{
               fontFamily:    '"Barlow Condensed","Arial Narrow",sans-serif',
-              fontWeight:    700, fontSize: 20, color: '#0F172A', letterSpacing: '-0.01em',
+              fontWeight:    700,
+              fontSize:      22,
+              letterSpacing: '-0.01em',
+              ...GTEXT,
             }}>
               Sourcery
             </span>
           </Link>
-          <h1 className="text-2xl font-bold text-slate-900">
-            {stage === 'signup' ? 'Create your account' : 'Check your email'}
+
+          <h1 style={{ fontSize: 24, fontWeight: 700, color: C.text, marginTop: 16, marginBottom: 4 }}>
+            {stage === 'signup' ? 'Begin your journey' : 'Check your inbox'}
           </h1>
-          <p className="text-slate-500 text-sm mt-1">
+          <p style={{ fontSize: 13, color: C.textDim }}>
             {stage === 'signup'
-              ? '2 free ideas to get you started'
-              : `We sent a 6-digit code to ${email}`}
+              ? '2 free spells to get you started'
+              : `We sent a 6-digit incantation to ${email}`}
           </p>
         </div>
 
-        {stage === 'signup' ? (
-          <form onSubmit={handleSubmit(onSignUp)} className="space-y-4">
-            <div>
-              <label className={labelCls}>Full name</label>
-              <input type="text" placeholder="Alex Johnson" className={inputCls} {...register('fullName')} />
-              {errors.fullName && <p className="text-red-500 text-xs mt-1">{errors.fullName.message}</p>}
-            </div>
+        {/* Card */}
+        <div style={{ ...GLASS, padding: 32 }}>
 
-            <div>
-              <label className={labelCls}>Email</label>
-              <input type="email" placeholder="you@example.com" className={inputCls} {...register('email')} />
-              {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
-            </div>
+          {stage === 'signup' ? (
+            <form onSubmit={handleSubmit(onSignUp)} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <div>
+                <label style={labelStyle}>Full name</label>
+                <input
+                  type="text"
+                  placeholder="Alex Johnson"
+                  style={inputStyle}
+                  onFocus={e => { e.currentTarget.style.borderColor = C.purple; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(139,92,246,0.15)' }}
+                  {...register('fullName')}
+                />
+                {errors.fullName && <p style={{ color: '#F87171', fontSize: 11, marginTop: 4 }}>{errors.fullName.message}</p>}
+              </div>
 
-            <div>
-              <label className={labelCls}>Password</label>
-              <input
-                type="password"
-                placeholder="Min. 8 chars, 1 uppercase, 1 number"
-                className={inputCls}
-                {...register('password')}
-              />
-              {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>}
-            </div>
+              <div>
+                <label style={labelStyle}>Email</label>
+                <input
+                  type="email"
+                  placeholder="you@example.com"
+                  style={inputStyle}
+                  onFocus={e => { e.currentTarget.style.borderColor = C.purple; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(139,92,246,0.15)' }}
+                  {...register('email')}
+                />
+                {errors.email && <p style={{ color: '#F87171', fontSize: 11, marginTop: 4 }}>{errors.email.message}</p>}
+              </div>
 
-            {error && (
-              <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg p-3">{error}</p>
-            )}
+              <div>
+                <label style={labelStyle}>Password</label>
+                <input
+                  type="password"
+                  placeholder="Min. 8 chars, 1 uppercase, 1 number"
+                  style={inputStyle}
+                  onFocus={e => { e.currentTarget.style.borderColor = C.purple; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(139,92,246,0.15)' }}
+                  {...register('password')}
+                />
+                {errors.password && <p style={{ color: '#F87171', fontSize: 11, marginTop: 4 }}>{errors.password.message}</p>}
+              </div>
 
-            <button type="submit" disabled={isSubmitting} className={submitBtnCls}>
-              {isSubmitting
-                ? <div className="h-4 w-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
-                : 'Create account'}
-            </button>
+              {error && (
+                <div style={{ fontSize: 13, color: '#F87171', background: 'rgba(248,113,113,0.08)', border: '1px solid rgba(248,113,113,0.2)', borderRadius: 10, padding: '10px 14px' }}>
+                  {error}
+                </div>
+              )}
 
-            <div className="relative flex items-center gap-3">
-              <div className="flex-1 h-px bg-slate-200" />
-              <span className="text-xs text-slate-400">or</span>
-              <div className="flex-1 h-px bg-slate-200" />
-            </div>
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                style={{ ...submitBtnStyle, opacity: isSubmitting ? 0.6 : 1 }}
+                onMouseEnter={e => !isSubmitting && ((e.currentTarget as HTMLButtonElement).style.opacity = '0.85')}
+                onMouseLeave={e => !isSubmitting && ((e.currentTarget as HTMLButtonElement).style.opacity = '1')}
+              >
+                {isSubmitting
+                  ? <div className="h-4 w-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                  : '✦ Cast your first spell'}
+              </button>
 
-            <button
-              type="button"
-              onClick={() => signInWithRedirect({ provider: 'Google' })}
-              className="w-full flex items-center justify-center gap-2 bg-white border border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-700 font-medium px-6 py-3 rounded-xl text-sm transition-colors"
-            >
-              <img src="https://www.google.com/favicon.ico" alt="Google" className="w-4 h-4" />
-              Continue with Google
-            </button>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div style={{ flex: 1, height: 1, background: C.border }} />
+                <span style={{ fontSize: 11, color: C.textMut }}>or</span>
+                <div style={{ flex: 1, height: 1, background: C.border }} />
+              </div>
 
-            <p className="text-center text-sm text-slate-500">
-              Already have an account?{' '}
-              <Link to="/auth/signin" className="text-indigo-600 font-medium hover:underline">
-                Sign in
-              </Link>
-            </p>
-          </form>
-        ) : (
-          <form onSubmit={handleConfirm(onConfirm)} className="space-y-4">
-            <div>
-              <label className={labelCls}>Verification code</label>
-              <input
-                type="text"
-                placeholder="123456"
-                maxLength={6}
-                className={`${inputCls} text-center tracking-widest text-lg`}
-                {...registerConfirm('code')}
-              />
-              {confirmErrors.code && <p className="text-red-500 text-xs mt-1">{confirmErrors.code.message}</p>}
-            </div>
+              <button
+                type="button"
+                onClick={() => signInWithRedirect({ provider: 'Google' })}
+                style={{
+                  width:          '100%',
+                  display:        'flex',
+                  alignItems:     'center',
+                  justifyContent: 'center',
+                  gap:            8,
+                  background:     'rgba(255,255,255,0.04)',
+                  border:         `1px solid ${C.border}`,
+                  borderRadius:   12,
+                  padding:        '11px 24px',
+                  color:          C.textDim,
+                  fontSize:       13,
+                  fontWeight:     500,
+                  cursor:         'pointer',
+                  transition:     'all 0.15s',
+                }}
+                onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(139,92,246,0.35)'; (e.currentTarget as HTMLButtonElement).style.color = C.text }}
+                onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = C.border; (e.currentTarget as HTMLButtonElement).style.color = C.textDim }}
+              >
+                <img src="https://www.google.com/favicon.ico" alt="Google" style={{ width: 14, height: 14 }} />
+                Continue with Google
+              </button>
 
-            {error && (
-              <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg p-3">{error}</p>
-            )}
+              <p style={{ textAlign: 'center', fontSize: 13, color: C.textDim }}>
+                Already a sorcerer?{' '}
+                <Link to="/auth/signin" style={{ color: C.purpleB, fontWeight: 600, textDecoration: 'none' }}>
+                  Sign in
+                </Link>
+              </p>
+            </form>
+          ) : (
+            <form onSubmit={handleConfirm(onConfirm)} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <div>
+                <label style={labelStyle}>Verification code</label>
+                <input
+                  type="text"
+                  placeholder="123456"
+                  maxLength={6}
+                  style={{ ...inputStyle, textAlign: 'center', letterSpacing: '0.3em', fontSize: 22 }}
+                  onFocus={e => { e.currentTarget.style.borderColor = C.purple; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(139,92,246,0.15)' }}
+                  {...registerConfirm('code')}
+                />
+                {confirmErrors.code && <p style={{ color: '#F87171', fontSize: 11, marginTop: 4 }}>{confirmErrors.code.message}</p>}
+              </div>
 
-            <button type="submit" disabled={isConfirming} className={submitBtnCls}>
-              {isConfirming
-                ? <div className="h-4 w-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
-                : 'Verify account'}
-            </button>
+              {error && (
+                <div style={{ fontSize: 13, color: '#F87171', background: 'rgba(248,113,113,0.08)', border: '1px solid rgba(248,113,113,0.2)', borderRadius: 10, padding: '10px 14px' }}>
+                  {error}
+                </div>
+              )}
 
-            <button
-              type="button"
-              onClick={() => setStage('signup')}
-              className="w-full text-sm text-slate-500 hover:text-slate-700 underline transition-colors"
-            >
-              Back to sign up
-            </button>
-          </form>
-        )}
+              <button
+                type="submit"
+                disabled={isConfirming}
+                style={{ ...submitBtnStyle, opacity: isConfirming ? 0.6 : 1 }}
+                onMouseEnter={e => !isConfirming && ((e.currentTarget as HTMLButtonElement).style.opacity = '0.85')}
+                onMouseLeave={e => !isConfirming && ((e.currentTarget as HTMLButtonElement).style.opacity = '1')}
+              >
+                {isConfirming
+                  ? <div className="h-4 w-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                  : '✦ Confirm your identity'}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setStage('signup')}
+                style={{ width: '100%', background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, color: C.textDim, textDecoration: 'underline', transition: 'color 0.15s' }}
+                onMouseEnter={e => ((e.currentTarget as HTMLButtonElement).style.color = C.text)}
+                onMouseLeave={e => ((e.currentTarget as HTMLButtonElement).style.color = C.textDim)}
+              >
+                Back to sign up
+              </button>
+            </form>
+          )}
+
+        </div>
       </div>
     </div>
   )

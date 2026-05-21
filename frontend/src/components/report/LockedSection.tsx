@@ -1,15 +1,26 @@
 import { Link } from 'react-router-dom'
-import { Lock } from 'lucide-react'
 import type { ReactNode } from 'react'
 
 interface LockedSectionProps {
-  children: ReactNode
-  isLocked: boolean
+  children:    ReactNode
+  isLocked:    boolean
   /** Short label shown in the lock overlay */
   featureName: string
   /** Extra context shown in the overlay subtitle */
-  subtitle?: string
+  subtitle?:   string
 }
+
+const C = {
+  border:  'rgba(139,92,246,0.2)',
+  purple:  '#8B5CF6',
+  purpleB: '#A78BFA',
+  text:    '#F0EEFF',
+  textDim: '#9B8ECF',
+  textMut: '#5A4F7A',
+}
+
+const GBTN = 'linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%)'
+const GRAD = 'linear-gradient(135deg, #C084FC 0%, #818CF8 50%, #22D3EE 100%)'
 
 /**
  * Wraps a report section and blurs it for free-tier users.
@@ -19,34 +30,71 @@ export function LockedSection({ children, isLocked, featureName, subtitle }: Loc
   if (!isLocked) return <>{children}</>
 
   return (
-    <div className="relative rounded-2xl overflow-hidden">
+    <div style={{ position: 'relative', borderRadius: 16, overflow: 'hidden' }}>
       {/* Blurred preview */}
-      <div className="select-none pointer-events-none blur-sm opacity-60">
+      <div style={{ userSelect: 'none', pointerEvents: 'none', filter: 'blur(4px)', opacity: 0.4 }}>
         {children}
       </div>
 
       {/* Lock overlay */}
-      <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-slate-950/30 to-slate-950/95 backdrop-blur-[2px] rounded-2xl">
-        <div className="text-center px-6 py-8 max-w-sm">
+      <div style={{
+        position:       'absolute',
+        inset:          0,
+        display:        'flex',
+        flexDirection:  'column',
+        alignItems:     'center',
+        justifyContent: 'center',
+        background:     'linear-gradient(to bottom, rgba(7,5,17,0.2) 0%, rgba(7,5,17,0.92) 100%)',
+        backdropFilter: 'blur(2px)',
+        borderRadius:   16,
+      }}>
+        <div style={{ textAlign: 'center', padding: '32px 24px', maxWidth: 340 }}>
+
           {/* Lock icon */}
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-indigo-600 mb-4 shadow-lg shadow-indigo-600/30">
-            <Lock className="h-6 w-6 text-white" />
+          <div style={{
+            width:          56,
+            height:         56,
+            background:     GRAD,
+            borderRadius:   '50%',
+            display:        'flex',
+            alignItems:     'center',
+            justifyContent: 'center',
+            margin:         '0 auto 16px',
+            fontSize:       22,
+            boxShadow:      '0 0 20px rgba(139,92,246,0.4)',
+          }}>
+            🔮
           </div>
 
-          <h3 className="text-lg font-bold text-white mb-1">{featureName}</h3>
-          <p className="text-sm text-slate-400 mb-5">
-            {subtitle ?? 'This section is included in Pro reports. Upgrade to unlock the full analysis.'}
+          <h3 style={{ fontSize: 17, fontWeight: 700, color: C.text, marginBottom: 8 }}>{featureName}</h3>
+          <p style={{ fontSize: 13, color: C.textDim, marginBottom: 20, lineHeight: 1.6 }}>
+            {subtitle ?? 'This vision is sealed for Sorcerer tier. Upgrade to unlock the full oracle.'}
           </p>
 
           <Link
             to="/pricing"
-            className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-6 py-2.5 rounded-full text-sm transition-colors shadow-md"
+            style={{
+              display:        'inline-flex',
+              alignItems:     'center',
+              gap:            8,
+              background:     GBTN,
+              border:         '1px solid rgba(139,92,246,0.4)',
+              borderRadius:   99,
+              padding:        '10px 22px',
+              color:          '#fff',
+              fontSize:       13,
+              fontWeight:     700,
+              textDecoration: 'none',
+              boxShadow:      '0 0 16px rgba(124,58,237,0.3)',
+              transition:     'opacity 0.15s',
+            }}
+            onMouseEnter={e => ((e.currentTarget as HTMLAnchorElement).style.opacity = '0.85')}
+            onMouseLeave={e => ((e.currentTarget as HTMLAnchorElement).style.opacity = '1')}
           >
-            <Lock className="h-3.5 w-3.5" />
-            Unlock with Pro — £10/mo
+            ✦ Unlock with Sorcerer — £10/mo
           </Link>
 
-          <p className="text-xs text-slate-500 mt-3">Cancel anytime</p>
+          <p style={{ fontSize: 11, color: C.textMut, marginTop: 10 }}>Cancel anytime</p>
         </div>
       </div>
     </div>
