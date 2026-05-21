@@ -38,16 +38,26 @@ def decode_token(token: str) -> dict:
         raise HTTPException(status_code=401, detail="Public key not found")
 
     try:
+        # Cognito ACCESS tokens do not carry an `aud` claim (they have
+        # `client_id` instead). Passing audience= here causes python-jose to
+        # raise JWTClaimsError on every valid token, so we skip that check and
+        # validate client_id + token_use manually below.
         payload = jwt.decode(
             token,
             key,
             algorithms=["RS256"],
-            audience=COGNITO_CLIENT_ID,
-            options={"verify_exp": True},
+            options={"verify_exp": True, "verify_aud": False},
         )
-        return payload
     except JWTError as e:
         raise HTTPException(status_code=401, detail=f"Invalid token: {e}")
+
+    # Validate it really is an access token issued for our app client
+    if payload.get("token_use") != "access":
+        raise HTTPException(status_code=401, detail="Token must be an access token")
+    if COGNITO_CLIENT_ID and payload.get("client_id") != COGNITO_CLIENT_ID:
+        raise HTTPException(status_code=401, detail="Token issued for wrong client")
+
+    return payload
 
 
 def get_current_user_sub(

@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { useAuth } from './hooks/useAuth'
+import { useAuthStore } from './store/authStore'
 import { Navbar } from './components/layout/Navbar'
 import { Footer } from './components/layout/Footer'
 import { Landing } from './pages/Landing'
@@ -11,8 +12,10 @@ import { ReportPage } from './pages/ReportPage'
 import { Pricing } from './pages/Pricing'
 import { Account } from './pages/Account'
 
+// Reads directly from the store — does NOT call useAuth() so there is
+// only ever ONE Hub listener (the one in App below).
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated, isLoading } = useAuth()
+  const { isAuthenticated, isLoading } = useAuthStore()
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -25,7 +28,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-  // Initialise auth (sets up listener + syncs user)
+  // Single useAuth() call for the whole app — sets up Hub listener + initial sync
   useAuth()
 
   return (
