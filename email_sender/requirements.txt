@@ -1,2 +1,2 @@
-aws-encryption-sdk>=3.2.0
+aws-encryption-sdk>=2.5.0,<3.0.0
 requests>=2.31.0

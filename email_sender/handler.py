@@ -8,10 +8,9 @@ import json
 import logging
 import os
 
-import boto3
+import aws_encryption_sdk
 import requests
-from aws_encryption_sdk import CommitmentPolicy, EncryptionSDKClient
-from aws_encryption_sdk.keyrings.aws_kms import AwsKmsKeyring
+from aws_encryption_sdk.key_providers.kms import KMSMasterKeyProvider
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -20,16 +19,12 @@ RESEND_API_KEY = os.environ["RESEND_API_KEY"]
 KMS_KEY_ARN    = os.environ["KMS_KEY_ARN"]
 FROM_ADDRESS   = os.environ.get("FROM_ADDRESS", "Sourcery <onboarding@resend.dev>")
 
-_enc_client = EncryptionSDKClient(
-    commitment_policy=CommitmentPolicy.REQUIRE_ENCRYPT_ALLOW_DECRYPT
-)
-
 
 def _decrypt_code(encrypted_b64: str) -> str:
-    keyring = AwsKmsKeyring(generator_key_id=KMS_KEY_ARN)
-    plaintext, _ = _enc_client.decrypt(
+    kms_key_provider = KMSMasterKeyProvider(key_ids=[KMS_KEY_ARN])
+    plaintext, _ = aws_encryption_sdk.decrypt(
         source=base64.b64decode(encrypted_b64),
-        keyring=keyring,
+        key_provider=kms_key_provider,
     )
     return plaintext.decode("utf-8")
 
