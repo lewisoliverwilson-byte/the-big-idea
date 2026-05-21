@@ -325,13 +325,6 @@ export function Landing() {
   }>({ budget: null, unitSize: null, category: null, platform: null, goal: null })
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  // If already signed in, show shorter version with a direct CTA
-  useEffect(() => {
-    if (isAuthenticated) {
-      // Still show the quiz — it will pass params to dashboard
-    }
-  }, [isAuthenticated])
-
   const answerKeys = ['budget', 'unitSize', 'category', 'platform', 'goal'] as const
 
   const getValueForStep = (s: number) => answers[answerKeys[s - 1]]

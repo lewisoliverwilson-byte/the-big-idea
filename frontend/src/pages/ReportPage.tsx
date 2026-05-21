@@ -1,7 +1,6 @@
 import { useParams, Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { useReportStore } from '../store/reportStore'
-import { useAuthStore } from '../store/authStore'
 import { getReport } from '../services/api'
 import { ReportLoading } from '../components/report/ReportLoading'
 import { ReportCharts } from '../components/report/ReportCharts'
@@ -18,7 +17,6 @@ import { Bookmark, Star, Package, Tag, Crown, Lock } from 'lucide-react'
 export function ReportPage() {
   const { reportId } = useParams<{ reportId: string }>()
   const { isGenerating } = useReportStore()
-  const { user } = useAuthStore()
 
   const { data: report, isLoading, isError } = useQuery({
     queryKey: ['report', reportId],
@@ -53,12 +51,9 @@ export function ReportPage() {
   }
 
   const { product } = report
-  const isFreeTier = report.tier === 'free'
-  const isPro = user?.subscriptionStatus === 'active'
-
   // A report generated as 'free' tier shows locked sections even if user has since upgraded
   // — they can re-run it as a Pro report from dashboard
-  const showLocked = isFreeTier
+  const showLocked = report.tier === 'free'
 
   return (
     <div className="min-h-screen bg-slate-950">

@@ -11,8 +11,6 @@ import {
   signInWithRedirect,
 } from 'aws-amplify/auth'
 import { TrendingUp } from 'lucide-react'
-import { Button } from '../../components/ui/Button'
-import { Input } from '../../components/ui/Input'
 
 const schema = z.object({
   fullName: z.string().min(2, 'Enter your name'),
