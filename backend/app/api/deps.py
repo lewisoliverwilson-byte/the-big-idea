@@ -29,15 +29,15 @@ def get_jwks() -> dict:
 
 
 def decode_token(token: str) -> dict:
-    jwks = get_jwks()
-    headers = jwt.get_unverified_headers(token)
-    kid = headers.get("kid")
-
-    key = next((k for k in jwks["keys"] if k["kid"] == kid), None)
-    if not key:
-        raise HTTPException(status_code=401, detail="Public key not found")
-
     try:
+        jwks = get_jwks()
+        headers = jwt.get_unverified_headers(token)
+        kid = headers.get("kid")
+
+        key = next((k for k in jwks["keys"] if k["kid"] == kid), None)
+        if not key:
+            raise HTTPException(status_code=401, detail="Public key not found")
+
         # Cognito ACCESS tokens do not carry an `aud` claim (they have
         # `client_id` instead). Passing audience= here causes python-jose to
         # raise JWTClaimsError on every valid token, so we skip that check and
@@ -48,10 +48,12 @@ def decode_token(token: str) -> dict:
             algorithms=["RS256"],
             options={"verify_exp": True, "verify_aud": False},
         )
-    except JWTError as e:
+    except HTTPException:
+        raise
+    except Exception as e:
         raise HTTPException(status_code=401, detail=f"Invalid token: {e}")
 
-    # Validate it really is an access token issued for our app client
+    # Validate it is an access token issued for our app client
     if payload.get("token_use") != "access":
         raise HTTPException(status_code=401, detail="Token must be an access token")
     if COGNITO_CLIENT_ID and payload.get("client_id") != COGNITO_CLIENT_ID:
