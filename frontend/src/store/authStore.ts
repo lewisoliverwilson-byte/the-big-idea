@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { signOut as amplifySignOut } from 'aws-amplify/auth'
 import { User } from '../types'
 
 interface AuthState {
@@ -8,6 +9,7 @@ interface AuthState {
   setUser: (user: User | null) => void
   setLoading: (loading: boolean) => void
   logout: () => void
+  signOut: () => Promise<void>
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
@@ -17,4 +19,12 @@ export const useAuthStore = create<AuthState>((set) => ({
   setUser: (user) => set({ user, isAuthenticated: !!user, isLoading: false }),
   setLoading: (isLoading) => set({ isLoading }),
   logout: () => set({ user: null, isAuthenticated: false, isLoading: false }),
+  signOut: async () => {
+    try {
+      await amplifySignOut()
+    } catch (err) {
+      console.error('[authStore] signOut error:', err)
+    }
+    set({ user: null, isAuthenticated: false, isLoading: false })
+  },
 }))

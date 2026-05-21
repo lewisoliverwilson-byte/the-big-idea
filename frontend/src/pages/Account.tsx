@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom'
 import { useMutation } from '@tanstack/react-query'
 import { useAuthStore } from '../store/authStore'
 import { createPortalSession, deleteAccount } from '../services/api'
-import { useAuth } from '../hooks/useAuth'
 import { Card, CardBody, CardHeader } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 import { Badge } from '../components/ui/Badge'
@@ -11,8 +10,7 @@ import { formatDate } from '../utils/formatters'
 import { User, CreditCard, Trash2, Shield } from 'lucide-react'
 
 export function Account() {
-  const { user } = useAuthStore()
-  const { signOut } = useAuth()
+  const { user, signOut } = useAuthStore()
   const navigate = useNavigate()
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
 

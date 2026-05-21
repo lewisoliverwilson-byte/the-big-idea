@@ -1,10 +1,11 @@
 import { Link, useNavigate } from 'react-router-dom'
-import { useAuth } from '../../hooks/useAuth'
+import { useAuthStore } from '../../store/authStore'
 import { Button } from '../ui/Button'
 import { TrendingUp, LogOut, User, LayoutDashboard } from 'lucide-react'
 
 export function Navbar() {
-  const { user, isAuthenticated, signOut } = useAuth()
+  // Read directly from store — does NOT call useAuth() so no extra Hub listener
+  const { user, isAuthenticated, signOut } = useAuthStore()
   const navigate = useNavigate()
 
   const handleSignOut = async () => {
