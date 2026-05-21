@@ -3,8 +3,6 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useNavigate } from 'react-router-dom'
 import { useMutation } from '@tanstack/react-query'
-import { Button } from '../ui/Button'
-import { Input, Select } from '../ui/Input'
 import { submitSearch } from '../../services/api'
 import { useReportStore } from '../../store/reportStore'
 import { useAuthStore } from '../../store/authStore'
@@ -45,6 +43,10 @@ interface SearchFormProps {
   onPaywallHit?: () => void
 }
 
+// Dark-themed shared styles
+const inputCls = "w-full bg-slate-800 border border-slate-600 rounded-lg px-3 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400/20 transition-colors text-sm"
+const labelCls = "block text-xs font-medium text-slate-400 mb-1"
+
 export function SearchForm({ onPaywallHit }: SearchFormProps) {
   const navigate = useNavigate()
   const { setCurrentReportId, setIsGenerating } = useReportStore()
@@ -79,7 +81,7 @@ export function SearchForm({ onPaywallHit }: SearchFormProps) {
       navigate(`/report/${data.reportId}`)
     },
     onError: (error: any) => {
-      if (error?.response?.status === 402) {
+      if (error?.response?.status === 402 || error?.response?.status === 429) {
         onPaywallHit?.()
       }
     },
@@ -119,69 +121,68 @@ export function SearchForm({ onPaywallHit }: SearchFormProps) {
     mutation.mutate(params)
   }
 
-  // Check free tier limit
   const isAtFreeLimit =
     user?.subscriptionStatus === 'free' && (user.reportsUsedFree || 0) >= 2
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       {/* Budget */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="sm:col-span-2">
-          <Input
-            label={`Total Budget (${currency === 'GBP' ? '£' : '$'})`}
+      <div className="grid grid-cols-3 gap-2">
+        <div className="col-span-2">
+          <label className={labelCls}>Budget ({currency === 'GBP' ? '£' : '$'})</label>
+          <input
             type="number"
             min={10}
             max={100000}
-            {...register('budgetGbp', { valueAsNumber: true })}
-            error={errors.budgetGbp?.message}
             placeholder="200"
+            className={inputCls}
+            {...register('budgetGbp', { valueAsNumber: true })}
           />
+          {errors.budgetGbp && <p className="text-red-400 text-xs mt-1">{errors.budgetGbp.message}</p>}
         </div>
         <div>
-          <Select label="Currency" {...register('currency')}>
-            <option value="GBP">GBP (£)</option>
-            <option value="USD">USD ($)</option>
-          </Select>
+          <label className={labelCls}>Currency</label>
+          <select className={inputCls} {...register('currency')}>
+            <option value="GBP">GBP</option>
+            <option value="USD">USD</option>
+          </select>
         </div>
       </div>
 
       {/* Unit Size */}
-      <Select
-        label="Product Size"
-        {...register('unitSize')}
-        error={errors.unitSize?.message}
-      >
-        <option value="small">Small — fits in an envelope</option>
-        <option value="medium">Medium — shoebox size</option>
-        <option value="large">Large — carries freely</option>
-        <option value="xlarge">Extra Large</option>
-      </Select>
+      <div>
+        <label className={labelCls}>Product size</label>
+        <select className={inputCls} {...register('unitSize')}>
+          <option value="small">Small — envelope size</option>
+          <option value="medium">Medium — shoebox</option>
+          <option value="large">Large — carries freely</option>
+          <option value="xlarge">Extra large</option>
+        </select>
+      </div>
 
       {/* Category */}
-      <Select label="Category (optional)" {...register('category')}>
-        {CATEGORIES.map((c) => (
-          <option key={c} value={c}>
-            {c}
-          </option>
-        ))}
-      </Select>
+      <div>
+        <label className={labelCls}>Category</label>
+        <select className={inputCls} {...register('category')}>
+          {CATEGORIES.map((c) => (
+            <option key={c} value={c}>{c}</option>
+          ))}
+        </select>
+      </div>
 
       {/* Target Platforms */}
-      <div className="space-y-2">
-        <label className="text-sm font-medium text-gray-700">
-          Target Sell Platforms (optional)
-        </label>
-        <div className="flex flex-wrap gap-2">
+      <div>
+        <label className={labelCls}>Sell on (optional)</label>
+        <div className="flex flex-wrap gap-1.5 mt-1">
           {PLATFORMS.map((platform) => (
             <button
               key={platform}
               type="button"
               onClick={() => togglePlatform(platform)}
-              className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-colors capitalize ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors capitalize ${
                 targetPlatforms.includes(platform)
-                  ? 'bg-indigo-600 text-white border-indigo-600'
-                  : 'bg-white text-gray-600 border-gray-300 hover:border-indigo-400'
+                  ? 'bg-amber-400 text-slate-900 border-amber-400'
+                  : 'bg-slate-800 text-slate-400 border-slate-600 hover:border-slate-400'
               }`}
             >
               {platform}
@@ -190,10 +191,10 @@ export function SearchForm({ onPaywallHit }: SearchFormProps) {
         </div>
       </div>
 
-      {/* Minimum Margin */}
-      <div className="space-y-2">
-        <label className="text-sm font-medium text-gray-700">
-          Minimum Margin: {watch('minMarginPercent') || 20}%
+      {/* Min Margin */}
+      <div>
+        <label className={labelCls}>
+          Min. margin: {watch('minMarginPercent') || 20}%
         </label>
         <input
           type="range"
@@ -201,9 +202,9 @@ export function SearchForm({ onPaywallHit }: SearchFormProps) {
           max={80}
           step={5}
           {...register('minMarginPercent', { valueAsNumber: true })}
-          className="w-full accent-indigo-600"
+          className="w-full accent-amber-400 h-1.5 rounded"
         />
-        <div className="flex justify-between text-xs text-gray-400">
+        <div className="flex justify-between text-xs text-slate-600 mt-1">
           <span>10%</span>
           <span>80%</span>
         </div>
@@ -214,40 +215,42 @@ export function SearchForm({ onPaywallHit }: SearchFormProps) {
         <input
           type="checkbox"
           {...register('trendingOnly')}
-          className="w-4 h-4 rounded accent-indigo-600"
+          className="w-4 h-4 rounded accent-amber-400"
         />
         <div>
-          <span className="text-sm font-medium text-gray-700">
-            Trending products only
-          </span>
-          <p className="text-xs text-gray-500">
-            Only return products with upward search trend
-          </p>
+          <span className="text-sm font-medium text-slate-300">Trending products only</span>
+          <p className="text-xs text-slate-500">Only return products with upward trend</p>
         </div>
       </label>
 
       {/* Keywords to Avoid */}
-      <Input
-        label="Keywords to Avoid (optional)"
-        {...register('keywordsToAvoid')}
-        placeholder="e.g. fragile, batteries, food"
-        hint="Comma-separated keywords to exclude from results"
-      />
+      <div>
+        <label className={labelCls}>Keywords to avoid (optional)</label>
+        <input
+          type="text"
+          placeholder="e.g. fragile, batteries"
+          className={inputCls}
+          {...register('keywordsToAvoid')}
+        />
+      </div>
 
       {/* Submit */}
-      <Button
+      <button
         type="submit"
-        variant="primary"
-        size="lg"
-        className="w-full"
-        isLoading={mutation.isPending}
-        disabled={isAtFreeLimit}
+        disabled={mutation.isPending || isAtFreeLimit}
+        className="w-full flex items-center justify-center gap-2 bg-amber-400 hover:bg-amber-300 disabled:opacity-50 text-slate-900 font-bold px-4 py-3 rounded-xl text-sm transition-colors"
       >
-        {isAtFreeLimit ? 'Upgrade to Continue' : 'Find My Product'}
-      </Button>
+        {mutation.isPending ? (
+          <div className="h-4 w-4 border-2 border-slate-900 border-t-transparent rounded-full animate-spin" />
+        ) : isAtFreeLimit ? (
+          'Upgrade to Continue'
+        ) : (
+          'Find My Product'
+        )}
+      </button>
 
       {mutation.isError && (
-        <p className="text-sm text-red-600 text-center">
+        <p className="text-sm text-red-400 text-center">
           Something went wrong. Please try again.
         </p>
       )}

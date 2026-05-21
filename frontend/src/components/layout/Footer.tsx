@@ -3,14 +3,14 @@ import { TrendingUp } from 'lucide-react'
 
 export function Footer() {
   return (
-    <footer className="bg-gray-900 text-gray-400 py-12 mt-20">
+    <footer className="bg-slate-950 border-t border-slate-800 text-slate-500 py-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-2">
-            <div className="bg-indigo-600 rounded-lg p-1.5">
-              <TrendingUp className="h-4 w-4 text-white" />
+            <div className="bg-amber-400 rounded-lg p-1.5">
+              <TrendingUp className="h-4 w-4 text-slate-900" />
             </div>
-            <span className="text-white font-semibold">The Big Idea</span>
+            <span className="text-white font-semibold text-sm">The Big Idea</span>
           </div>
           <div className="flex items-center gap-6 text-sm">
             <Link to="/pricing" className="hover:text-white transition-colors">

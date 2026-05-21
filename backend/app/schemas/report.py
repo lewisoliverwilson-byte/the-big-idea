@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional, List, Any
+from typing import Optional, List, Any, Literal
 from pydantic import BaseModel
 from uuid import UUID
 
@@ -7,7 +7,7 @@ from uuid import UUID
 class SearchRequest(BaseModel):
     budgetUsd: float
     currency: str = "GBP"
-    unitSize: str
+    unitSize: str = "medium"
     category: Optional[str] = None
     targetPlatforms: Optional[List[str]] = None
     minMarginPercent: Optional[float] = None
@@ -89,6 +89,7 @@ class ReportOut(BaseModel):
     riskScore: int
     opportunityScore: int
     createdAt: datetime
+    tier: Literal["free", "pro"] = "free"
 
 
 class ReportListItem(BaseModel):
@@ -98,3 +99,4 @@ class ReportListItem(BaseModel):
     opportunityScore: int
     riskScore: int
     createdAt: datetime
+    tier: Literal["free", "pro"] = "free"

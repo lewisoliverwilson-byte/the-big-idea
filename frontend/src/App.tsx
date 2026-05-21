@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from './hooks/useAuth'
 import { useAuthStore } from './store/authStore'
 import { Navbar } from './components/layout/Navbar'
@@ -18,8 +18,8 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useAuthStore()
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin h-8 w-8 border-4 border-indigo-600 border-t-transparent rounded-full" />
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+        <div className="animate-spin h-8 w-8 border-4 border-amber-400 border-t-transparent rounded-full" />
       </div>
     )
   }
@@ -27,48 +27,60 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>
 }
 
+function AppShell({ children }: { children: React.ReactNode }) {
+  const location = useLocation()
+  const isLanding = location.pathname === '/'
+  const isDark = ['/pricing', '/dashboard', '/account'].some(p => location.pathname.startsWith(p)) || location.pathname === '/'
+
+  return (
+    <div className={`min-h-screen flex flex-col ${isDark ? 'bg-slate-950' : 'bg-white'}`}>
+      <Navbar />
+      <main className="flex-1">
+        {children}
+      </main>
+      {!isLanding && <Footer />}
+    </div>
+  )
+}
+
 export default function App() {
   // Single useAuth() call for the whole app — sets up Hub listener + initial sync
   useAuth()
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Navbar />
-      <main className="flex-1">
-        <Routes>
-          <Route path="/" element={<Landing />} />
-          <Route path="/auth/signup" element={<SignUp />} />
-          <Route path="/auth/signin" element={<SignIn />} />
-          <Route path="/auth/callback" element={<AuthCallback />} />
-          <Route path="/pricing" element={<Pricing />} />
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/report/:reportId"
-            element={
-              <ProtectedRoute>
-                <ReportPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/account"
-            element={
-              <ProtectedRoute>
-                <Account />
-              </ProtectedRoute>
-            }
-          />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </main>
-      <Footer />
-    </div>
+    <AppShell>
+      <Routes>
+        <Route path="/" element={<Landing />} />
+        <Route path="/auth/signup" element={<SignUp />} />
+        <Route path="/auth/signin" element={<SignIn />} />
+        <Route path="/auth/callback" element={<AuthCallback />} />
+        <Route path="/pricing" element={<Pricing />} />
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/report/:reportId"
+          element={
+            <ProtectedRoute>
+              <ReportPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/account"
+          element={
+            <ProtectedRoute>
+              <Account />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </AppShell>
   )
 }

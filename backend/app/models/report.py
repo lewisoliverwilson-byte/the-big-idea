@@ -25,7 +25,10 @@ class Report(Base):
         default="processing",
     )
 
-    # Computed
+    # Report tier: 'free' (lite analysis, 1 platform) or 'pro' (full analysis, all platforms)
+    tier = Column(String, default="free", nullable=False)
+
+    # Computed fields
     margin_analysis = Column(JSONB)
     platform_comparison = Column(JSONB)
     ai_analysis = Column(Text)

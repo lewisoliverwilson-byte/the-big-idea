@@ -20,5 +20,12 @@ class User(Base):
     )
     stripe_customer_id = Column(String, nullable=True)
     stripe_subscription_id = Column(String, nullable=True)
+
+    # Free tier: 2 lifetime reports
     reports_used_free = Column(Integer, default=0)
+
     plan_started_at = Column(DateTime, nullable=True)
+
+    # Pro tier: 20 reports per rolling 7-day window
+    pro_reports_used_this_week = Column(Integer, default=0)
+    pro_week_reset_at = Column(DateTime, nullable=True)

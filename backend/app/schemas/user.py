@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import Optional
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel
 from uuid import UUID
 
 
@@ -12,6 +12,8 @@ class UserOut(BaseModel):
     reportsUsedFree: int
     stripeCustomerId: Optional[str] = None
     createdAt: datetime
+    proReportsUsedThisWeek: int = 0
+    proWeekResetAt: Optional[datetime] = None
 
     model_config = {"from_attributes": True}
 
@@ -25,4 +27,6 @@ class UserOut(BaseModel):
             reportsUsedFree=user.reports_used_free,
             stripeCustomerId=user.stripe_customer_id,
             createdAt=user.created_at,
+            proReportsUsedThisWeek=user.pro_reports_used_this_week or 0,
+            proWeekResetAt=user.pro_week_reset_at,
         )

@@ -1,8 +1,10 @@
 """
 Reports API — search, status polling, fetch, list.
+
+Free tier  : 2 lifetime reports, lite AI analysis, 1 platform
+Pro tier   : 20 reports per rolling 7-day window, full AI analysis, all 4 platforms
 """
 import os
-import json
 import uuid
 from datetime import datetime, timedelta
 from typing import List
@@ -27,7 +29,8 @@ from app.services.report_service import assemble_report
 
 router = APIRouter(prefix="/reports", tags=["reports"])
 
-FREE_REPORT_LIMIT = 2
+FREE_REPORT_LIMIT = 2      # lifetime
+PRO_WEEKLY_LIMIT = 20      # per rolling 7-day window
 
 
 def _get_db_user(sub: dict, db: Session) -> User:
@@ -38,39 +41,31 @@ def _get_db_user(sub: dict, db: Session) -> User:
 
 
 def _find_matching_product(db: Session, params: SearchRequest) -> Product | None:
-    """Find a product from the DB that matches the search parameters."""
     query = db.query(Product)
 
-    # Budget filter: source price should be no more than 30% of budget
     max_source_price = params.budgetUsd * 0.30
     query = query.filter(Product.source_price_usd <= max_source_price)
 
-    # Category filter
     if params.category and params.category != "No preference":
         query = query.filter(Product.category.ilike(f"%{params.category}%"))
 
-    # Trending filter
     if params.trendingOnly:
         query = query.filter(Product.is_trending == True)
 
-    # Keywords to avoid
     if params.keywordsToAvoid:
         keywords = [k.strip().lower() for k in params.keywordsToAvoid.split(",")]
         for kw in keywords:
             query = query.filter(Product.name.notilike(f"%{kw}%"))
 
-    # Freshness: prefer products updated within 24h
     cutoff = datetime.utcnow() - timedelta(hours=24)
-    fresh_product = (
+    fresh = (
         query.filter(Product.last_refreshed >= cutoff)
         .order_by(Product.is_trending.desc(), Product.estimated_monthly_sales.desc())
         .first()
     )
+    if fresh:
+        return fresh
 
-    if fresh_product:
-        return fresh_product
-
-    # Fall back to any matching product
     return (
         query.order_by(Product.is_trending.desc(), Product.last_refreshed.desc())
         .first()
@@ -114,20 +109,51 @@ async def search(
     db: Session = Depends(get_db),
 ):
     user = _get_db_user(sub, db)
+    now = datetime.utcnow()
 
-    # Free tier enforcement
-    if user.subscription_status == "free" and user.reports_used_free >= FREE_REPORT_LIMIT:
-        raise HTTPException(status_code=402, detail="Free report limit reached. Please upgrade.")
+    # ── Tier enforcement ────────────────────────────────────────────────────
+    if user.subscription_status == "free":
+        if (user.reports_used_free or 0) >= FREE_REPORT_LIMIT:
+            raise HTTPException(
+                status_code=402,
+                detail="Free report limit reached. Upgrade to Pro for 20 ideas per week.",
+            )
+        is_pro = False
 
-    # Find a matching product
+    elif user.subscription_status == "active":
+        # Roll over weekly counter if 7 days have passed
+        if (
+            not user.pro_week_reset_at
+            or (now - user.pro_week_reset_at) >= timedelta(days=7)
+        ):
+            user.pro_reports_used_this_week = 0
+            user.pro_week_reset_at = now
+
+        if (user.pro_reports_used_this_week or 0) >= PRO_WEEKLY_LIMIT:
+            reset_date = user.pro_week_reset_at + timedelta(days=7)
+            raise HTTPException(
+                status_code=429,
+                detail=f"Weekly Pro limit of {PRO_WEEKLY_LIMIT} reached. Resets {reset_date.strftime('%d %b')}.",
+            )
+        user.pro_reports_used_this_week = (user.pro_reports_used_this_week or 0) + 1
+        is_pro = True
+
+    else:
+        # cancelled / past_due — treat as free tier ceiling
+        raise HTTPException(
+            status_code=402,
+            detail="Your subscription is inactive. Please update your billing.",
+        )
+
+    # ── Find product ────────────────────────────────────────────────────────
     product = _find_matching_product(db, params)
     if not product:
         raise HTTPException(
             status_code=503,
-            detail="No matching products found. Our database is being refreshed — please try again in a few minutes.",
+            detail="No matching products found. Our database is being refreshed — please try again shortly.",
         )
 
-    # Create a pending report
+    # ── Create pending report ───────────────────────────────────────────────
     report = Report(
         user_id=user.id,
         product_id=product.id,
@@ -142,17 +168,17 @@ async def search(
             "budgetUsd": params.budgetUsd,
         },
         status="processing",
+        tier="pro" if is_pro else "free",
     )
     db.add(report)
 
-    # Increment free counter
+    # Increment free counter (only for free users)
     if user.subscription_status == "free":
         user.reports_used_free = (user.reports_used_free or 0) + 1
 
     db.commit()
     db.refresh(report)
 
-    # Assemble report in background
     background_tasks.add_task(
         assemble_report,
         db=db,
@@ -160,6 +186,7 @@ async def search(
         product=product,
         user=user,
         search_params=params.model_dump(),
+        is_pro=is_pro,
     )
 
     return ReportStatusResponse(reportId=str(report.id), status="processing")
@@ -203,6 +230,7 @@ async def list_reports(
             opportunityScore=r.opportunity_score or 5,
             riskScore=r.risk_score or 5,
             createdAt=r.created_at,
+            tier=r.tier or "free",
         )
         for r in reports
     ]
@@ -239,4 +267,5 @@ async def get_report(
         riskScore=report.risk_score or 5,
         opportunityScore=report.opportunity_score or 5,
         createdAt=report.created_at,
+        tier=report.tier or "free",
     )

@@ -10,6 +10,8 @@ export interface User {
   reportsUsedFree: number
   stripeCustomerId?: string
   createdAt: string
+  proReportsUsedThisWeek: number
+  proWeekResetAt?: string
 }
 
 // ─── Product ─────────────────────────────────────────────────────────────────
@@ -75,6 +77,8 @@ export interface PlatformComparison {
   recommended: boolean
 }
 
+export type ReportTier = 'free' | 'pro'
+
 export interface Report {
   id: string
   userId: string
@@ -88,6 +92,7 @@ export interface Report {
   riskScore: number
   opportunityScore: number
   createdAt: string
+  tier: ReportTier
 }
 
 export type ReportStatus = 'processing' | 'ready' | 'failed'
@@ -104,6 +109,7 @@ export interface ReportListItem {
   opportunityScore: number
   riskScore: number
   createdAt: string
+  tier: ReportTier
 }
 
 // ─── Search ───────────────────────────────────────────────────────────────────
@@ -117,6 +123,16 @@ export interface SearchParams {
   minMarginPercent?: number
   trendingOnly?: boolean
   keywordsToAvoid?: string
+}
+
+// ─── Quiz ─────────────────────────────────────────────────────────────────────
+
+export interface QuizAnswers {
+  budgetGbp: number
+  unitSize: 'small' | 'medium' | 'large' | 'xlarge'
+  category: string
+  platform: string
+  goal: 'volume' | 'margin' | 'trending' | 'safe'
 }
 
 // ─── Billing ─────────────────────────────────────────────────────────────────

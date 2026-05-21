@@ -21,15 +21,13 @@ export function ReportLoading({ reportId }: ReportLoadingProps) {
   const { setIsGenerating } = useReportStore()
   const [stepIndex, setStepIndex] = useState(0)
 
-  // Cycle through loading steps
   useEffect(() => {
     const interval = setInterval(() => {
-      setStepIndex((i) => (i + 1) % STEPS.length)
+      setStepIndex((i) => Math.min(i + 1, STEPS.length - 1))
     }, 3500)
     return () => clearInterval(interval)
   }, [])
 
-  // Poll for status
   const { data } = useQuery({
     queryKey: ['report-status', reportId],
     queryFn: () => getReportStatus(reportId),
@@ -48,71 +46,72 @@ export function ReportLoading({ reportId }: ReportLoadingProps) {
     }
   }, [data?.status, reportId, navigate, setIsGenerating])
 
+  const pct = Math.round(((stepIndex + 1) / STEPS.length) * 100)
+
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 px-4">
-      <div className="text-center max-w-md">
-        {/* Animated logo */}
-        <div className="mb-8">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-indigo-100 rounded-full mb-4 relative">
-            <svg
-              className="animate-spin h-14 w-14 text-indigo-600 absolute"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <circle
-                className="opacity-20"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="3"
-              />
-              <path
-                className="opacity-80"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-              />
-            </svg>
-            <span className="text-2xl z-10">🔍</span>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-slate-950 px-4">
+      <div className="text-center max-w-sm w-full">
+        {/* Animated ring */}
+        <div className="mb-8 relative inline-flex">
+          <div className="w-20 h-20 rounded-full border-4 border-slate-800 flex items-center justify-center">
+            <span className="text-3xl">🔍</span>
           </div>
+          <svg
+            className="absolute inset-0 -rotate-90 animate-spin"
+            style={{ animationDuration: '2s' }}
+            width="80"
+            height="80"
+            viewBox="0 0 80 80"
+          >
+            <circle
+              cx="40"
+              cy="40"
+              r="36"
+              fill="none"
+              stroke="rgb(251 191 36 / 0.2)"
+              strokeWidth="4"
+            />
+            <circle
+              cx="40"
+              cy="40"
+              r="36"
+              fill="none"
+              stroke="#FBBF24"
+              strokeWidth="4"
+              strokeLinecap="round"
+              strokeDasharray={`${2 * Math.PI * 36}`}
+              strokeDashoffset={`${2 * Math.PI * 36 * (1 - pct / 100)}`}
+              className="transition-all duration-700"
+            />
+          </svg>
         </div>
 
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">
+        <h2 className="text-2xl font-bold text-white mb-2">
           Building your report
         </h2>
-        <p className="text-gray-500 text-sm mb-8">
-          We're scanning multiple marketplaces and generating your AI analysis.
-          This usually takes 15–30 seconds.
+        <p className="text-slate-400 text-sm mb-8">
+          Scanning marketplaces and generating your AI analysis. Usually takes 15–30 seconds.
         </p>
 
-        {/* Step indicator */}
-        <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+        {/* Steps */}
+        <div className="bg-slate-900 border border-slate-700 rounded-xl p-4 text-left">
           {STEPS.map((step, i) => (
             <div
               key={step}
               className={`flex items-center gap-3 py-2 transition-all duration-500 ${
-                i === stepIndex
-                  ? 'opacity-100'
-                  : i < stepIndex
-                  ? 'opacity-40'
-                  : 'opacity-20'
+                i === stepIndex ? 'opacity-100' : i < stepIndex ? 'opacity-50' : 'opacity-20'
               }`}
             >
               <div
                 className={`w-2 h-2 rounded-full flex-shrink-0 ${
                   i < stepIndex
-                    ? 'bg-green-500'
+                    ? 'bg-emerald-400'
                     : i === stepIndex
-                    ? 'bg-indigo-500 animate-pulse'
-                    : 'bg-gray-300'
+                    ? 'bg-amber-400 animate-pulse'
+                    : 'bg-slate-600'
                 }`}
               />
-              <span
-                className={`text-sm ${
-                  i === stepIndex ? 'font-medium text-gray-900' : 'text-gray-500'
-                }`}
-              >
+              <span className={`text-sm ${i === stepIndex ? 'font-medium text-white' : 'text-slate-500'}`}>
                 {step}
               </span>
             </div>
@@ -120,8 +119,8 @@ export function ReportLoading({ reportId }: ReportLoadingProps) {
         </div>
 
         {data?.status === 'failed' && (
-          <p className="mt-4 text-sm text-red-600">
-            Report generation failed. Please try again.
+          <p className="mt-4 text-sm text-red-400 bg-red-400/10 border border-red-400/20 rounded-lg p-3">
+            Report generation failed. Please try again from your dashboard.
           </p>
         )}
       </div>

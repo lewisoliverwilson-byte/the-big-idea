@@ -1,6 +1,8 @@
 /**
  * Database migration script — creates all tables for The Big Idea.
  * Run with: DATABASE_URL=... node scripts/migrate.mjs
+ *
+ * Safe to re-run — uses CREATE TABLE IF NOT EXISTS and ADD COLUMN IF NOT EXISTS.
  */
 import pg from './node_modules/pg/lib/index.js'
 const { Client } = pg
@@ -52,6 +54,17 @@ CREATE INDEX IF NOT EXISTS idx_users_cognito_id ON users(cognito_id);
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
 CREATE INDEX IF NOT EXISTS idx_users_stripe_customer ON users(stripe_customer_id);
 CREATE INDEX IF NOT EXISTS idx_users_stripe_sub ON users(stripe_subscription_id);
+
+-- Add pro quota columns if they don't exist yet
+DO $$ BEGIN
+  ALTER TABLE users ADD COLUMN pro_reports_used_this_week INT DEFAULT 0;
+EXCEPTION WHEN duplicate_column THEN NULL;
+END $$;
+
+DO $$ BEGIN
+  ALTER TABLE users ADD COLUMN pro_week_reset_at TIMESTAMP;
+EXCEPTION WHEN duplicate_column THEN NULL;
+END $$;
 
 -- Products table
 CREATE TABLE IF NOT EXISTS products (
@@ -112,6 +125,12 @@ CREATE TABLE IF NOT EXISTS reports (
 );
 CREATE INDEX IF NOT EXISTS idx_reports_user_id ON reports(user_id);
 CREATE INDEX IF NOT EXISTS idx_reports_status ON reports(status);
+
+-- Add tier column to reports if it doesn't exist yet
+DO $$ BEGIN
+  ALTER TABLE reports ADD COLUMN tier VARCHAR DEFAULT 'free' NOT NULL;
+EXCEPTION WHEN duplicate_column THEN NULL;
+END $$;
 
 SELECT 'Migration complete ✅' AS result;
 `

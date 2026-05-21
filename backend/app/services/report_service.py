@@ -1,9 +1,11 @@
 """
 Report assembly service — ties together product data, scoring, margin
 calculation, and AI analysis into a complete report.
+
+Pass is_pro=True for Pro-tier users to get full analysis + all platforms.
+Pass is_pro=False (default) for free-tier users to get lite analysis + 1 platform.
 """
 from __future__ import annotations
-import math
 from typing import Optional, List, Dict, Any
 from sqlalchemy.orm import Session
 from app.models.product import Product
@@ -34,7 +36,6 @@ def compute_opportunity_score(product: Product, margin_pct: float) -> int:
     monthly_sales = product.estimated_monthly_sales or 0
     review_score = float(product.avg_review_score or 4.0)
 
-    # Trend direction: +1 if last point > first point in trend_data
     trend_direction = 5
     if product.trend_data and len(product.trend_data) >= 2:
         first = product.trend_data[0].get("searchVolume", 50)
@@ -44,13 +45,8 @@ def compute_opportunity_score(product: Product, margin_pct: float) -> int:
         elif last < first * 0.9:
             trend_direction = 2
 
-    # Normalise monthly sales (cap at 5000)
     sales_norm = min(monthly_sales / 5000, 1.0) * 10
-
-    # Normalise margin (0-80%)
     margin_norm = min(margin_pct / 80, 1.0) * 10
-
-    # Review score 0-5 → 0-10
     review_norm = (review_score / 5.0) * 10
 
     score = (
@@ -58,9 +54,8 @@ def compute_opportunity_score(product: Product, margin_pct: float) -> int:
         + margin_norm * 0.3
         + trend_direction * 0.2
         + review_norm * 0.1
-        + trend_direction * 0.1  # velocity proxy
+        + trend_direction * 0.1
     )
-
     return max(1, min(10, round(score)))
 
 
@@ -70,14 +65,10 @@ def compute_risk_score(product: Product, user_budget: float) -> int:
     min_order = product.source_min_order_qty or 1
     moq_cost = source_price * min_order
 
-    # Market saturation (more reviews = more saturated = higher risk)
     saturation = min(review_count / 10000, 1.0) * 10
-
-    # MOQ vs budget
     budget_ratio = moq_cost / max(user_budget, 1)
     budget_risk = min(budget_ratio, 1.0) * 10
 
-    # Trend downward pressure
     trend_risk = 3
     if product.trend_data and len(product.trend_data) >= 2:
         first = product.trend_data[0].get("searchVolume", 50)
@@ -89,21 +80,17 @@ def compute_risk_score(product: Product, user_budget: float) -> int:
 
     risk = (
         saturation * 0.3
-        + 3.0 * 0.2          # price volatility proxy (static for now)
+        + 3.0 * 0.2
         + budget_risk * 0.2
         + trend_risk * 0.15
-        + 3.0 * 0.15         # category restriction proxy
+        + 3.0 * 0.15
     )
-
     return max(1, min(10, round(risk)))
 
 
 # ─── Margin calculation ────────────────────────────────────────────────────────
 
-def calculate_margin(
-    product: Product,
-    target_platform: str = "amazon",
-) -> Dict[str, Any]:
+def calculate_margin(product: Product, target_platform: str = "amazon") -> Dict[str, Any]:
     source_price = float(product.source_price_usd or 5)
     shipping = float(product.source_shipping_estimate_usd or 3)
     sell_price = float(product.avg_sell_price_usd or 20)
@@ -112,9 +99,6 @@ def calculate_margin(
 
     profit_per_unit = sell_price - source_price - shipping - platform_fee
     margin_pct = (profit_per_unit / sell_price * 100) if sell_price > 0 else 0
-
-    # Break-even: sell_price where profit = 0
-    # sell_price * (1 - fee_pct/100) = source + shipping
     min_viable = (source_price + shipping) / (1 - fee_pct / 100) if fee_pct < 100 else 0
 
     return {
@@ -133,19 +117,12 @@ def calculate_margin(
 
 # ─── Platform comparison ───────────────────────────────────────────────────────
 
-def build_platform_comparison(product: Product) -> List[Dict[str, Any]]:
+def build_platform_comparison(product: Product, is_pro: bool = True) -> List[Dict[str, Any]]:
     base_price = float(product.avg_sell_price_usd or 20)
     source = float(product.source_price_usd or 5)
     shipping = float(product.source_shipping_estimate_usd or 3)
 
-    # Price multipliers per platform (based on typical market data)
-    price_multipliers = {
-        "amazon": 1.0,
-        "ebay": 0.88,
-        "etsy": 1.15,
-        "shopify": 1.08,
-    }
-
+    price_multipliers = {"amazon": 1.0, "ebay": 0.88, "etsy": 1.15, "shopify": 1.08}
     sales_estimates = {
         "amazon": product.estimated_monthly_sales or 200,
         "ebay": int((product.estimated_monthly_sales or 200) * 0.7),
@@ -178,9 +155,13 @@ def build_platform_comparison(product: Product) -> List[Dict[str, Any]]:
             "recommended": False,
         })
 
-    # Mark the best platform
+    # Mark best
     for r in result:
         r["recommended"] = r["platform"] == best_platform
+
+    # Free tier: only return the best/recommended platform
+    if not is_pro:
+        return [r for r in result if r["recommended"]]
 
     return result
 
@@ -205,26 +186,23 @@ def assemble_report(
     product: Product,
     user: User,
     search_params: dict,
+    is_pro: bool = False,
 ) -> Report:
     """
     Fill in all computed fields on the report model and persist it.
+    is_pro=True → full GPT-4o analysis + all 4 platforms
+    is_pro=False → lite GPT-4o-mini analysis + 1 platform (best only)
     """
-    target_platform = (
-        product.best_sell_platform or "amazon"
-    )
+    target_platform = str(product.best_sell_platform or "amazon")
 
-    # Margin
-    margin = calculate_margin(product, str(target_platform))
+    margin = calculate_margin(product, target_platform)
     margin_pct = margin["marginPercent"]
 
-    # Scores
     opp_score = compute_opportunity_score(product, margin_pct)
     risk_score = compute_risk_score(product, float(search_params.get("budgetUsd", 200)))
 
-    # Platform comparison
-    platform_comparison = build_platform_comparison(product)
+    platform_comparison = build_platform_comparison(product, is_pro=is_pro)
 
-    # AI analysis
     ai_text = generate_analysis(
         product_name=str(product.name),
         description=str(product.description or ""),
@@ -232,7 +210,7 @@ def assemble_report(
         source_platform=str(product.source_platform),
         source_price=float(product.source_price_usd or 5),
         min_order_qty=int(product.source_min_order_qty or 1),
-        best_sell_platform=str(target_platform),
+        best_sell_platform=target_platform,
         avg_sell_price=float(product.avg_sell_price_usd or 20),
         monthly_sales=int(product.estimated_monthly_sales or 100),
         trend_summary=trend_summary(product),
@@ -240,14 +218,15 @@ def assemble_report(
         avg_score=float(product.avg_review_score or 4.0),
         margin_pct=margin_pct,
         user_budget=float(search_params.get("budgetUsd", 200)),
+        is_pro=is_pro,
     )
 
-    # Update report
     report.margin_analysis = margin
     report.platform_comparison = platform_comparison
     report.ai_analysis = ai_text
     report.opportunity_score = opp_score
     report.risk_score = risk_score
+    report.tier = "pro" if is_pro else "free"
     report.status = "ready"
 
     db.commit()
