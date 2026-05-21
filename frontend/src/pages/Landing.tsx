@@ -500,201 +500,215 @@ export function Landing() {
 
         {/* ── Hero ───────────────────────────────────────────────────── */}
         <section style={{
-          paddingTop: 128, paddingBottom: 80,
-          paddingLeft: 24, paddingRight: 24,
-          textAlign: 'center',
-          minHeight: '100vh',
-          display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+          paddingTop:    76,
+          paddingBottom: 72,
+          paddingLeft:   24,
+          paddingRight:  24,
+          minHeight:     '100vh',
+          display:       'flex',
+          alignItems:    'center',
         }}>
+          <div
+            className="flex flex-col lg:flex-row items-center"
+            style={{ maxWidth: 1160, width: '100%', margin: '0 auto', gap: 48 }}
+          >
 
-          {/* Badge */}
-          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 28 }}>
-            <span style={{
-              display: 'inline-flex', alignItems: 'center', gap: 6,
-              fontFamily: '"DM Mono",monospace', fontSize: 11, letterSpacing: '0.06em',
-              color: C.purpleBright,
-              background: 'rgba(139,92,246,0.08)', border: `1px solid ${C.border}`,
-              padding: '6px 16px', borderRadius: 9999,
-            }}>
-              <span className="animate-pulse-glow" style={{
-                width: 6, height: 6, borderRadius: '50%', background: C.purple,
-                display: 'inline-block', flexShrink: 0,
-                boxShadow: `0 0 8px ${C.purple}`,
-              }} />
-              1,200+ ENTREPRENEURS · TRUSTED WORLDWIDE
-            </span>
-          </div>
-
-          {/* Headline */}
-          <h1 style={{
-            fontFamily:    '"Barlow Condensed","Arial Narrow",sans-serif',
-            fontWeight:    700,
-            textTransform: 'uppercase',
-            fontSize:      'clamp(52px,7.5vw,94px)',
-            lineHeight:    0.93,
-            letterSpacing: '-0.01em',
-            color:         C.text,
-            marginBottom:  28,
-          }}>
-            Find Winning<br />
-            Products<br />
-            <span style={GTEXT}>By ✦ Sorcery</span>
-          </h1>
-
-          {/* Subheading */}
-          <p style={{
-            fontFamily: 'Outfit,sans-serif', fontSize: 17, color: C.textDim,
-            lineHeight: 1.68, maxWidth: 540, margin: '0 auto 44px',
-          }}>
-            Answer five questions. Our AI scries 1,000+ products across Temu, AliExpress and Alibaba — then calculates your exact margin on Amazon, eBay, Etsy and Shopify. Under 30 seconds.
-          </p>
-
-          {/* Stats */}
-          <div style={{
-            display: 'flex', flexWrap: 'wrap', justifyContent: 'center',
-            gap: '8px 44px', marginBottom: 52,
-          }}>
-            {([
-              { v: '1,200+', l: 'Entrepreneurs' },
-              { v: '30s',    l: 'Avg. report time' },
-              { v: '4',      l: 'Platforms covered' },
-              { v: '£10',    l: 'Pro per month' },
-            ] as const).map(({ v, l }) => (
-              <div key={l} style={{ textAlign: 'center' }}>
-                <p style={{ ...GTEXT, fontFamily: '"DM Mono",monospace', fontSize: 26, lineHeight: 1, margin: 0 }}>{v}</p>
-                <p style={{ fontFamily: 'Outfit,sans-serif', fontSize: 12, color: C.textMuted, margin: '4px 0 0' }}>{l}</p>
-              </div>
-            ))}
-          </div>
-
-          {/* ── Quiz card ── */}
-          <div style={{ maxWidth: 500, width: '100%', margin: '0 auto' }}>
-            <div style={{
-              ...GLASS,
-              borderRadius: 20,
-              boxShadow: '0 0 0 1px rgba(139,92,246,0.10), 0 30px 70px rgba(0,0,0,0.7), 0 0 60px rgba(124,58,237,0.08), inset 0 1px 0 rgba(255,255,255,0.05)',
-            }}>
-              {/* Card header */}
-              <div style={{
-                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                padding: '14px 22px',
-                borderBottom: `1px solid ${C.border}`,
+            {/* ── Left: text column ── */}
+            <div
+              className="flex flex-col items-center lg:items-start text-center lg:text-left"
+              style={{ flex: '1 1 420px', minWidth: 0 }}
+            >
+              {/* Badge */}
+              <span style={{
+                display: 'inline-flex', alignItems: 'center', gap: 6,
+                fontFamily: '"DM Mono",monospace', fontSize: 11, letterSpacing: '0.06em',
+                color: C.purpleBright,
+                background: 'rgba(139,92,246,0.08)', border: `1px solid ${C.border}`,
+                padding: '6px 16px', borderRadius: 9999,
+                marginBottom: 28,
               }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <Sparkles style={{ width: 14, height: 14, color: C.purpleBright }} />
-                  <span style={{ fontFamily: '"DM Mono",monospace', fontSize: 10, letterSpacing: '0.10em', color: C.textMuted, textTransform: 'uppercase' }}>
-                    Configure Your Spell
-                  </span>
-                </div>
-                <div style={{ display: 'flex', gap: 5 }}>
-                  {[C.textMuted, C.textMuted, C.textMuted].map((c, i) => (
-                    <div key={i} style={{ width: 6, height: 6, borderRadius: '50%', background: i === 0 ? C.purple : c, opacity: i === 0 ? 1 : 0.25 }} />
-                  ))}
-                </div>
-              </div>
+                <span className="animate-pulse-glow" style={{
+                  width: 6, height: 6, borderRadius: '50%', background: C.purple,
+                  display: 'inline-block', flexShrink: 0,
+                  boxShadow: `0 0 8px ${C.purple}`,
+                }} />
+                1,200+ ENTREPRENEURS · TRUSTED WORLDWIDE
+              </span>
 
-              <div style={{ padding: 22 }}>
-                {quizStep !== 'email' ? (
-                  <div key={`step-${quizStep}`} className="animate-fadeIn">
-                    <QuizProgress step={step} total={STEPS} />
-                    <p style={{
-                      fontFamily: 'Outfit,sans-serif', fontWeight: 600, fontSize: 15,
-                      color: C.text, margin: '0 0 14px',
-                    }}>
-                      {QUIZ_QUESTIONS[(quizStep as number) - 1].title}
-                    </p>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                      {QUIZ_QUESTIONS[(quizStep as number) - 1].options.map(opt => (
-                        <QuizOpt
-                          key={opt.id} option={opt}
-                          selected={currentValue === opt.id}
-                          onClick={() => handleSelect(opt.id)}
-                        />
-                      ))}
+              {/* Headline */}
+              <h1 style={{
+                fontFamily:    '"Barlow Condensed","Arial Narrow",sans-serif',
+                fontWeight:    700,
+                textTransform: 'uppercase',
+                fontSize:      'clamp(44px,6vw,84px)',
+                lineHeight:    0.93,
+                letterSpacing: '-0.01em',
+                color:         C.text,
+                marginBottom:  24,
+              }}>
+                Find Winning<br />
+                Products<br />
+                <span style={GTEXT}>Using ✦ Sorcery</span>
+              </h1>
+
+              {/* Subheading */}
+              <p style={{
+                fontFamily: 'Outfit,sans-serif', fontSize: 16, color: C.textDim,
+                lineHeight: 1.7, maxWidth: 480, marginBottom: 36,
+              }}>
+                Answer five questions. Our AI scries 1,000+ products across Temu, AliExpress and Alibaba — then calculates your exact margin on Amazon, eBay, Etsy and Shopify. Under 30 seconds.
+              </p>
+
+              {/* Stats */}
+              <div
+                className="flex flex-wrap justify-center lg:justify-start"
+                style={{ gap: '8px 36px' }}
+              >
+                {([
+                  { v: '1,200+', l: 'Entrepreneurs' },
+                  { v: '30s',    l: 'Avg. report time' },
+                  { v: '4',      l: 'Platforms covered' },
+                  { v: '£10',    l: 'Pro per month' },
+                ] as const).map(({ v, l }) => (
+                  <div key={l} style={{ textAlign: 'center' }}>
+                    <p style={{ ...GTEXT, fontFamily: '"DM Mono",monospace', fontSize: 24, lineHeight: 1, margin: 0 }}>{v}</p>
+                    <p style={{ fontFamily: 'Outfit,sans-serif', fontSize: 11, color: C.textMuted, margin: '4px 0 0' }}>{l}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* ── Right: Quiz card (THE BIG THING) ── */}
+            <div style={{ flex: '0 0 auto', width: '100%', maxWidth: 500 }}>
+              <div style={{
+                ...GLASS,
+                borderRadius: 20,
+                boxShadow: '0 0 0 1px rgba(139,92,246,0.12), 0 32px 80px rgba(0,0,0,0.75), 0 0 80px rgba(124,58,237,0.10), inset 0 1px 0 rgba(255,255,255,0.05)',
+                border: `1px solid ${C.borderGlow}`,
+              }}>
+                {/* Card header */}
+                <div style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                  padding: '14px 22px',
+                  borderBottom: `1px solid ${C.border}`,
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <Sparkles style={{ width: 14, height: 14, color: C.purpleBright }} />
+                    <span style={{ fontFamily: '"DM Mono",monospace', fontSize: 10, letterSpacing: '0.10em', color: C.textMuted, textTransform: 'uppercase' }}>
+                      Configure Your Spell
+                    </span>
+                  </div>
+                  <div style={{ display: 'flex', gap: 5 }}>
+                    {[C.textMuted, C.textMuted, C.textMuted].map((c, i) => (
+                      <div key={i} style={{ width: 6, height: 6, borderRadius: '50%', background: i === 0 ? C.purple : c, opacity: i === 0 ? 1 : 0.25 }} />
+                    ))}
+                  </div>
+                </div>
+
+                <div style={{ padding: 22 }}>
+                  {quizStep !== 'email' ? (
+                    <div key={`step-${quizStep}`} className="animate-fadeIn">
+                      <QuizProgress step={step} total={STEPS} />
+                      <p style={{
+                        fontFamily: 'Outfit,sans-serif', fontWeight: 600, fontSize: 15,
+                        color: C.text, margin: '0 0 14px',
+                      }}>
+                        {QUIZ_QUESTIONS[(quizStep as number) - 1].title}
+                      </p>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                        {QUIZ_QUESTIONS[(quizStep as number) - 1].options.map(opt => (
+                          <QuizOpt
+                            key={opt.id} option={opt}
+                            selected={currentValue === opt.id}
+                            onClick={() => handleSelect(opt.id)}
+                          />
+                        ))}
+                      </div>
+                      {(quizStep as number) > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => setQuizStep((quizStep as number) - 1)}
+                          style={{
+                            marginTop: 14, display: 'flex', alignItems: 'center', gap: 4,
+                            fontFamily: 'Outfit,sans-serif', fontSize: 12, color: C.textMuted,
+                            background: 'none', border: 'none', cursor: 'pointer', padding: 0,
+                          }}
+                        >
+                          <ChevronLeft style={{ width: 13, height: 13 }} />
+                          Back
+                        </button>
+                      )}
                     </div>
-                    {(quizStep as number) > 1 && (
+                  ) : (
+                    <form key="email" onSubmit={handleEmailSubmit} className="animate-fadeIn">
+                      <QuizProgress step={step} total={STEPS} />
+                      <p style={{ fontFamily: 'Outfit,sans-serif', fontWeight: 600, fontSize: 15, color: C.text, margin: '0 0 4px' }}>
+                        Almost done ✦
+                      </p>
+                      <p style={{ fontFamily: 'Outfit,sans-serif', fontSize: 13, color: C.textDim, margin: '0 0 18px' }}>
+                        Where shall we send your oracle?
+                      </p>
+                      <input
+                        type="email"
+                        value={email}
+                        onChange={e => setEmail(e.target.value)}
+                        placeholder="you@example.com"
+                        style={{
+                          width: '100%', boxSizing: 'border-box',
+                          fontFamily: 'Outfit,sans-serif', fontSize: 14, color: C.text,
+                          background: 'rgba(255,255,255,0.03)',
+                          border: `1.5px solid ${emailTouched && !emailValid ? '#EF4444' : C.border}`,
+                          borderRadius: 10, padding: '11px 14px',
+                          outline: 'none', transition: 'border-color 150ms',
+                          marginBottom: emailTouched && !emailValid ? 4 : 0,
+                        }}
+                        onFocus={e  => { e.target.style.borderColor = C.borderGlow; e.target.style.boxShadow = '0 0 0 3px rgba(139,92,246,0.12)' }}
+                        onBlur={e   => { e.target.style.borderColor = emailTouched && !emailValid ? '#EF4444' : C.border; e.target.style.boxShadow = 'none' }}
+                      />
+                      {emailTouched && !emailValid && (
+                        <p style={{ fontFamily: 'Outfit,sans-serif', fontSize: 11, color: '#EF4444', margin: '0 0 4px' }}>
+                          Please enter a valid email address.
+                        </p>
+                      )}
+                      <div style={{ height: 14 }} />
+                      <button
+                        type="submit"
+                        disabled={isSubmitting}
+                        style={{
+                          width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                          fontFamily: 'Outfit,sans-serif', fontWeight: 700, fontSize: 14, color: '#fff',
+                          background: GBTN, border: 'none', borderRadius: 10,
+                          padding: '12px 16px', cursor: isSubmitting ? 'default' : 'pointer',
+                          opacity: isSubmitting ? 0.65 : 1, transition: 'all 200ms',
+                          boxShadow: isSubmitting ? 'none' : '0 0 24px rgba(124,58,237,0.45), 0 4px 16px rgba(0,0,0,0.4)',
+                        }}
+                      >
+                        {isSubmitting
+                          ? <div style={{ width: 16, height: 16, border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#fff', borderRadius: '50%' }} className="animate-spin" />
+                          : <><span>✦ Reveal My Fortune</span><ArrowRight style={{ width: 16, height: 16 }} /></>}
+                      </button>
+                      <p style={{ fontFamily: 'Outfit,sans-serif', fontSize: 11, color: C.textMuted, textAlign: 'center', marginTop: 10 }}>
+                        2 free reports · No credit card required
+                      </p>
                       <button
                         type="button"
-                        onClick={() => setQuizStep((quizStep as number) - 1)}
+                        onClick={() => setQuizStep(STEPS)}
                         style={{
-                          marginTop: 14, display: 'flex', alignItems: 'center', gap: 4,
-                          fontFamily: 'Outfit,sans-serif', fontSize: 12, color: C.textMuted,
+                          display: 'flex', alignItems: 'center', gap: 4,
+                          margin: '8px auto 0',
+                          fontFamily: 'Outfit,sans-serif', fontSize: 11, color: C.textMuted,
                           background: 'none', border: 'none', cursor: 'pointer', padding: 0,
                         }}
                       >
-                        <ChevronLeft style={{ width: 13, height: 13 }} />
+                        <ChevronLeft style={{ width: 12, height: 12 }} />
                         Back
                       </button>
-                    )}
-                  </div>
-                ) : (
-                  <form key="email" onSubmit={handleEmailSubmit} className="animate-fadeIn">
-                    <QuizProgress step={step} total={STEPS} />
-                    <p style={{ fontFamily: 'Outfit,sans-serif', fontWeight: 600, fontSize: 15, color: C.text, margin: '0 0 4px' }}>
-                      Almost done ✦
-                    </p>
-                    <p style={{ fontFamily: 'Outfit,sans-serif', fontSize: 13, color: C.textDim, margin: '0 0 18px' }}>
-                      Where shall we send your oracle?
-                    </p>
-                    <input
-                      type="email"
-                      value={email}
-                      onChange={e => setEmail(e.target.value)}
-                      placeholder="you@example.com"
-                      style={{
-                        width: '100%', boxSizing: 'border-box',
-                        fontFamily: 'Outfit,sans-serif', fontSize: 14, color: C.text,
-                        background: 'rgba(255,255,255,0.03)',
-                        border: `1.5px solid ${emailTouched && !emailValid ? '#EF4444' : C.border}`,
-                        borderRadius: 10, padding: '11px 14px',
-                        outline: 'none', transition: 'border-color 150ms',
-                        marginBottom: emailTouched && !emailValid ? 4 : 0,
-                      }}
-                      onFocus={e  => { e.target.style.borderColor = C.borderGlow; e.target.style.boxShadow = '0 0 0 3px rgba(139,92,246,0.12)' }}
-                      onBlur={e   => { e.target.style.borderColor = emailTouched && !emailValid ? '#EF4444' : C.border; e.target.style.boxShadow = 'none' }}
-                    />
-                    {emailTouched && !emailValid && (
-                      <p style={{ fontFamily: 'Outfit,sans-serif', fontSize: 11, color: '#EF4444', margin: '0 0 4px' }}>
-                        Please enter a valid email address.
-                      </p>
-                    )}
-                    <div style={{ height: 14 }} />
-                    <button
-                      type="submit"
-                      disabled={isSubmitting}
-                      style={{
-                        width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                        fontFamily: 'Outfit,sans-serif', fontWeight: 700, fontSize: 14, color: '#fff',
-                        background: GBTN, border: 'none', borderRadius: 10,
-                        padding: '12px 16px', cursor: isSubmitting ? 'default' : 'pointer',
-                        opacity: isSubmitting ? 0.65 : 1, transition: 'all 200ms',
-                        boxShadow: isSubmitting ? 'none' : '0 0 24px rgba(124,58,237,0.45), 0 4px 16px rgba(0,0,0,0.4)',
-                      }}
-                    >
-                      {isSubmitting
-                        ? <div style={{ width: 16, height: 16, border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#fff', borderRadius: '50%' }} className="animate-spin" />
-                        : <><span>✦ Reveal My Fortune</span><ArrowRight style={{ width: 16, height: 16 }} /></>}
-                    </button>
-                    <p style={{ fontFamily: 'Outfit,sans-serif', fontSize: 11, color: C.textMuted, textAlign: 'center', marginTop: 10 }}>
-                      2 free reports · No credit card required
-                    </p>
-                    <button
-                      type="button"
-                      onClick={() => setQuizStep(STEPS)}
-                      style={{
-                        display: 'flex', alignItems: 'center', gap: 4,
-                        margin: '8px auto 0',
-                        fontFamily: 'Outfit,sans-serif', fontSize: 11, color: C.textMuted,
-                        background: 'none', border: 'none', cursor: 'pointer', padding: 0,
-                      }}
-                    >
-                      <ChevronLeft style={{ width: 12, height: 12 }} />
-                      Back
-                    </button>
-                  </form>
-                )}
+                    </form>
+                  )}
+                </div>
               </div>
             </div>
+
           </div>
         </section>
 
