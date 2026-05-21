@@ -1,4 +1,5 @@
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
+import type { ReactNode } from 'react'
 import { useAuth } from './hooks/useAuth'
 import { useAuthStore } from './store/authStore'
 import { Navbar } from './components/layout/Navbar'
@@ -14,7 +15,7 @@ import { Account } from './pages/Account'
 
 // Reads directly from the store — does NOT call useAuth() so there is
 // only ever ONE Hub listener (the one in App below).
-function ProtectedRoute({ children }: { children: React.ReactNode }) {
+function ProtectedRoute({ children }: { children: ReactNode }) {
   const { isAuthenticated, isLoading } = useAuthStore()
   if (isLoading) {
     return (
@@ -27,7 +28,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>
 }
 
-function AppShell({ children }: { children: React.ReactNode }) {
+function AppShell({ children }: { children: ReactNode }) {
   const location = useLocation()
   const isLanding = location.pathname === '/'
   const isDark = ['/pricing', '/dashboard', '/account'].some(p => location.pathname.startsWith(p)) || location.pathname === '/'

@@ -1,8 +1,9 @@
 import { Link } from 'react-router-dom'
 import { Lock } from 'lucide-react'
+import type { ReactNode } from 'react'
 
 interface LockedSectionProps {
-  children: React.ReactNode
+  children: ReactNode
   isLocked: boolean
   /** Short label shown in the lock overlay */
   featureName: string

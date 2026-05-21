@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import type { ElementType, ReactNode } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useMutation } from '@tanstack/react-query'
 import { useAuthStore } from '../store/authStore'
@@ -7,9 +8,9 @@ import { formatDate } from '../utils/formatters'
 import { User, CreditCard, Trash2, Shield, Crown } from 'lucide-react'
 
 function Section({ icon: Icon, title, children, danger = false }: {
-  icon: React.ElementType
+  icon: ElementType
   title: string
-  children: React.ReactNode
+  children: ReactNode
   danger?: boolean
 }) {
   return (

@@ -228,7 +228,7 @@ function EmailCapture({
 
   const valid = email.includes('@') && email.includes('.') && email.length > 5
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: { preventDefault: () => void }) => {
     e.preventDefault()
     setTouched(true)
     if (valid) onSubmit(email, name)
