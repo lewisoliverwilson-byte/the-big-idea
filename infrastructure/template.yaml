@@ -57,7 +57,8 @@ Resources:
       KeyPolicy:
         Version: "2012-10-17"
         Statement:
-          # Account root — full control so the key is never orphaned
+          # Account root — full control so IAM policies can delegate access
+          # (this lets the Lambda role's kms:Decrypt IAM policy take effect)
           - Sid: RootAccess
             Effect: Allow
             Principal:
@@ -72,13 +73,6 @@ Resources:
             Action:
               - kms:GenerateDataKey
               - kms:Encrypt
-            Resource: "*"
-          # Email sender Lambda — decrypt only
-          - Sid: LambdaDecrypt
-            Effect: Allow
-            Principal:
-              AWS: !GetAtt EmailSenderFunctionRole.Arn
-            Action: kms:Decrypt
             Resource: "*"
 
   CognitoEmailKmsKeyAlias:
