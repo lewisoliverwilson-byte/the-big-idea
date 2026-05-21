@@ -9,7 +9,6 @@ BackgroundTasks are intentionally not used here because Mangum/Lambda runs them
 inside the invocation boundary anyway — using them gave no benefit while making
 error propagation impossible and leaving reports stuck in "processing" forever.
 """
-import os
 import uuid
 from datetime import datetime, timedelta
 from typing import List
