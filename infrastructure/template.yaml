@@ -42,8 +42,100 @@ Parameters:
   FrontendUrl:
     Type: String
     Default: "https://localhost:3000"
+  ResendApiKey:
+    Type: String
+    NoEcho: true
+    Description: Resend transactional email API key
 
 Resources:
+  # ─── KMS key — Cognito encrypts verification codes with this ─────────────────
+  CognitoEmailKmsKey:
+    Type: AWS::KMS::Key
+    Properties:
+      Description: Cognito CustomEmailSender encryption key for Sourcery
+      EnableKeyRotation: true
+      KeyPolicy:
+        Version: "2012-10-17"
+        Statement:
+          # Account root — full control so the key is never orphaned
+          - Sid: RootAccess
+            Effect: Allow
+            Principal:
+              AWS: !Sub "arn:aws:iam::${AWS::AccountId}:root"
+            Action: "kms:*"
+            Resource: "*"
+          # Cognito — encrypt only
+          - Sid: CognitoEncrypt
+            Effect: Allow
+            Principal:
+              Service: cognito-idp.amazonaws.com
+            Action:
+              - kms:GenerateDataKey
+              - kms:Encrypt
+            Resource: "*"
+          # Email sender Lambda — decrypt only
+          - Sid: LambdaDecrypt
+            Effect: Allow
+            Principal:
+              AWS: !GetAtt EmailSenderFunctionRole.Arn
+            Action: kms:Decrypt
+            Resource: "*"
+
+  CognitoEmailKmsKeyAlias:
+    Type: AWS::KMS::Alias
+    Properties:
+      AliasName: alias/sourcery-cognito-email
+      TargetKeyId: !Ref CognitoEmailKmsKey
+
+  # ─── Email Sender Lambda (Cognito CustomEmailSender trigger) ─────────────────
+  EmailSenderFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: the-big-idea-email-sender
+      CodeUri: ../email_sender/
+      Handler: handler.lambda_handler
+      Runtime: python3.11
+      Timeout: 30
+      MemorySize: 256
+      Description: Cognito custom email sender — sends branded emails via Resend
+      Role: !GetAtt EmailSenderFunctionRole.Arn
+      Environment:
+        Variables:
+          RESEND_API_KEY: !Ref ResendApiKey
+          KMS_KEY_ARN: !GetAtt CognitoEmailKmsKey.Arn
+          FROM_ADDRESS: "Sourcery <onboarding@resend.dev>"
+
+  EmailSenderFunctionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: the-big-idea-email-sender-role
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: KmsDecrypt
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: kms:Decrypt
+                Resource: !GetAtt CognitoEmailKmsKey.Arn
+
+  # Allow Cognito to invoke the email sender Lambda
+  EmailSenderLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !GetAtt EmailSenderFunction.Arn
+      Action: lambda:InvokeFunction
+      Principal: cognito-idp.amazonaws.com
+      SourceArn: !Sub "arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${CognitoUserPoolId}"
+
   # ─── API Lambda ─────────────────────────────────────────────────────────────
   ApiFunction:
     Type: AWS::Serverless::Function
@@ -135,3 +227,11 @@ Outputs:
   SqsQueueUrl:
     Description: On-demand scrape queue URL
     Value: !Ref OnDemandScrapeQueue
+
+  EmailSenderFunctionArn:
+    Description: Email sender Lambda ARN (set as Cognito CustomEmailSender trigger)
+    Value: !GetAtt EmailSenderFunction.Arn
+
+  CognitoEmailKmsKeyArn:
+    Description: KMS key ARN for Cognito email encryption
+    Value: !GetAtt CognitoEmailKmsKey.Arn

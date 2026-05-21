@@ -7,6 +7,7 @@ on:
       - 'backend/**'
       - 'infrastructure/**'
       - 'scrapers/**'
+      - 'email_sender/**'
   workflow_dispatch:
 
 jobs:
@@ -52,4 +53,5 @@ jobs:
               StripeProPriceId="${{ secrets.STRIPE_PRO_PRICE_ID }}" \
               CognitoUserPoolId="${{ secrets.COGNITO_USER_POOL_ID }}" \
               CognitoClientId="${{ secrets.COGNITO_CLIENT_ID }}" \
-              FrontendUrl="${{ secrets.FRONTEND_URL }}"
+              FrontendUrl="${{ secrets.FRONTEND_URL }}" \
+              ResendApiKey="${{ secrets.RESEND_API_KEY }}"
