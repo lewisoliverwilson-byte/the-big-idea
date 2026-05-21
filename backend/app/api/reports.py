@@ -44,8 +44,16 @@ def _get_db_user(sub: dict, db: Session) -> User:
     return user
 
 
-def _find_matching_product(db: Session, params: SearchRequest) -> Product | None:
-    query = db.query(Product)
+def _find_matching_product(db: Session, params: SearchRequest, user_id) -> Product | None:
+    # Exclude products this user has already received (any status — including failed
+    # attempts where product was selected but report generation failed).
+    seen_subq = (
+        db.query(Report.product_id)
+        .filter(Report.user_id == user_id)
+        .subquery()
+    )
+
+    query = db.query(Product).filter(Product.id.notin_(seen_subq))
 
     max_source_price = params.budgetUsd * 0.30
     query = query.filter(Product.source_price_usd <= max_source_price)
@@ -149,7 +157,7 @@ async def search(
         )
 
     # ── Find product ────────────────────────────────────────────────────────
-    product = _find_matching_product(db, params)
+    product = _find_matching_product(db, params, user.id)
     if not product:
         raise HTTPException(
             status_code=503,
@@ -285,3 +293,47 @@ async def get_report(
         createdAt=report.created_at,
         tier=report.tier or "free",
     )
+
+
+@router.delete("/{report_id}", status_code=204)
+async def delete_report(
+    report_id: str,
+    sub: dict = Depends(get_current_user_sub),
+    db: Session = Depends(get_db),
+):
+    """Delete a single report. Available to all tiers — users own their data."""
+    user = _get_db_user(sub, db)
+    report = (
+        db.query(Report)
+        .filter(Report.id == uuid.UUID(report_id), Report.user_id == user.id)
+        .first()
+    )
+    if not report:
+        raise HTTPException(status_code=404, detail="Report not found")
+    db.delete(report)
+    db.commit()
+
+
+@router.delete("", status_code=200)
+async def delete_all_reports(
+    sub: dict = Depends(get_current_user_sub),
+    db: Session = Depends(get_db),
+):
+    """
+    Delete all reports for the current user.
+    Available to Pro (active) subscribers only — this also resets the seen-product
+    list so their next spells surface fresh results.
+    """
+    user = _get_db_user(sub, db)
+    if user.subscription_status != "active":
+        raise HTTPException(
+            status_code=403,
+            detail="Clearing history is a Sorcerer feature. Upgrade to unlock.",
+        )
+    deleted = (
+        db.query(Report)
+        .filter(Report.user_id == user.id)
+        .delete(synchronize_session=False)
+    )
+    db.commit()
+    return {"deleted": deleted}

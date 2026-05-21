@@ -77,6 +77,15 @@ export const getMyReports = async (): Promise<ReportListItem[]> => {
   return data
 }
 
+export const deleteReport = async (reportId: string): Promise<void> => {
+  await api.delete(`/v1/reports/${reportId}`)
+}
+
+export const deleteAllReports = async (): Promise<{ deleted: number }> => {
+  const { data } = await api.delete<{ deleted: number }>('/v1/reports')
+  return data
+}
+
 // ─── Products ────────────────────────────────────────────────────────────────
 
 export const getTrendingProducts = async (): Promise<Product[]> => {

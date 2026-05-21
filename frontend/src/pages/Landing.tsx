@@ -628,8 +628,12 @@ function ForestBackground() {
 
 // ─── Main component ───────────────────────────────────────────────────────────
 export function Landing() {
-  const navigate            = useNavigate()
-  const { isAuthenticated } = useAuthStore()
+  const navigate                   = useNavigate()
+  const { isAuthenticated, user }  = useAuthStore()
+
+  const isPro        = user?.subscriptionStatus === 'active'
+  const freeUsed     = user?.reportsUsedFree ?? 0
+  const freeAtLimit  = isAuthenticated && !isPro && freeUsed >= 2
 
   const [quizStep,     setQuizStep]     = useState<number | 'email'>(1)
   const [answers,      setAnswers]      = useState<{
@@ -645,12 +649,27 @@ export function Landing() {
 
   const handleSelect = useCallback((val: string) => {
     const key = answerKeys[(quizStep as number) - 1]
-    setAnswers(prev => ({ ...prev, [key]: val }))
+    const nextAnswers = { ...answers, [key]: val }
+    setAnswers(nextAnswers)
     setTimeout(() => {
-      if ((quizStep as number) < STEPS) setQuizStep(q => (q as number) + 1)
-      else setQuizStep('email')
+      if ((quizStep as number) < STEPS) {
+        setQuizStep(q => (q as number) + 1)
+      } else if (isAuthenticated) {
+        // Authenticated users skip the email step — go straight to dashboard
+        const qa: QuizAnswers = {
+          budgetGbp: parseInt(nextAnswers.budget  || '375'),
+          unitSize:  (nextAnswers.unitSize || 'medium') as QuizAnswers['unitSize'],
+          category:  nextAnswers.category || 'No preference',
+          platform:  nextAnswers.platform || 'any',
+          goal:      (nextAnswers.goal || 'safe') as QuizAnswers['goal'],
+        }
+        saveQuizToStorage(qa)
+        navigate('/dashboard')
+      } else {
+        setQuizStep('email')
+      }
     }, 180)
-  }, [quizStep]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [quizStep, answers, isAuthenticated, navigate]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (quizStep === 'email') return
@@ -896,7 +915,68 @@ export function Landing() {
                 </div>
 
                 <div style={{ padding: 22 }}>
-                  {quizStep !== 'email' ? (
+                  {/* ── Pro member — send them to dashboard ── */}
+                  {isPro ? (
+                    <div className="animate-fadeIn" style={{ textAlign: 'center', padding: '12px 0' }}>
+                      <div style={{ fontSize: 32, marginBottom: 12 }}>✦</div>
+                      <p style={{ fontFamily: 'Outfit,sans-serif', fontWeight: 700, fontSize: 16, color: C.text, marginBottom: 6 }}>
+                        Welcome back, Sorcerer
+                      </p>
+                      <p style={{ fontFamily: 'Outfit,sans-serif', fontSize: 13, color: C.textDim, marginBottom: 20, lineHeight: 1.6 }}>
+                        Your grimoire is waiting. Cast spells and browse your history from the dashboard.
+                      </p>
+                      <button
+                        onClick={() => navigate('/dashboard')}
+                        style={{
+                          width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                          fontFamily: 'Outfit,sans-serif', fontWeight: 700, fontSize: 14, color: '#fff',
+                          background: GBTN, border: 'none', borderRadius: 10,
+                          padding: '12px 16px', cursor: 'pointer',
+                          boxShadow: '0 0 24px rgba(124,58,237,0.45)',
+                        }}
+                      >
+                        <span>Go to Dashboard</span>
+                        <ArrowRight style={{ width: 16, height: 16 }} />
+                      </button>
+                    </div>
+
+                  ) : freeAtLimit ? (
+                    /* ── Free user, limit reached — push to upgrade ── */
+                    <div className="animate-fadeIn" style={{ textAlign: 'center', padding: '12px 0' }}>
+                      <div style={{ fontSize: 32, marginBottom: 12 }}>🔮</div>
+                      <p style={{ fontFamily: 'Outfit,sans-serif', fontWeight: 700, fontSize: 16, color: C.text, marginBottom: 6 }}>
+                        Your free spells are spent
+                      </p>
+                      <p style={{ fontFamily: 'Outfit,sans-serif', fontSize: 13, color: C.textDim, marginBottom: 20, lineHeight: 1.6 }}>
+                        You've used both free reports. Upgrade to Sorcerer for 20 fresh ideas every week, full AI analysis, and all 4 platforms.
+                      </p>
+                      <button
+                        onClick={() => navigate('/pricing')}
+                        style={{
+                          width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                          fontFamily: 'Outfit,sans-serif', fontWeight: 700, fontSize: 14, color: '#fff',
+                          background: GBTN, border: 'none', borderRadius: 10,
+                          padding: '12px 16px', cursor: 'pointer',
+                          boxShadow: '0 0 24px rgba(124,58,237,0.45)',
+                          marginBottom: 10,
+                        }}
+                      >
+                        ✦ Ascend to Sorcerer — £10/mo
+                      </button>
+                      <button
+                        onClick={() => navigate('/dashboard')}
+                        style={{
+                          width: '100%', fontFamily: 'Outfit,sans-serif', fontSize: 12, color: C.textDim,
+                          background: 'none', border: `1px solid ${C.border}`, borderRadius: 10,
+                          padding: '9px 16px', cursor: 'pointer',
+                        }}
+                      >
+                        View my past reports
+                      </button>
+                    </div>
+
+                  ) : quizStep !== 'email' ? (
+                    /* ── Normal quiz questions ── */
                     <div key={`step-${quizStep}`} className="animate-fadeIn">
                       <QuizProgress step={step} total={STEPS} />
                       <p style={{

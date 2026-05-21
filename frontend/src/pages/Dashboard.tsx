@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useAuthStore } from '../store/authStore'
-import { getMyReports, submitSearch } from '../services/api'
+import { getMyReports, submitSearch, deleteAllReports } from '../services/api'
 import { useReportStore } from '../store/reportStore'
 import { SearchForm } from '../components/search/SearchForm'
 import { PaywallModal } from '../components/ui/PaywallModal'
@@ -128,6 +128,16 @@ export function Dashboard() {
   const { data: reports, isLoading: reportsLoading } = useQuery({
     queryKey: ['my-reports'],
     queryFn:  getMyReports,
+  })
+
+  const [confirmClear, setConfirmClear] = useState(false)
+
+  const clearHistoryMutation = useMutation({
+    mutationFn: deleteAllReports,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['my-reports'] })
+      setConfirmClear(false)
+    },
   })
 
   const isPro          = user?.subscriptionStatus === 'active'
@@ -337,15 +347,64 @@ export function Dashboard() {
           {/* Right: Past reports */}
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ ...GLASS, overflow: 'hidden' }}>
-              <div style={{ padding: '16px 24px 12px', borderBottom: `1px solid ${C.border}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ padding: '16px 24px 12px', borderBottom: `1px solid ${C.border}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <span style={{ fontSize: 16 }}>📜</span>
                   <h2 style={{ fontSize: 15, fontWeight: 600, color: C.text }}>My Reports</h2>
+                  {reports && reports.length > 0 && (
+                    <span style={{ fontSize: 11, color: C.textMut }}>
+                      {reports.length} report{reports.length !== 1 ? 's' : ''}
+                    </span>
+                  )}
                 </div>
-                {reports && reports.length > 0 && (
-                  <span style={{ fontSize: 11, color: C.textMut }}>
-                    {reports.length} report{reports.length !== 1 ? 's' : ''}
-                  </span>
+
+                {/* Clear history — Sorcerer only */}
+                {isPro && reports && reports.length > 0 && (
+                  confirmClear ? (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <span style={{ fontSize: 11, color: C.textDim }}>Clear all?</span>
+                      <button
+                        onClick={() => clearHistoryMutation.mutate()}
+                        disabled={clearHistoryMutation.isPending}
+                        style={{
+                          fontSize: 11, fontWeight: 700, color: '#EF4444',
+                          background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)',
+                          borderRadius: 99, padding: '3px 10px', cursor: 'pointer',
+                        }}
+                      >
+                        {clearHistoryMutation.isPending ? '…' : 'Yes, clear'}
+                      </button>
+                      <button
+                        onClick={() => setConfirmClear(false)}
+                        style={{
+                          fontSize: 11, color: C.textMut,
+                          background: 'none', border: 'none', cursor: 'pointer', padding: '3px 6px',
+                        }}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => setConfirmClear(true)}
+                      style={{
+                        fontSize: 11, color: C.textMut,
+                        background: 'none', border: `1px solid ${C.border}`,
+                        borderRadius: 99, padding: '3px 10px', cursor: 'pointer',
+                        transition: 'color 0.15s, border-color 0.15s',
+                      }}
+                      onMouseEnter={e => {
+                        e.currentTarget.style.color = '#EF4444'
+                        e.currentTarget.style.borderColor = 'rgba(239,68,68,0.35)'
+                      }}
+                      onMouseLeave={e => {
+                        e.currentTarget.style.color = C.textMut
+                        e.currentTarget.style.borderColor = C.border
+                      }}
+                    >
+                      Clear history
+                    </button>
+                  )
                 )}
               </div>
 
