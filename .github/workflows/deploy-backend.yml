@@ -43,7 +43,7 @@ jobs:
             --no-fail-on-empty-changeset \
             --stack-name the-big-idea \
             --region us-east-1 \
-            --capabilities CAPABILITY_IAM \
+            --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
             --resolve-s3 \
             --parameter-overrides \
               DatabaseUrl="${{ secrets.DATABASE_URL }}" \
