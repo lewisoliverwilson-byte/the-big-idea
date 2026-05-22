@@ -386,8 +386,6 @@ const TESTIMONIALS = [
   },
 ]
 
-const PLATFORM_BUY  = ['Temu', 'AliExpress', 'Alibaba']
-const PLATFORM_SELL = ['Amazon', 'eBay', 'Etsy', 'Shopify']
 
 // ─── Main component ───────────────────────────────────────────────────────────
 export function Landing() {
