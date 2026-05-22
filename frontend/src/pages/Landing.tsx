@@ -327,45 +327,45 @@ function TestimonialCard({ quote, name, role, location, avatarColor }: {
 const HOW_STEPS = [
   {
     n: '01', icon: Sparkles,
-    title: 'Tell us your criteria',
-    desc: 'Budget, storage, category, platform, and goal. Five questions, under 60 seconds. Every answer shapes the recommendation.',
+    title: 'Tell us what you want',
+    desc: 'Budget, storage space, category, platform, and goal. Five quick questions — under 60 seconds. Every answer makes your result sharper.',
   },
   {
     n: '02', icon: BarChart2,
-    title: 'We scan the markets',
-    desc: 'Buy prices from Temu, AliExpress, and Alibaba cross-referenced against live sell-side data from Amazon, eBay, Etsy, and Shopify.',
+    title: 'We find your profitable products',
+    desc: 'Our AI cross-references buy prices from Temu, AliExpress, and Alibaba against live sell-side data from Amazon, eBay, Etsy, and Shopify — filtering for the highest margins.',
   },
   {
     n: '03', icon: TrendingUp,
-    title: 'Your report lands instantly',
-    desc: 'AI analysis, 6-month trend data, your exact margin after every fee, direct buy links — ready in under 30 seconds.',
+    title: 'Start selling in minutes',
+    desc: 'You get AI analysis, 6-month trend data, your exact profit after every fee, and direct buy links — all ready in under 30 seconds. Then you buy and sell.',
   },
 ]
 
 const FEATURES = [
   {
-    icon: Zap, title: 'Full AI analysis',
-    desc: 'GPT-4o writes a complete opportunity report: market size, competitor landscape, recommended entry strategy, and risk factors.',
+    icon: Zap, title: 'Full AI profit analysis',
+    desc: 'GPT-4o writes a complete opportunity report: market size, competitor landscape, recommended entry strategy, and exactly how much money you can make.',
   },
   {
     icon: TrendingUp, title: '6-month trend charts',
-    desc: 'See whether demand is rising, falling, or seasonal before you commit a single pound to inventory.',
+    desc: "See whether demand is rising before you commit a penny. Never buy into a dying trend again — only invest in products that are going up.",
   },
   {
     icon: DollarSign, title: 'Exact margin breakdown',
-    desc: 'Source price, UK shipping, and platform fees all calculated. See your profit at 50, 100, and 200 units with an editable calculator.',
+    desc: 'Source price, UK shipping, and platform fees all calculated. See your profit at 50, 100, and 200 units — use the editable calculator to find your sweet spot.',
   },
   {
     icon: BarChart2, title: 'All 4 platform comparisons',
-    desc: 'Amazon, eBay, Etsy, and Shopify — margins, fees, monthly sales estimates, and difficulty rated side by side.',
+    desc: 'Amazon, eBay, Etsy, and Shopify — margins, fees, and monthly sales estimates side by side. Pick the platform where you make the most money.',
   },
   {
     icon: Globe, title: 'Direct source links',
-    desc: 'One-click through to the exact listing on Temu, AliExpress, or Alibaba. Plus alternative sources to keep your prices competitive.',
+    desc: 'One-click through to the exact listing on Temu, AliExpress, or Alibaba. No hunting. Just buy at the price the report shows and start selling.',
   },
   {
     icon: ShieldCheck, title: 'Risk scoring',
-    desc: 'Saturated niches, declining trends, high MOQ, and seasonal spikes are all flagged with a clear risk score so you can decide fast.',
+    desc: 'Saturated niches, declining trends, and high MOQ are flagged instantly. Only pursue products with genuine profit potential — skip the rest.',
   },
 ]
 
@@ -578,19 +578,6 @@ export function Landing() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
             >
-              {/* Badge */}
-              <div style={{ marginBottom: 24 }}>
-                <span style={{
-                  display: 'inline-flex', alignItems: 'center', gap: 7,
-                  fontSize: 12, fontWeight: 600, letterSpacing: '0.03em',
-                  color: C.primary, background: C.primaryL, border: `1px solid ${C.primaryBdr}`,
-                  borderRadius: 99, padding: '5px 14px',
-                }}>
-                  <div style={{ width: 6, height: 6, borderRadius: '50%', background: C.primary, animation: 'pulse 2s ease-in-out infinite' }} />
-                  Trusted by 1,200+ UK & EU sellers
-                </span>
-              </div>
-
               {/* Headline */}
               <h1 style={{
                 fontWeight:    800,
@@ -600,14 +587,14 @@ export function Landing() {
                 color:         C.text,
                 marginBottom:  22,
               }}>
-                Know your margin<br />
+                Find products that<br />
                 <span style={{
                   background:           'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor:  'transparent',
                   backgroundClip:       'text',
                 }}>
-                  before you order.
+                  make you money.
                 </span>
               </h1>
 
@@ -615,7 +602,7 @@ export function Landing() {
                 fontSize: 17, color: C.textSec,
                 lineHeight: 1.68, maxWidth: 460, marginBottom: 40,
               }}>
-                Answer 5 questions. Our AI scans 1,000+ products across Temu, AliExpress, and Alibaba — then calculates your exact profit on Amazon, eBay, Etsy, and Shopify in 30 seconds.
+                Answer 5 questions. Our AI finds high-margin products, shows your exact profit after every fee, and tells you exactly where to sell — in under 30 seconds. Your first £1,000/month product could be one search away.
               </p>
 
               {/* Stats row */}
@@ -729,9 +716,9 @@ export function Landing() {
                     /* Free limit */
                     <div style={{ textAlign: 'center', padding: '16px 0' }}>
                       <div style={{ fontSize: 40, marginBottom: 14 }}>🔒</div>
-                      <p style={{ fontWeight: 700, fontSize: 16, color: C.text, marginBottom: 8 }}>Free reports used</p>
+                      <p style={{ fontWeight: 700, fontSize: 16, color: C.text, marginBottom: 8 }}>You've used your free reports</p>
                       <p style={{ fontSize: 13, color: C.textSec, marginBottom: 22, lineHeight: 1.65 }}>
-                        Upgrade to Pro for 20 reports/week, full AI analysis, all 4 platforms, and trend charts.
+                        Upgrade to Pro for 20 fresh reports every week. At £10/month, it pays for itself with a single winning product.
                       </p>
                       <button
                         onClick={() => navigate('/pricing')}
@@ -805,10 +792,10 @@ export function Landing() {
                     <form key="email" onSubmit={handleEmailSubmit}>
                       <QuizProgress step={step} total={STEPS} />
                       <p style={{ fontWeight: 700, fontSize: 15, color: C.text, margin: '0 0 5px' }}>
-                        Almost done
+                        Your results are ready
                       </p>
                       <p style={{ fontSize: 13, color: C.textSec, margin: '0 0 18px', lineHeight: 1.6 }}>
-                        Where should we send your report?
+                        Enter your email to unlock your free product report — your £1,000/month product could be one click away.
                       </p>
                       <input
                         type="email"
@@ -854,7 +841,7 @@ export function Landing() {
                           : <><span>Get my free report</span><ArrowRight style={{ width: 16, height: 16 }} /></>}
                       </button>
                       <p style={{ fontSize: 11, color: C.textMut, textAlign: 'center', marginTop: 12, fontFamily: 'Inter, system-ui, sans-serif' }}>
-                        2 free reports · No credit card required · Cancel anytime
+                        Free to start · No credit card · Start earning today
                       </p>
                       <button
                         type="button"
@@ -878,9 +865,9 @@ export function Landing() {
               {/* Social proof under card */}
               <div style={{ marginTop: 14, display: 'flex', justifyContent: 'center', gap: 6, flexWrap: 'wrap' }}>
                 {[
-                  { icon: '⚡', text: 'Under 30 seconds' },
-                  { icon: '🔒', text: 'No credit card' },
-                  { icon: '✅', text: '2 free reports' },
+                  { icon: '💰', text: 'Margins up to 80%' },
+                  { icon: '⚡', text: 'Results in 30 seconds' },
+                  { icon: '✅', text: 'Free to start' },
                 ].map(({ icon, text }) => (
                   <span key={text} style={{
                     display: 'inline-flex', alignItems: 'center', gap: 5,
@@ -909,10 +896,10 @@ export function Landing() {
               letterSpacing: '-0.03em', lineHeight: 1.1, color: C.text,
               margin: '0 auto 16px', maxWidth: 500,
             }}>
-              From criteria to report<br />in under 30 seconds
+              From zero to your<br />first winning product
             </h2>
             <p style={{ fontSize: 16, color: C.textSec, maxWidth: 420, margin: '0 auto', lineHeight: 1.68 }}>
-              No spreadsheets. No hours of research. Three steps from intent to insight.
+              No guesswork. No spreadsheets. Three steps to a product that actually sells.
             </p>
           </FadeUp>
 
@@ -961,10 +948,10 @@ export function Landing() {
               fontWeight: 800, fontSize: 'clamp(26px, 3.5vw, 42px)',
               letterSpacing: '-0.03em', lineHeight: 1.1, color: C.text, margin: '0 auto 16px',
             }}>
-              See exactly what you get
+              See exactly what you'd earn
             </h2>
             <p style={{ fontSize: 16, color: C.textSec, maxWidth: 420, margin: '0 auto', lineHeight: 1.68 }}>
-              Real data. Every report is generated fresh from live marketplace listings — no canned templates.
+              Buy price. Sell price. Exact profit after every fee. Live from real marketplace listings — not guesswork.
             </p>
           </FadeUp>
 
@@ -1079,7 +1066,7 @@ export function Landing() {
               fontWeight: 800, fontSize: 'clamp(26px, 3.5vw, 42px)',
               letterSpacing: '-0.03em', lineHeight: 1.1, color: C.text, margin: '0 auto',
             }}>
-              Everything in one report
+              Every number you need to start making money
             </h2>
           </FadeUp>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(290px,1fr))', gap: 14 }}>
@@ -1123,10 +1110,10 @@ export function Landing() {
               fontWeight: 800, fontSize: 'clamp(26px, 3.5vw, 42px)',
               letterSpacing: '-0.03em', lineHeight: 1.1, color: C.text, margin: '0 auto 16px',
             }}>
-              What sellers say
+              They started. Now they profit.
             </h2>
             <p style={{ fontSize: 16, color: C.textSec, maxWidth: 380, margin: '0 auto', lineHeight: 1.68 }}>
-              Real sellers. Real numbers. No cherry-picked edge cases.
+              Real sellers. Real earnings. Real products found with The Big Idea.
             </p>
           </FadeUp>
 
@@ -1144,29 +1131,6 @@ export function Landing() {
             ))}
           </div>
 
-          {/* Trust stats bar */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            style={{
-              marginTop: 44, display: 'flex', flexWrap: 'wrap',
-              justifyContent: 'center', gap: '16px 44px',
-            }}
-          >
-            {[
-              { value: '1,200+', label: 'Active sellers' },
-              { value: '40,000+', label: 'Reports generated' },
-              { value: '4.9/5', label: 'Average rating' },
-              { value: '£10/mo', label: 'Pro plan' },
-            ].map(({ value, label }) => (
-              <div key={label} style={{ textAlign: 'center' }}>
-                <p style={{ fontWeight: 800, fontSize: 28, color: C.primary, margin: 0, letterSpacing: '-0.03em', lineHeight: 1 }}>{value}</p>
-                <p style={{ fontSize: 12, color: C.textMut, margin: '5px 0 0', fontWeight: 500 }}>{label}</p>
-              </div>
-            ))}
-          </motion.div>
         </div>
       </section>
 
@@ -1181,10 +1145,10 @@ export function Landing() {
               fontWeight: 800, fontSize: 'clamp(26px, 3.5vw, 42px)',
               letterSpacing: '-0.03em', lineHeight: 1.1, color: C.text, margin: '0 auto 14px',
             }}>
-              Simple, transparent pricing
+              Start free. Make money first.
             </h2>
             <p style={{ fontSize: 16, color: C.textSec, maxWidth: 340, margin: '0 auto', lineHeight: 1.68 }}>
-              Start free. Upgrade when you're ready to scale.
+              Try it for free. Upgrade once the profit is rolling in.
             </p>
           </FadeUp>
 
@@ -1422,14 +1386,14 @@ export function Landing() {
             fontWeight: 800, fontSize: 'clamp(30px, 5vw, 52px)', lineHeight: 1.08,
             letterSpacing: '-0.04em', marginBottom: 20, color: '#FFFFFF',
           }}>
-            Ready to find your next<br />winning product?
+            Your next winning product<br />is waiting right now.
           </h2>
 
           <p style={{
             fontSize: 17, color: 'rgba(255,255,255,0.65)',
             maxWidth: 420, margin: '0 auto 44px', lineHeight: 1.68,
           }}>
-            Join 1,200+ sellers. Start free in 30 seconds — no credit card, no commitment.
+            Start free in 30 seconds. No credit card. Just products that make you money.
           </p>
 
           <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 14 }}>
