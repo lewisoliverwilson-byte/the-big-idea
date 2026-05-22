@@ -41,15 +41,41 @@ export function Badge({
   )
 }
 
-export function ScoreBadge({ score, label }: { score: number; label: string }) {
+export function ScoreBadge({
+  score,
+  label,
+  sources = [],
+}: {
+  score: number
+  label: string
+  sources?: Array<{ label: string; value: string }>
+}) {
   const variant = score >= 7 ? 'green' : score >= 4 ? 'amber' : 'red'
 
   return (
-    <div className="flex flex-col items-center">
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: 110 }}>
       <Badge variant={variant} size="md" className="text-sm font-bold px-3 py-1.5">
         {score}/10
       </Badge>
       <span className="text-xs mt-1" style={{ color: '#5A4F7A' }}>{label}</span>
+      {sources.length > 0 && (
+        <div style={{
+          marginTop: 8,
+          display: 'flex', flexDirection: 'column', gap: 3,
+          width: '100%',
+          background: 'rgba(139,92,246,0.04)',
+          border: '1px solid rgba(139,92,246,0.12)',
+          borderRadius: 8,
+          padding: '6px 10px',
+        }}>
+          {sources.map((s, i) => (
+            <div key={i} style={{ display: 'flex', justifyContent: 'space-between', gap: 8, alignItems: 'baseline' }}>
+              <span style={{ fontSize: 10, color: '#5A4F7A', whiteSpace: 'nowrap' }}>{s.label}</span>
+              <span style={{ fontSize: 10, color: '#F0EEFF', fontWeight: 600, textAlign: 'right' }}>{s.value}</span>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }

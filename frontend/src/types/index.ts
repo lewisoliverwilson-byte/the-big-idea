@@ -79,6 +79,11 @@ export interface PlatformComparison {
 
 export type ReportTier = 'free' | 'pro'
 
+export interface ScoreSource {
+  label: string
+  value: string
+}
+
 export interface Report {
   id: string
   userId: string
@@ -91,6 +96,8 @@ export interface Report {
   aiAnalysis: string
   riskScore: number
   opportunityScore: number
+  opportunitySources: ScoreSource[]
+  riskSources: ScoreSource[]
   createdAt: string
   tier: ReportTier
 }
@@ -110,6 +117,26 @@ export interface ReportListItem {
   riskScore: number
   createdAt: string
   tier: ReportTier
+}
+
+// ─── Compare ─────────────────────────────────────────────────────────────────
+
+export interface CompareItem {
+  id: string
+  name: string
+  category: string
+  opportunity_score: number
+  opportunity_sources: ScoreSource[]
+  risk_score: number
+  risk_sources: ScoreSource[]
+  summary: string
+  tier: ReportTier
+}
+
+export interface CompareResponse {
+  products: CompareItem[]
+  winner_id: string
+  winner_reason: string
 }
 
 // ─── Search ───────────────────────────────────────────────────────────────────

@@ -31,7 +31,6 @@ export function Navbar() {
   }
 
   const isPro    = user?.subscriptionStatus === 'active'
-  const freeLeft = Math.max(0, 2 - (user?.reportsUsedFree || 0))
 
   // Landing page has its own nav
   if (isLanding) return null
@@ -108,7 +107,7 @@ export function Navbar() {
                     padding:     '3px 10px',
                     borderRadius: 99,
                   }} className="hidden sm:block">
-                    {freeLeft} spell{freeLeft !== 1 ? 's' : ''} left
+                    Free
                   </span>
                 )}
 

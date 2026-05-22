@@ -74,8 +74,8 @@ function downloadReportCsv(report: Report) {
 
     // ── Scores
     ['SCORES', '', ''],
-    ['Opportunity Score', String(report.opportunityScore),        '/ 100'],
-    ['Risk Score',        String(report.riskScore),               '/ 100'],
+    ['Opportunity Score', String(report.opportunityScore),        '/ 10'],
+    ['Risk Score',        String(report.riskScore),               '/ 10'],
     ['', '', ''],
 
     // ── Sourcing
@@ -406,9 +406,17 @@ export function ReportPage() {
                       {product.description.slice(0, 200)}{product.description.length > 200 ? '…' : ''}
                     </p>
                   </div>
-                  <div style={{ display: 'flex', gap: 16, flexShrink: 0 }}>
-                    <ScoreBadge score={report.opportunityScore} label="Opportunity" />
-                    <ScoreBadge score={report.riskScore} label="Risk" />
+                  <div style={{ display: 'flex', gap: 16, flexShrink: 0, alignItems: 'flex-start' }}>
+                    <ScoreBadge
+                      score={report.opportunityScore}
+                      label="Opportunity"
+                      sources={report.opportunitySources || []}
+                    />
+                    <ScoreBadge
+                      score={report.riskScore}
+                      label="Risk"
+                      sources={report.riskSources || []}
+                    />
                   </div>
                 </div>
 

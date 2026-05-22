@@ -6,7 +6,7 @@ Pass is_pro=True for Pro-tier users to get full analysis + all platforms.
 Pass is_pro=False (default) for free-tier users to get lite analysis + 1 platform.
 """
 from __future__ import annotations
-from typing import Optional, List, Dict, Any
+from typing import Optional, List, Dict, Any, Tuple
 from sqlalchemy.orm import Session
 from app.models.product import Product
 from app.models.report import Report
@@ -32,18 +32,23 @@ PLATFORM_DIFFICULTY = {
 
 # ─── Scoring ──────────────────────────────────────────────────────────────────
 
-def compute_opportunity_score(product: Product, margin_pct: float) -> int:
+def compute_opportunity_score(product: Product, margin_pct: float) -> Tuple[int, List[Dict[str, str]]]:
     monthly_sales = product.estimated_monthly_sales or 0
     review_score = float(product.avg_review_score or 4.0)
 
     trend_direction = 5
+    trend_label = "flat"
     if product.trend_data and len(product.trend_data) >= 2:
         first = product.trend_data[0].get("searchVolume", 50)
         last = product.trend_data[-1].get("searchVolume", 50)
         if last > first * 1.1:
             trend_direction = 9
+            pct = round((last - first) / max(first, 1) * 100)
+            trend_label = f"up {pct}% over 6 months"
         elif last < first * 0.9:
             trend_direction = 2
+            pct = round((first - last) / max(first, 1) * 100)
+            trend_label = f"down {pct}% over 6 months"
 
     sales_norm = min(monthly_sales / 5000, 1.0) * 10
     margin_norm = min(margin_pct / 80, 1.0) * 10
@@ -56,10 +61,17 @@ def compute_opportunity_score(product: Product, margin_pct: float) -> int:
         + review_norm * 0.1
         + trend_direction * 0.1
     )
-    return max(1, min(10, round(score)))
+    final_score = max(1, min(10, round(score)))
+
+    sources: List[Dict[str, str]] = [
+        {"label": "Monthly sales est.", "value": f"~{monthly_sales:,} units"},
+        {"label": "Margin", "value": f"{margin_pct:.1f}%"},
+        {"label": "Trend", "value": trend_label},
+    ]
+    return final_score, sources
 
 
-def compute_risk_score(product: Product, user_budget: float) -> int:
+def compute_risk_score(product: Product, user_budget: float) -> Tuple[int, List[Dict[str, str]]]:
     review_count = product.review_count or 0
     source_price = float(product.source_price_usd or 1)
     min_order = product.source_min_order_qty or 1
@@ -70,13 +82,16 @@ def compute_risk_score(product: Product, user_budget: float) -> int:
     budget_risk = min(budget_ratio, 1.0) * 10
 
     trend_risk = 3
+    trend_label = "stable"
     if product.trend_data and len(product.trend_data) >= 2:
         first = product.trend_data[0].get("searchVolume", 50)
         last = product.trend_data[-1].get("searchVolume", 50)
         if last < first * 0.9:
             trend_risk = 8
+            trend_label = "declining"
         elif last > first * 1.1:
             trend_risk = 1
+            trend_label = "rising"
 
     risk = (
         saturation * 0.3
@@ -85,7 +100,21 @@ def compute_risk_score(product: Product, user_budget: float) -> int:
         + trend_risk * 0.15
         + 3.0 * 0.15
     )
-    return max(1, min(10, round(risk)))
+    final_score = max(1, min(10, round(risk)))
+
+    if review_count < 500:
+        comp_label = f"~{review_count:,} reviews (low competition)"
+    elif review_count < 3000:
+        comp_label = f"~{review_count:,} reviews (medium competition)"
+    else:
+        comp_label = f"~{review_count:,} reviews (high competition)"
+
+    sources: List[Dict[str, str]] = [
+        {"label": "Competition", "value": comp_label},
+        {"label": "Min. order cost", "value": f"${moq_cost:.0f} vs ${user_budget:.0f} budget"},
+        {"label": "Trend", "value": trend_label},
+    ]
+    return final_score, sources
 
 
 # ─── Margin calculation ────────────────────────────────────────────────────────
@@ -203,8 +232,8 @@ def assemble_report(
         margin = calculate_margin(product, target_platform)
         margin_pct = margin["marginPercent"]
 
-        opp_score = compute_opportunity_score(product, margin_pct)
-        risk_score = compute_risk_score(product, float(search_params.get("budgetUsd", 200)))
+        opp_score, opp_sources = compute_opportunity_score(product, margin_pct)
+        risk_score, risk_sources = compute_risk_score(product, float(search_params.get("budgetUsd", 200)))
 
         platform_comparison = build_platform_comparison(product, is_pro=is_pro)
 
@@ -233,6 +262,10 @@ def assemble_report(
         report.risk_score = risk_score
         report.tier = "pro" if is_pro else "free"
         report.status = "ready"
+        report.report_snapshot = {
+            "opportunitySources": opp_sources,
+            "riskSources": risk_sources,
+        }
 
         db.commit()
         db.refresh(report)

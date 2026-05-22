@@ -12,6 +12,7 @@ import { Dashboard } from './pages/Dashboard'
 import { ReportPage } from './pages/ReportPage'
 import { Pricing } from './pages/Pricing'
 import { Account } from './pages/Account'
+import { ComparePage } from './pages/ComparePage'
 
 // Reads directly from the store — does NOT call useAuth() so there is
 // only ever ONE Hub listener (the one in App below).
@@ -109,6 +110,14 @@ export default function App() {
           element={
             <ProtectedRoute>
               <Account />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/compare"
+          element={
+            <ProtectedRoute>
+              <ComparePage />
             </ProtectedRoute>
           }
         />

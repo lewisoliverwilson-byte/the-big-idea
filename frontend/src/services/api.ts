@@ -9,6 +9,7 @@ import {
   CheckoutSessionResponse,
   PortalSessionResponse,
   Product,
+  CompareResponse,
 } from '../types'
 
 const api = axios.create({
@@ -83,6 +84,11 @@ export const deleteReport = async (reportId: string): Promise<void> => {
 
 export const deleteAllReports = async (): Promise<{ deleted: number }> => {
   const { data } = await api.delete<{ deleted: number }>('/v1/reports')
+  return data
+}
+
+export const compareReports = async (reportIds: string[]): Promise<CompareResponse> => {
+  const { data } = await api.post<CompareResponse>('/v1/reports/compare', { report_ids: reportIds })
   return data
 }
 

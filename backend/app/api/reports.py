@@ -1,8 +1,8 @@
 """
-Reports API — search, status polling, fetch, list.
+Reports API — search, status polling, fetch, list, compare.
 
-Free tier  : 2 lifetime reports, lite AI analysis, 1 platform
-Pro tier   : 20 reports per rolling 7-day window, full AI analysis, all 4 platforms
+Free tier  : unlimited single reports (50 lifetime cap), lite AI analysis, 1 platform
+Pro tier   : 20 reports per rolling 7-day window, full AI analysis, all 4 platforms, comparison mode
 
 NOTE: report assembly is done synchronously within the same Lambda invocation.
 BackgroundTasks are intentionally not used here because Mangum/Lambda runs them
@@ -27,13 +27,17 @@ from app.schemas.report import (
     ProductOut,
     MarginAnalysis,
     PlatformComparison,
+    ScoreSource,
+    CompareRequest,
+    CompareItem,
+    CompareResponse,
 )
 from app.api.deps import get_current_user_sub
 from app.services.report_service import assemble_report
 
 router = APIRouter(prefix="/reports", tags=["reports"])
 
-FREE_REPORT_LIMIT = 2      # lifetime
+FREE_REPORT_LIMIT = 50     # effectively unlimited for free tier (single reports)
 PRO_WEEKLY_LIMIT = 20      # per rolling 7-day window
 
 
@@ -278,6 +282,10 @@ async def get_report(
         raise HTTPException(status_code=425, detail="Report still processing")
 
     product = report.product
+    snapshot = report.report_snapshot or {}
+    opp_sources = [ScoreSource(**s) for s in snapshot.get("opportunitySources", [])]
+    risk_sources = [ScoreSource(**s) for s in snapshot.get("riskSources", [])]
+
     return ReportOut(
         id=report.id,
         userId=report.user_id,
@@ -290,6 +298,8 @@ async def get_report(
         aiAnalysis=report.ai_analysis or "",
         riskScore=report.risk_score or 5,
         opportunityScore=report.opportunity_score or 5,
+        opportunitySources=opp_sources,
+        riskSources=risk_sources,
         createdAt=report.created_at,
         tier=report.tier or "free",
     )
@@ -337,3 +347,104 @@ async def delete_all_reports(
     )
     db.commit()
     return {"deleted": deleted}
+
+
+@router.post("/compare", response_model=CompareResponse)
+async def compare_reports(
+    request: CompareRequest,
+    sub: dict = Depends(get_current_user_sub),
+    db: Session = Depends(get_db),
+):
+    """
+    Compare 2-5 existing reports side-by-side.
+    Pro (Sorcerer) feature only — free users see a paywall.
+    Accepts report IDs from the user's own history; fetches from DB (no new generation).
+    Winner is determined by: opportunity_score - risk_score (both 1-10). Deterministic.
+    """
+    user = _get_db_user(sub, db)
+
+    if user.subscription_status != "active":
+        raise HTTPException(
+            status_code=402,
+            detail="Comparison mode is a Sorcerer feature. Upgrade to compare products side-by-side.",
+        )
+
+    if len(request.report_ids) < 2:
+        raise HTTPException(status_code=400, detail="Select at least 2 reports to compare.")
+    if len(request.report_ids) > 5:
+        raise HTTPException(status_code=400, detail="Maximum 5 reports per comparison.")
+
+    # Fetch each report — enforces ownership via user_id filter
+    reports = []
+    for rid in request.report_ids:
+        try:
+            report_uuid = uuid.UUID(rid)
+        except ValueError:
+            raise HTTPException(status_code=400, detail=f"Invalid report ID: {rid}")
+
+        report = (
+            db.query(Report)
+            .filter(Report.id == report_uuid, Report.user_id == user.id, Report.status == "ready")
+            .first()
+        )
+        if not report:
+            raise HTTPException(status_code=404, detail=f"Report {rid} not found or not ready.")
+        reports.append(report)
+
+    # Build CompareItem for each report
+    items: List[CompareItem] = []
+    for report in reports:
+        product_name = report.product.name if report.product else "Unknown"
+        category = report.product.category if report.product else "General"
+
+        snapshot = report.report_snapshot or {}
+        opp_sources = [
+            ScoreSource(label=s["label"], value=s["value"])
+            for s in snapshot.get("opportunitySources", [])
+        ]
+        risk_sources = [
+            ScoreSource(label=s["label"], value=s["value"])
+            for s in snapshot.get("riskSources", [])
+        ]
+
+        # Extract a 2-sentence summary from the AI analysis
+        ai_text = report.ai_analysis or ""
+        raw_sentences = [s.strip() for s in ai_text.replace(".\n", ". ").split(". ") if s.strip()]
+        summary_parts = raw_sentences[:2]
+        summary = ". ".join(summary_parts)
+        if summary and not summary.endswith("."):
+            summary += "."
+        if len(summary) > 240:
+            summary = summary[:240].rsplit(" ", 1)[0] + "…"
+
+        items.append(CompareItem(
+            id=str(report.id),
+            name=product_name,
+            category=category,
+            opportunity_score=report.opportunity_score or 5,
+            opportunity_sources=opp_sources,
+            risk_score=report.risk_score or 5,
+            risk_sources=risk_sources,
+            summary=summary,
+            tier=report.tier or "free",
+        ))
+
+    # Winner algorithm: composite = opp_score - risk_score (1-10 scale, both equal weight)
+    # Higher is better for opp; lower is better for risk. Ties broken by opp_score.
+    def _composite(item: CompareItem):
+        return (item.opportunity_score - item.risk_score, item.opportunity_score)
+
+    winner = max(items, key=_composite)
+
+    all_risk_equal = all(i.risk_score == items[0].risk_score for i in items)
+    winner_reason = (
+        "Highest opportunity score"
+        if all_risk_equal
+        else "Highest opportunity score with lowest risk"
+    )
+
+    return CompareResponse(
+        products=items,
+        winner_id=winner.id,
+        winner_reason=winner_reason,
+    )

@@ -229,61 +229,109 @@ function riskColor(score: number) {
   return C.red
 }
 
-function ReportRow({ report }: { report: any }) {
+function ReportRow({
+  report,
+  compareMode = false,
+  selected = false,
+  onToggle,
+}: {
+  report: any
+  compareMode?: boolean
+  selected?: boolean
+  onToggle?: (id: string) => void
+}) {
   const oColor = oppColor(report.opportunityScore)
   const rColor = riskColor(report.riskScore)
 
-  return (
-    <div style={{ borderBottom: `1px solid ${C.border}` }}>
-      <Link
-        to={`/report/${report.id}`}
-        style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 14, padding: '14px 24px', transition: 'background 0.15s' }}
-        onMouseEnter={e => (e.currentTarget.style.background = 'rgba(139,92,246,0.06)')}
-        onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
-      >
-        {/* Opportunity score indicator */}
-        <div style={{
-          width: 4, height: 36, borderRadius: 99, flexShrink: 0,
-          background: oColor,
-          boxShadow: `0 0 6px ${oColor}60`,
-        }} />
+  const rowContent = (
+    <>
+      {/* Compare checkbox */}
+      {compareMode && (
+        <div
+          onClick={e => { e.preventDefault(); e.stopPropagation(); onToggle?.(report.id) }}
+          style={{
+            width: 18, height: 18, flexShrink: 0, borderRadius: 4,
+            border: selected ? '2px solid #8B5CF6' : `2px solid ${C.border}`,
+            background: selected ? '#8B5CF6' : 'transparent',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            cursor: 'pointer', transition: 'all 0.15s',
+          }}
+        >
+          {selected && <span style={{ color: '#fff', fontSize: 11, lineHeight: 1 }}>✓</span>}
+        </div>
+      )}
 
-        {/* Product info */}
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 3 }}>
-            <span style={{ fontSize: 13, fontWeight: 600, color: C.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              {report.productName}
-            </span>
-            {report.tier === 'pro' && (
-              <span style={{
-                fontSize: 9, fontWeight: 700, color: '#C4B5FD',
-                background: 'rgba(139,92,246,0.15)', border: '1px solid rgba(139,92,246,0.25)',
-                borderRadius: 99, padding: '1px 7px', flexShrink: 0,
-              }}>PRO</span>
-            )}
-          </div>
-          <span style={{ fontSize: 11, color: C.textMut }}>
-            {report.category} · {formatDate(report.createdAt)}
+      {/* Opportunity score indicator */}
+      <div style={{
+        width: 4, height: 36, borderRadius: 99, flexShrink: 0,
+        background: oColor, boxShadow: `0 0 6px ${oColor}60`,
+      }} />
+
+      {/* Product info */}
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 3 }}>
+          <span style={{ fontSize: 13, fontWeight: 600, color: C.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            {report.productName}
           </span>
+          {report.tier === 'pro' && (
+            <span style={{
+              fontSize: 9, fontWeight: 700, color: '#C4B5FD',
+              background: 'rgba(139,92,246,0.15)', border: '1px solid rgba(139,92,246,0.25)',
+              borderRadius: 99, padding: '1px 7px', flexShrink: 0,
+            }}>PRO</span>
+          )}
         </div>
+        <span style={{ fontSize: 11, color: C.textMut }}>
+          {report.category} · {formatDate(report.createdAt)}
+        </span>
+      </div>
 
-        {/* Scores */}
-        <div style={{ display: 'flex', gap: 10, flexShrink: 0 }}>
-          <div style={{ textAlign: 'center', minWidth: 34 }}>
-            <div style={{ fontSize: 15, fontWeight: 700, color: oColor, lineHeight: 1 }}>
-              {report.opportunityScore.toFixed(1)}
-            </div>
-            <div style={{ fontSize: 9, color: C.textMut, marginTop: 2 }}>OPP</div>
+      {/* Scores */}
+      <div style={{ display: 'flex', gap: 10, flexShrink: 0 }}>
+        <div style={{ textAlign: 'center', minWidth: 34 }}>
+          <div style={{ fontSize: 15, fontWeight: 700, color: oColor, lineHeight: 1 }}>
+            {report.opportunityScore.toFixed(1)}
           </div>
-          <div style={{ textAlign: 'center', minWidth: 34 }}>
-            <div style={{ fontSize: 15, fontWeight: 700, color: rColor, lineHeight: 1 }}>
-              {report.riskScore.toFixed(1)}
-            </div>
-            <div style={{ fontSize: 9, color: C.textMut, marginTop: 2 }}>RISK</div>
-          </div>
-          <div style={{ color: C.textMut, fontSize: 18, lineHeight: 1, alignSelf: 'center', marginLeft: 4 }}>›</div>
+          <div style={{ fontSize: 9, color: C.textMut, marginTop: 2 }}>OPP</div>
         </div>
-      </Link>
+        <div style={{ textAlign: 'center', minWidth: 34 }}>
+          <div style={{ fontSize: 15, fontWeight: 700, color: rColor, lineHeight: 1 }}>
+            {report.riskScore.toFixed(1)}
+          </div>
+          <div style={{ fontSize: 9, color: C.textMut, marginTop: 2 }}>RISK</div>
+        </div>
+        {!compareMode && (
+          <div style={{ color: C.textMut, fontSize: 18, lineHeight: 1, alignSelf: 'center', marginLeft: 4 }}>›</div>
+        )}
+      </div>
+    </>
+  )
+
+  return (
+    <div
+      style={{
+        borderBottom: `1px solid ${C.border}`,
+        background: selected ? 'rgba(139,92,246,0.06)' : 'transparent',
+        transition: 'background 0.15s',
+      }}
+    >
+      {compareMode ? (
+        <div
+          style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 24px', cursor: 'pointer' }}
+          onClick={() => onToggle?.(report.id)}
+        >
+          {rowContent}
+        </div>
+      ) : (
+        <Link
+          to={`/report/${report.id}`}
+          style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 14, padding: '14px 24px', transition: 'background 0.15s' }}
+          onMouseEnter={e => (e.currentTarget.style.background = 'rgba(139,92,246,0.06)')}
+          onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+        >
+          {rowContent}
+        </Link>
+      )}
     </div>
   )
 }
@@ -324,8 +372,10 @@ export function Dashboard() {
   const navigate       = useNavigate()
   const queryClient    = useQueryClient()
   const { setCurrentReportId, setIsGenerating } = useReportStore()
-  const [showPaywall, setShowPaywall]   = useState(false)
-  const [confirmClear, setConfirmClear] = useState(false)
+  const [showPaywall, setShowPaywall]     = useState(false)
+  const [confirmClear, setConfirmClear]   = useState(false)
+  const [compareMode, setCompareMode]     = useState(false)
+  const [selectedIds, setSelectedIds]     = useState<string[]>([])
 
   const { data: reports, isLoading: reportsLoading } = useQuery({
     queryKey: ['my-reports'],
@@ -341,10 +391,12 @@ export function Dashboard() {
   })
 
   const isPro           = user?.subscriptionStatus === 'active'
-  const freeReportsLeft = Math.max(0, 2 - (user?.reportsUsedFree || 0))
+  // Free users now get unlimited single reports (backend limit: 50).
+  // isAtLimit is only relevant for Pro users (weekly cap). Free users hit a
+  // paywall only when they try to use comparison mode — not single reports.
   const proUsed         = user?.proReportsUsedThisWeek || 0
   const proLeft         = Math.max(0, 20 - proUsed)
-  const isAtLimit       = isPro ? proLeft === 0 : freeReportsLeft === 0
+  const isAtLimit       = isPro ? proLeft === 0 : false
 
   const firstName = user?.fullName ? user.fullName.split(' ')[0] : null
 
@@ -431,17 +483,19 @@ export function Dashboard() {
             <p style={{ fontSize: 13, color: C.textDim }}>
               {isPro
                 ? `Sorcerer plan · ${proLeft} spell${proLeft !== 1 ? 's' : ''} remaining this week`
-                : `Apprentice plan · ${freeReportsLeft} free spell${freeReportsLeft !== 1 ? 's' : ''} remaining`}
+                : 'Apprentice plan · Unlimited spells · Compare with Sorcerer'}
             </p>
           </div>
 
           {/* Stat chips */}
           <div style={{ display: 'flex', gap: 10 }}>
-            <StatCard
-              label={isPro ? 'Spells left' : 'Free spells left'}
-              value={isPro ? proLeft : freeReportsLeft}
-              accent
-            />
+            {isPro && (
+              <StatCard
+                label="Spells left"
+                value={proLeft}
+                accent
+              />
+            )}
             <StatCard
               label="Reports"
               value={reports?.length ?? '—'}
@@ -466,30 +520,15 @@ export function Dashboard() {
           </div>
         )}
 
-        {/* ── Limit banner ── */}
-        {!isPro && freeReportsLeft === 0 && !autoSearchMutation.isPending && (
+        {/* ── Pro weekly limit banner ── */}
+        {isPro && proLeft === 0 && !autoSearchMutation.isPending && (
           <div style={{ marginBottom: 24 }}>
             <UpgradeBanner
               variant="full"
-              title="Your free spells are spent"
-              description="Sorcerer gives you 20 fresh ideas every week — plus full AI analysis, all 4 platform comparisons, and trend charts."
-              ctaLabel="✦ Ascend to Sorcerer — £10/mo"
+              title="Weekly spells used up"
+              description="Your 20-spell weekly allowance resets every 7 days. Your existing reports and comparison mode are still active."
+              ctaLabel="View account"
             />
-          </div>
-        )}
-
-        {/* ── Last free spell nudge ── */}
-        {!isPro && freeReportsLeft > 0 && freeReportsLeft <= 1 && (
-          <div style={{ ...GLASS, padding: '12px 20px', marginBottom: 24, borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
-            <p style={{ fontSize: 13, color: C.text }}>
-              <span style={{ fontWeight: 700, color: C.purpleB }}>Last free spell.</span>{' '}
-              <span style={{ color: C.textDim }}>Upgrade to keep discovering.</span>
-            </p>
-            <Link to="/pricing" style={{
-              flexShrink: 0, background: GBTN, border: '1px solid rgba(139,92,246,0.4)',
-              borderRadius: 99, padding: '8px 18px', color: '#fff',
-              fontSize: 12, fontWeight: 700, textDecoration: 'none',
-            }}>Go Pro</Link>
           </div>
         )}
 
@@ -530,13 +569,13 @@ export function Dashboard() {
               </div>
             </div>
 
-            {/* Upgrade nudge (free, still has spells) */}
-            {!isPro && freeReportsLeft > 0 && (
+            {/* Upgrade nudge (free users — pitch comparison mode) */}
+            {!isPro && (
               <div style={{ marginTop: 16 }}>
                 <UpgradeBanner
                   variant="inline"
-                  title="Want 20 ideas a week?"
-                  description="Sorcerer upgrades to full 5-paragraph GPT-4o analysis plus all 4 platforms."
+                  title="Compare your reports"
+                  description="Sorcerer unlocks side-by-side comparison — auto-picks the winner with score signals."
                 />
               </div>
             )}
@@ -550,6 +589,7 @@ export function Dashboard() {
               borderBottom: `1px solid ${C.border}`,
               display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12,
               background: 'rgba(124,58,237,0.04)',
+              flexWrap: 'wrap',
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                 <span style={{
@@ -569,52 +609,126 @@ export function Dashboard() {
                 )}
               </div>
 
-              {/* Clear history (Sorcerer only) */}
-              {isPro && reports && reports.length > 0 && (
-                confirmClear ? (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span style={{ fontSize: 11, color: C.textDim }}>Clear all?</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                {/* Compare button — appears when 2+ reports exist */}
+                {reports && reports.length >= 2 && !confirmClear && (
+                  compareMode ? (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      {selectedIds.length >= 2 && (
+                        <button
+                          onClick={() => {
+                            const ids = selectedIds.join(',')
+                            navigate(`/compare?ids=${ids}`)
+                          }}
+                          style={{
+                            fontSize: 11, fontWeight: 700, color: '#fff',
+                            background: GBTN,
+                            border: '1px solid rgba(139,92,246,0.4)',
+                            borderRadius: 99, padding: '4px 12px', cursor: 'pointer',
+                            boxShadow: '0 0 10px rgba(124,58,237,0.2)',
+                          }}
+                        >
+                          ✦ Compare {selectedIds.length}
+                        </button>
+                      )}
+                      <button
+                        onClick={() => { setCompareMode(false); setSelectedIds([]) }}
+                        style={{
+                          fontSize: 11, color: C.textMut,
+                          background: 'none', border: `1px solid ${C.border}`,
+                          borderRadius: 99, padding: '3px 10px', cursor: 'pointer',
+                        }}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  ) : (
                     <button
-                      onClick={() => clearHistoryMutation.mutate()}
-                      disabled={clearHistoryMutation.isPending}
+                      onClick={() => { setCompareMode(true); setSelectedIds([]) }}
                       style={{
-                        fontSize: 11, fontWeight: 700, color: C.red,
-                        background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)',
+                        fontSize: 11, color: C.textDim,
+                        background: 'none', border: `1px solid ${C.border}`,
                         borderRadius: 99, padding: '3px 10px', cursor: 'pointer',
+                        transition: 'all 0.15s',
+                      }}
+                      onMouseEnter={e => {
+                        ;(e.currentTarget as HTMLButtonElement).style.color = C.purpleB
+                        ;(e.currentTarget as HTMLButtonElement).style.borderColor = C.borderG
+                      }}
+                      onMouseLeave={e => {
+                        ;(e.currentTarget as HTMLButtonElement).style.color = C.textDim
+                        ;(e.currentTarget as HTMLButtonElement).style.borderColor = C.border
                       }}
                     >
-                      {clearHistoryMutation.isPending ? '…' : 'Yes, clear'}
+                      Compare ✦
                     </button>
+                  )
+                )}
+
+                {/* Clear history (Sorcerer only) */}
+                {isPro && reports && reports.length > 0 && !compareMode && (
+                  confirmClear ? (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <span style={{ fontSize: 11, color: C.textDim }}>Clear all?</span>
+                      <button
+                        onClick={() => clearHistoryMutation.mutate()}
+                        disabled={clearHistoryMutation.isPending}
+                        style={{
+                          fontSize: 11, fontWeight: 700, color: C.red,
+                          background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)',
+                          borderRadius: 99, padding: '3px 10px', cursor: 'pointer',
+                        }}
+                      >
+                        {clearHistoryMutation.isPending ? '…' : 'Yes, clear'}
+                      </button>
+                      <button
+                        onClick={() => setConfirmClear(false)}
+                        style={{ fontSize: 11, color: C.textMut, background: 'none', border: 'none', cursor: 'pointer' }}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  ) : (
                     <button
-                      onClick={() => setConfirmClear(false)}
-                      style={{ fontSize: 11, color: C.textMut, background: 'none', border: 'none', cursor: 'pointer' }}
+                      onClick={() => setConfirmClear(true)}
+                      style={{
+                        fontSize: 11, color: C.textMut,
+                        background: 'none', border: `1px solid ${C.border}`,
+                        borderRadius: 99, padding: '3px 10px', cursor: 'pointer',
+                        transition: 'color 0.15s, border-color 0.15s',
+                      }}
+                      onMouseEnter={e => {
+                        ;(e.currentTarget as HTMLButtonElement).style.color = C.red
+                        ;(e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(239,68,68,0.3)'
+                      }}
+                      onMouseLeave={e => {
+                        ;(e.currentTarget as HTMLButtonElement).style.color = C.textMut
+                        ;(e.currentTarget as HTMLButtonElement).style.borderColor = C.border
+                      }}
                     >
-                      Cancel
+                      Clear history
                     </button>
-                  </div>
-                ) : (
-                  <button
-                    onClick={() => setConfirmClear(true)}
-                    style={{
-                      fontSize: 11, color: C.textMut,
-                      background: 'none', border: `1px solid ${C.border}`,
-                      borderRadius: 99, padding: '3px 10px', cursor: 'pointer',
-                      transition: 'color 0.15s, border-color 0.15s',
-                    }}
-                    onMouseEnter={e => {
-                      (e.currentTarget as HTMLButtonElement).style.color = C.red
-                      ;(e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(239,68,68,0.3)'
-                    }}
-                    onMouseLeave={e => {
-                      (e.currentTarget as HTMLButtonElement).style.color = C.textMut
-                      ;(e.currentTarget as HTMLButtonElement).style.borderColor = C.border
-                    }}
-                  >
-                    Clear history
-                  </button>
-                )
-              )}
+                  )
+                )}
+              </div>
             </div>
+
+            {/* Compare mode hint */}
+            {compareMode && (
+              <div style={{
+                padding: '10px 24px',
+                borderBottom: `1px solid ${C.border}`,
+                background: 'rgba(124,58,237,0.04)',
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12,
+              }}>
+                <span style={{ fontSize: 11, color: C.textDim }}>
+                  Select 2-5 reports to compare side-by-side
+                </span>
+                <span style={{ fontSize: 11, color: selectedIds.length >= 2 ? C.purpleB : C.textMut }}>
+                  {selectedIds.length} selected
+                </span>
+              </div>
+            )}
 
             {/* Body */}
             {reportsLoading ? (
@@ -627,20 +741,36 @@ export function Dashboard() {
             ) : (
               <div>
                 {reports.map((report) => (
-                  <ReportRow key={report.id} report={report} />
+                  <ReportRow
+                    key={report.id}
+                    report={report}
+                    compareMode={compareMode}
+                    selected={selectedIds.includes(report.id)}
+                    onToggle={(id) => {
+                      setSelectedIds(prev =>
+                        prev.includes(id)
+                          ? prev.filter(x => x !== id)
+                          : prev.length >= 5 ? prev : [...prev, id]
+                      )
+                    }}
+                  />
                 ))}
               </div>
             )}
           </div>
         </div>
 
-        {/* ── Bottom upgrade nudge ── */}
-        {!isPro && reports && reports.length >= 1 && (
+        {/* ── Bottom upgrade nudge — compare mode upsell ── */}
+        {!isPro && reports && reports.length >= 2 && (
           <div style={{ marginTop: 24, ...GLASS, padding: '20px 28px', borderRadius: 14, textAlign: 'center' }}>
-            <p style={{ fontSize: 13, color: C.textDim, marginBottom: 14, lineHeight: 1.6 }}>
-              Free reports show <span style={{ color: C.text, fontWeight: 600 }}>1 platform</span> and a{' '}
-              <span style={{ color: C.text, fontWeight: 600 }}>brief summary</span>.{' '}
-              Sorcerer unlocks the full oracle.
+            <p style={{ fontSize: 13, color: C.textDim, marginBottom: 6, lineHeight: 1.6 }}>
+              You've got{' '}
+              <span style={{ color: C.text, fontWeight: 600 }}>{reports.length} reports</span>{' '}
+              in your grimoire.
+            </p>
+            <p style={{ fontSize: 13, color: C.textDim, marginBottom: 18, lineHeight: 1.6 }}>
+              <span style={{ color: C.purpleB, fontWeight: 600 }}>Sorcerer</span> lets you compare them side-by-side,
+              auto-picks the winner, and shows you exactly why each score is what it is.
             </p>
             <Link to="/pricing" style={{
               display: 'inline-flex', alignItems: 'center', gap: 8,
@@ -649,7 +779,7 @@ export function Dashboard() {
               fontSize: 13, fontWeight: 700, textDecoration: 'none',
               boxShadow: '0 0 18px rgba(124,58,237,0.25)',
             }}>
-              ✦ Upgrade to Sorcerer — £10/mo
+              ✦ Unlock Comparison Mode — £10/mo
             </Link>
           </div>
         )}

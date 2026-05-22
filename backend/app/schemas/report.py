@@ -4,6 +4,11 @@ from pydantic import BaseModel
 from uuid import UUID
 
 
+class ScoreSource(BaseModel):
+    label: str
+    value: str
+
+
 class SearchRequest(BaseModel):
     budgetUsd: float
     currency: str = "GBP"
@@ -88,6 +93,8 @@ class ReportOut(BaseModel):
     aiAnalysis: str
     riskScore: int
     opportunityScore: int
+    opportunitySources: List[ScoreSource] = []
+    riskSources: List[ScoreSource] = []
     createdAt: datetime
     tier: Literal["free", "pro"] = "free"
 
@@ -100,3 +107,25 @@ class ReportListItem(BaseModel):
     riskScore: int
     createdAt: datetime
     tier: Literal["free", "pro"] = "free"
+
+
+class CompareRequest(BaseModel):
+    report_ids: List[str]
+
+
+class CompareItem(BaseModel):
+    id: str
+    name: str
+    category: str
+    opportunity_score: int
+    opportunity_sources: List[ScoreSource]
+    risk_score: int
+    risk_sources: List[ScoreSource]
+    summary: str
+    tier: str
+
+
+class CompareResponse(BaseModel):
+    products: List[CompareItem]
+    winner_id: str
+    winner_reason: str
