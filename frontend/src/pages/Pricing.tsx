@@ -1,62 +1,30 @@
 import { useNavigate } from 'react-router-dom'
 import { useMutation } from '@tanstack/react-query'
-import { CheckCircle, X, Brain, LayoutGrid, RefreshCw } from 'lucide-react'
+import { Check, X, Brain, LayoutGrid, RefreshCw } from 'lucide-react'
 import { createCheckoutSession } from '../services/api'
 import { useAuthStore } from '../store/authStore'
-import type { CSSProperties } from 'react'
-
-// ─── Design tokens ────────────────────────────────────────────────────────────
-
-const C = {
-  bg:      '#070511',
-  surface: '#0E0A1C',
-  border:  'rgba(139,92,246,0.15)',
-  purple:  '#8B5CF6',
-  purpleB: '#A78BFA',
-  cyan:    '#22D3EE',
-  text:    '#F0EEFF',
-  textDim: '#9B8ECF',
-  textMut: '#5A4F7A',
-}
-
-const GRAD  = 'linear-gradient(135deg, #C084FC 0%, #818CF8 50%, #22D3EE 100%)'
-const GBTN  = 'linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%)'
-
-const GTEXT: CSSProperties = {
-  background:            GRAD,
-  WebkitBackgroundClip:  'text',
-  WebkitTextFillColor:   'transparent',
-  backgroundClip:        'text',
-}
-
-const GLASS: CSSProperties = {
-  background:           'rgba(14,10,28,0.70)',
-  backdropFilter:       'blur(20px)',
-  WebkitBackdropFilter: 'blur(20px)',
-  border:               `1px solid ${C.border}`,
-  borderRadius:         20,
-  boxShadow:            '0 0 0 1px rgba(139,92,246,0.06), 0 24px 48px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.04)',
-}
+import { Logo } from '../components/layout/Navbar'
+import { Link } from 'react-router-dom'
 
 // ─── Plan data ────────────────────────────────────────────────────────────────
 
 const FREE_FEATURES = [
-  '2 ideas — lifetime',
+  '2 reports — lifetime',
   '1-paragraph AI summary',
   'Margin calculator',
   'Best platform only',
-  'Source links to buy',
+  'Direct source links',
 ]
 
 const FREE_LIMITS = [
   'Full 5-paragraph GPT-4o analysis',
   'All 4 platform comparisons',
   'Trend charts & 6-month data',
-  '20 ideas per week',
+  '20 reports per week',
 ]
 
 const PRO_FEATURES = [
-  '20 fresh ideas per week',
+  '20 fresh reports per week',
   'Full 5-paragraph GPT-4o analysis',
   'All 4 platform comparisons',
   'Trend charts & 6-month data',
@@ -85,113 +53,75 @@ export function Pricing() {
   const isPro = user?.subscriptionStatus === 'active'
 
   return (
-    <div style={{ minHeight: '100vh', background: C.bg, color: C.text, padding: '80px 0' }}>
+    <div style={{ minHeight: '100vh', background: '#F8FAFC', color: '#0F172A', fontFamily: 'Inter, system-ui, sans-serif' }}>
 
-      {/* Ambient orb */}
-      <div style={{
-        position:     'fixed',
-        top:          '30%',
-        left:         '50%',
-        transform:    'translateX(-50%)',
-        width:        600,
-        height:       400,
-        background:   'radial-gradient(ellipse, rgba(124,58,237,0.12) 0%, transparent 70%)',
-        borderRadius: '50%',
-        pointerEvents: 'none',
-        zIndex:        0,
-      }} />
-
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8" style={{ position: 'relative', zIndex: 1 }}>
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
 
         {/* Header */}
-        <div className="text-center" style={{ marginBottom: 64 }}>
-          <div style={{
-            display:    'inline-flex',
-            alignItems: 'center',
-            gap:        6,
-            fontSize:   11,
-            fontWeight: 700,
-            letterSpacing: '0.12em',
-            textTransform: 'uppercase',
-            color:      C.purpleB,
-            background: 'rgba(139,92,246,0.08)',
-            border:     `1px solid ${C.border}`,
-            borderRadius: 99,
-            padding:    '5px 14px',
-            marginBottom: 20,
+        <div className="text-center" style={{ marginBottom: 56 }}>
+          <span style={{
+            display: 'inline-flex', alignItems: 'center', gap: 6,
+            fontSize: 12, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase',
+            color: '#4F46E5', background: '#EEF2FF', border: '1px solid #C7D2FE',
+            borderRadius: 99, padding: '4px 12px', marginBottom: 16,
           }}>
-            ✦ Choose Your Power
-          </div>
+            Pricing
+          </span>
 
           <h1 style={{
-            fontFamily:    '"Barlow Condensed","Arial Narrow",sans-serif',
-            fontWeight:    700,
-            fontSize:      'clamp(36px,5vw,56px)',
-            letterSpacing: '-0.02em',
-            lineHeight:    1.05,
-            marginBottom:  16,
-            ...GTEXT,
+            fontWeight: 800, fontSize: 'clamp(28px,4vw,42px)',
+            letterSpacing: '-0.03em', lineHeight: 1.1,
+            color: '#0F172A', marginBottom: 14,
           }}>
-            Wield the Right Magic
+            Simple, transparent pricing
           </h1>
-          <p style={{ color: C.textDim, fontSize: 17, maxWidth: 480, margin: '0 auto' }}>
-            Begin as an apprentice. Ascend to sorcerer when you're ready to conjure at scale.
+          <p style={{ color: '#64748B', fontSize: 16, maxWidth: 440, margin: '0 auto', lineHeight: 1.65 }}>
+            Start free and upgrade when you're ready to scale your research.
           </p>
         </div>
 
         {/* Plans */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
 
-          {/* Apprentice (Free) */}
-          <div style={{ ...GLASS, padding: 32, display: 'flex', flexDirection: 'column' }}>
+          {/* Free */}
+          <div style={{
+            background: '#FFFFFF', border: '1px solid #E2E8F0',
+            borderRadius: 12, padding: 32, display: 'flex', flexDirection: 'column',
+            boxShadow: '0 1px 3px 0 rgba(0,0,0,0.07)',
+          }}>
             <div style={{ flex: 1 }}>
               <div style={{
-                display:    'inline-flex',
-                alignItems: 'center',
-                gap:        6,
-                fontSize:   10,
-                fontWeight: 700,
-                letterSpacing: '0.1em',
-                textTransform: 'uppercase',
-                color:      C.textMut,
-                border:     '1px solid rgba(139,92,246,0.1)',
-                borderRadius: 99,
-                padding:    '3px 10px',
-                marginBottom: 12,
+                display: 'inline-flex', alignItems: 'center',
+                fontSize: 11, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase',
+                color: '#64748B', background: '#F1F5F9', border: '1px solid #E2E8F0',
+                borderRadius: 99, padding: '3px 10px', marginBottom: 12,
               }}>
-                Apprentice
+                Starter
               </div>
 
-              <h2 style={{ fontSize: 22, fontWeight: 700, color: C.text, marginBottom: 4 }}>Free</h2>
-              <p style={{ fontSize: 13, color: C.textDim, marginBottom: 24 }}>Cast your first spells</p>
+              <h2 style={{ fontSize: 20, fontWeight: 700, color: '#0F172A', marginBottom: 4 }}>Free</h2>
+              <p style={{ fontSize: 13, color: '#64748B', marginBottom: 20 }}>Try before you commit</p>
 
-              <div style={{ marginBottom: 28 }}>
-                <span style={{
-                  fontFamily:    '"Barlow Condensed","Arial Narrow",sans-serif',
-                  fontSize:      42,
-                  fontWeight:    700,
-                  color:         C.text,
-                }}>
-                  £0
-                </span>
-                <span style={{ color: C.textMut, fontSize: 13, marginLeft: 6 }}>/forever</span>
+              <div style={{ marginBottom: 24 }}>
+                <span style={{ fontSize: 40, fontWeight: 800, color: '#0F172A', letterSpacing: '-0.03em' }}>£0</span>
+                <span style={{ color: '#94A3B8', fontSize: 13, marginLeft: 4 }}>/forever</span>
               </div>
 
-              <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: C.textMut, marginBottom: 10 }}>Includes</p>
-              <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 20px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: '#94A3B8', marginBottom: 10 }}>Includes</p>
+              <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 16px', display: 'flex', flexDirection: 'column', gap: 9 }}>
                 {FREE_FEATURES.map((f) => (
-                  <li key={f} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, fontSize: 13, color: C.textDim }}>
-                    <CheckCircle size={14} style={{ color: C.purpleB, flexShrink: 0, marginTop: 1 }} />
+                  <li key={f} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, fontSize: 13, color: '#475569' }}>
+                    <Check size={14} style={{ color: '#4F46E5', flexShrink: 0, marginTop: 1 }} />
                     {f}
                   </li>
                 ))}
               </ul>
 
-              <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: C.textMut, marginBottom: 10, opacity: 0.5 }}>Locked</p>
+              <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: '#CBD5E1', marginBottom: 10 }}>Not included</p>
               <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 28px', display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {FREE_LIMITS.map((f) => (
-                  <li key={f} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, fontSize: 13, color: C.textMut }}>
-                    <X size={13} style={{ color: C.textMut, flexShrink: 0, marginTop: 1, opacity: 0.5 }} />
+                  <li key={f} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, fontSize: 13, color: '#94A3B8' }}>
+                    <X size={13} style={{ color: '#CBD5E1', flexShrink: 0, marginTop: 1 }} />
                     {f}
                   </li>
                 ))}
@@ -201,265 +131,186 @@ export function Pricing() {
             <button
               onClick={() => navigate(isAuthenticated ? '/dashboard' : '/auth/signup')}
               style={{
-                width:        '100%',
-                background:   'transparent',
-                border:       `1px solid ${C.border}`,
-                borderRadius: 12,
-                padding:      '13px 24px',
-                color:        C.textDim,
-                fontSize:     14,
-                fontWeight:   600,
-                cursor:       'pointer',
-                transition:   'all 0.2s',
+                width: '100%', background: '#FFFFFF', border: '1px solid #E2E8F0',
+                borderRadius: 8, padding: '12px 20px',
+                color: '#374151', fontSize: 14, fontWeight: 600,
+                cursor: 'pointer', transition: 'border-color 0.15s, background 0.15s',
               }}
-              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(139,92,246,0.4)'; (e.currentTarget as HTMLButtonElement).style.color = C.text }}
-              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = C.border; (e.currentTarget as HTMLButtonElement).style.color = C.textDim }}
+              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#CBD5E1'; (e.currentTarget as HTMLButtonElement).style.background = '#F9FAFB' }}
+              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#E2E8F0'; (e.currentTarget as HTMLButtonElement).style.background = '#FFFFFF' }}
             >
               {isAuthenticated ? 'Go to Dashboard' : 'Start for free'}
             </button>
           </div>
 
-          {/* Sorcerer (Pro) */}
+          {/* Pro */}
           <div style={{
-            ...GLASS,
-            padding:     32,
-            display:     'flex',
-            flexDirection: 'column',
-            border:      '1px solid rgba(139,92,246,0.45)',
-            position:    'relative',
-            overflow:    'hidden',
-            boxShadow:   '0 0 0 1px rgba(139,92,246,0.12), 0 32px 64px rgba(0,0,0,0.7), 0 0 40px rgba(139,92,246,0.08), inset 0 1px 0 rgba(255,255,255,0.06)',
+            background: '#FFFFFF', border: '2px solid #4F46E5',
+            borderRadius: 12, padding: 32, display: 'flex', flexDirection: 'column',
+            position: 'relative', overflow: 'hidden',
+            boxShadow: '0 4px 24px 0 rgba(79,70,229,0.12)',
           }}>
-
-            {/* Top glow */}
-            <div style={{
-              position:     'absolute',
-              top:          -60,
-              right:        -60,
-              width:        200,
-              height:       200,
-              background:   'radial-gradient(ellipse, rgba(139,92,246,0.18) 0%, transparent 70%)',
-              borderRadius: '50%',
-              pointerEvents: 'none',
-            }} />
-
             {/* Badge */}
-            <div style={{ position: 'absolute', top: 20, right: 20 }}>
+            <div style={{ position: 'absolute', top: 16, right: 16 }}>
               <span style={{
-                display:       'inline-flex',
-                alignItems:    'center',
-                gap:           4,
-                background:    GBTN,
-                color:         '#fff',
-                fontSize:      10,
-                fontWeight:    700,
-                padding:       '4px 10px',
-                borderRadius:  99,
-                letterSpacing: '0.05em',
-                boxShadow:     '0 0 12px rgba(124,58,237,0.4)',
+                display: 'inline-flex', alignItems: 'center', gap: 4,
+                background: '#4F46E5', color: '#fff',
+                fontSize: 10, fontWeight: 700, padding: '4px 10px',
+                borderRadius: 99, letterSpacing: '0.05em',
               }}>
-                ✦ Most powerful
+                Most popular
               </span>
             </div>
 
-            <div style={{ flex: 1, position: 'relative', zIndex: 1 }}>
+            <div style={{ flex: 1 }}>
               <div style={{
-                display:    'inline-flex',
-                alignItems: 'center',
-                gap:        6,
-                fontSize:   10,
-                fontWeight: 700,
-                letterSpacing: '0.1em',
-                textTransform: 'uppercase',
-                background: GRAD,
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor:  'transparent',
-                backgroundClip:       'text',
-                border:     '1px solid rgba(139,92,246,0.25)',
-                borderRadius: 99,
-                padding:    '3px 10px',
-                marginBottom: 12,
+                display: 'inline-flex', alignItems: 'center',
+                fontSize: 11, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase',
+                color: '#4F46E5', background: '#EEF2FF', border: '1px solid #C7D2FE',
+                borderRadius: 99, padding: '3px 10px', marginBottom: 12,
               }}>
-                Sorcerer
+                Pro
               </div>
 
-              <h2 style={{ fontSize: 22, fontWeight: 700, color: C.text, marginBottom: 4 }}>Pro</h2>
-              <p style={{ fontSize: 13, color: C.textDim, marginBottom: 24 }}>Unlimited dark power</p>
+              <h2 style={{ fontSize: 20, fontWeight: 700, color: '#0F172A', marginBottom: 4 }}>Pro</h2>
+              <p style={{ fontSize: 13, color: '#64748B', marginBottom: 20 }}>Everything you need to scale</p>
 
-              <div style={{ marginBottom: 6 }}>
-                <span style={{
-                  fontFamily: '"Barlow Condensed","Arial Narrow",sans-serif',
-                  fontSize:   42,
-                  fontWeight: 700,
-                  color:      C.text,
-                }}>
-                  £10
-                </span>
-                <span style={{ color: C.textDim, fontSize: 13, marginLeft: 6 }}>/month</span>
+              <div style={{ marginBottom: 4 }}>
+                <span style={{ fontSize: 40, fontWeight: 800, color: '#0F172A', letterSpacing: '-0.03em' }}>£10</span>
+                <span style={{ color: '#64748B', fontSize: 13, marginLeft: 4 }}>/month</span>
               </div>
-              <p style={{ fontSize: 11, color: C.purpleB, marginBottom: 28 }}>That's less than £0.35 per conjuring</p>
+              <p style={{ fontSize: 12, color: '#4F46E5', marginBottom: 24 }}>Less than £0.35 per report</p>
 
-              <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 28px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 28px', display: 'flex', flexDirection: 'column', gap: 9 }}>
                 {PRO_FEATURES.map((f) => (
-                  <li key={f} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, fontSize: 13, color: C.textDim }}>
-                    <CheckCircle size={14} style={{ color: C.purple, flexShrink: 0, marginTop: 1 }} />
+                  <li key={f} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, fontSize: 13, color: '#475569' }}>
+                    <Check size={14} style={{ color: '#4F46E5', flexShrink: 0, marginTop: 1 }} />
                     {f}
                   </li>
                 ))}
               </ul>
             </div>
 
-            <div style={{ position: 'relative', zIndex: 1 }}>
-              {isPro ? (
-                <button
-                  onClick={() => navigate('/account')}
-                  style={{
-                    width:        '100%',
-                    background:   GBTN,
-                    border:       '1px solid rgba(139,92,246,0.4)',
-                    borderRadius: 12,
-                    padding:      '14px 24px',
-                    color:        '#fff',
-                    fontSize:     15,
-                    fontWeight:   700,
-                    cursor:       'pointer',
-                    boxShadow:    '0 0 24px rgba(124,58,237,0.35)',
-                  }}
-                >
-                  Manage subscription
-                </button>
-              ) : (
-                <button
-                  onClick={handleSubscribe}
-                  disabled={checkoutMutation.isPending}
-                  style={{
-                    width:        '100%',
-                    display:      'flex',
-                    alignItems:   'center',
-                    justifyContent: 'center',
-                    gap:          8,
-                    background:   GBTN,
-                    border:       '1px solid rgba(139,92,246,0.4)',
-                    borderRadius: 12,
-                    padding:      '14px 24px',
-                    color:        '#fff',
-                    fontSize:     15,
-                    fontWeight:   700,
-                    cursor:       checkoutMutation.isPending ? 'wait' : 'pointer',
-                    opacity:      checkoutMutation.isPending ? 0.6 : 1,
-                    boxShadow:    '0 0 24px rgba(124,58,237,0.35)',
-                    transition:   'opacity 0.15s',
-                  }}
-                >
-                  {checkoutMutation.isPending ? (
-                    <div className="h-5 w-5 border-2 border-white/40 border-t-white rounded-full animate-spin" />
-                  ) : (
-                    '✦ Ascend to Sorcerer — £10/mo'
-                  )}
-                </button>
-              )}
-              <p style={{ textAlign: 'center', color: C.textMut, fontSize: 11, marginTop: 10 }}>
-                Cancel anytime. No long-term binding.
-              </p>
-            </div>
+            {isPro ? (
+              <button
+                onClick={() => navigate('/account')}
+                style={{
+                  width: '100%', background: '#4F46E5', border: 'none', borderRadius: 8,
+                  padding: '13px 20px', color: '#fff', fontSize: 14, fontWeight: 700,
+                  cursor: 'pointer', transition: 'background 0.15s',
+                }}
+                onMouseEnter={e => ((e.currentTarget as HTMLButtonElement).style.background = '#4338CA')}
+                onMouseLeave={e => ((e.currentTarget as HTMLButtonElement).style.background = '#4F46E5')}
+              >
+                Manage subscription
+              </button>
+            ) : (
+              <button
+                onClick={handleSubscribe}
+                disabled={checkoutMutation.isPending}
+                style={{
+                  width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                  background: '#4F46E5', border: 'none', borderRadius: 8,
+                  padding: '13px 20px', color: '#fff', fontSize: 14, fontWeight: 700,
+                  cursor: checkoutMutation.isPending ? 'wait' : 'pointer',
+                  opacity: checkoutMutation.isPending ? 0.6 : 1, transition: 'background 0.15s',
+                }}
+                onMouseEnter={e => !checkoutMutation.isPending && ((e.currentTarget as HTMLButtonElement).style.background = '#4338CA')}
+                onMouseLeave={e => !checkoutMutation.isPending && ((e.currentTarget as HTMLButtonElement).style.background = '#4F46E5')}
+              >
+                {checkoutMutation.isPending ? (
+                  <div style={{ width: 18, height: 18, border: '2px solid rgba(255,255,255,0.4)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+                ) : (
+                  'Upgrade to Pro — £10/mo'
+                )}
+              </button>
+            )}
+            <p style={{ textAlign: 'center', color: '#94A3B8', fontSize: 12, marginTop: 10 }}>
+              Cancel anytime. No long-term commitment.
+            </p>
           </div>
         </div>
 
         {/* Value props */}
-        <div style={{ marginTop: 80, maxWidth: 720, margin: '80px auto 0' }}>
+        <div style={{ marginTop: 72, maxWidth: 720, margin: '72px auto 0' }}>
           <h2 style={{
-            textAlign:  'center',
-            fontSize:   'clamp(20px,2.5vw,26px)',
-            fontWeight: 700,
-            color:      C.text,
-            marginBottom: 32,
+            textAlign: 'center', fontSize: 'clamp(18px,2.5vw,24px)',
+            fontWeight: 700, color: '#0F172A', marginBottom: 32, letterSpacing: '-0.02em',
           }}>
-            What the Sorcerer tier unlocks
+            What Pro unlocks
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {[
               {
-                Icon: Brain,
+                Icon:  Brain,
                 title: '5× deeper analysis',
-                desc: 'Pro uses GPT-4o and writes 5 full paragraphs — target market, competitor landscape, strategy, and trend outlook.',
+                desc:  'Pro uses GPT-4o and writes 5 full paragraphs — target market, competition, strategy, and trend outlook.',
               },
               {
-                Icon: LayoutGrid,
+                Icon:  LayoutGrid,
                 title: 'All 4 platforms',
-                desc: 'Free shows only the best platform. Pro reveals every margin, fee, and sales estimate across Amazon, eBay, Etsy, and Shopify.',
+                desc:  'Free shows only the best platform. Pro shows every margin, fee, and sales estimate across Amazon, eBay, Etsy, and Shopify.',
               },
               {
-                Icon: RefreshCw,
-                title: '20 ideas per week',
-                desc: 'Free gives 2 ideas, ever. Pro resets every 7 days so you always have fresh ammunition.',
+                Icon:  RefreshCw,
+                title: '20 reports per week',
+                desc:  'Free gives 2 reports, ever. Pro resets every 7 days so you always have fresh research.',
               },
             ].map(({ Icon, title, desc }) => (
-              <div key={title} style={{ ...GLASS, padding: 24 }}>
+              <div key={title} style={{
+                background: '#FFFFFF', border: '1px solid #E2E8F0',
+                borderRadius: 10, padding: 22,
+                boxShadow: '0 1px 3px 0 rgba(0,0,0,0.05)',
+              }}>
                 <div style={{
-                  display: 'inline-flex', padding: 10, borderRadius: 10, marginBottom: 14,
-                  background: 'rgba(139,92,246,0.08)', border: `1px solid ${C.border}`,
+                  display: 'inline-flex', padding: 9, borderRadius: 8, marginBottom: 14,
+                  background: '#EEF2FF', border: '1px solid #C7D2FE',
                 }}>
-                  <Icon size={18} style={{ color: C.purpleB }} />
+                  <Icon size={16} style={{ color: '#4F46E5' }} />
                 </div>
-                <h3 style={{ fontSize: 15, fontWeight: 700, color: C.text, marginBottom: 8 }}>{title}</h3>
-                <p style={{ fontSize: 13, color: C.textDim, lineHeight: 1.6 }}>{desc}</p>
+                <h3 style={{ fontSize: 14, fontWeight: 700, color: '#0F172A', marginBottom: 6 }}>{title}</h3>
+                <p style={{ fontSize: 13, color: '#64748B', lineHeight: 1.6 }}>{desc}</p>
               </div>
             ))}
           </div>
         </div>
 
         {/* FAQ */}
-        <div style={{ marginTop: 72, maxWidth: 640, margin: '72px auto 0' }}>
+        <div style={{ marginTop: 64, maxWidth: 640, margin: '64px auto 0' }}>
           <h2 style={{
-            textAlign:    'center',
-            fontSize:     'clamp(18px,2vw,22px)',
-            fontWeight:   700,
-            color:        C.text,
-            marginBottom: 28,
+            textAlign: 'center', fontSize: 'clamp(18px,2vw,22px)',
+            fontWeight: 700, color: '#0F172A', marginBottom: 24, letterSpacing: '-0.02em',
           }}>
-            Common questions
+            Frequently asked questions
           </h2>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {[
-              {
-                q: 'Can I cancel anytime?',
-                a: 'Yes. Cancel from your account settings and you keep Sorcerer access until the end of that billing month.',
-              },
-              {
-                q: 'What happens when my weekly limit resets?',
-                a: 'Every 7 days from your first Pro search, your counter resets to 20. Track the reset date in your dashboard.',
-              },
-              {
-                q: 'Is the data accurate?',
-                a: 'Our product database is refreshed regularly. Prices and sales estimates are based on real marketplace data, not guesses.',
-              },
-              {
-                q: "What's the difference in AI analysis?",
-                a: 'Free gets a single paragraph summary. Pro gets a 5-paragraph research report covering opportunity, target market, competition, strategy, and a 6-month outlook.',
-              },
+              { q: 'Can I cancel anytime?',
+                a: 'Yes. Cancel from your account settings and you keep Pro access until the end of that billing month.' },
+              { q: 'What happens when my weekly limit resets?',
+                a: 'Every 7 days from your first Pro search, your counter resets to 20. Track the reset date in your dashboard.' },
+              { q: 'Is the data accurate?',
+                a: 'Our product database is refreshed regularly. Prices and sales estimates are based on real marketplace data, not guesses.' },
+              { q: "What's the difference in AI analysis?",
+                a: 'Free gets a single paragraph summary. Pro gets a 5-paragraph research report covering opportunity, target market, competition, strategy, and a 6-month outlook.' },
             ].map(({ q, a }) => (
               <details
                 key={q}
                 style={{
-                  ...GLASS,
-                  padding:    '16px 20px',
-                  borderRadius: 14,
+                  background: '#FFFFFF', border: '1px solid #E2E8F0',
+                  borderRadius: 10, padding: '14px 18px',
+                  boxShadow: '0 1px 2px 0 rgba(0,0,0,0.05)',
                 }}
               >
                 <summary style={{
-                  display:       'flex',
-                  alignItems:    'center',
-                  justifyContent: 'space-between',
-                  cursor:        'pointer',
-                  listStyle:     'none',
-                  fontWeight:    600,
-                  fontSize:      14,
-                  color:         C.text,
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                  cursor: 'pointer', listStyle: 'none',
+                  fontWeight: 600, fontSize: 14, color: '#0F172A',
                 }}>
                   {q}
-                  <span style={{ color: C.textDim, marginLeft: 12, transition: 'transform 0.2s' }}>▾</span>
+                  <span style={{ color: '#94A3B8', marginLeft: 12 }}>▾</span>
                 </summary>
-                <p style={{ fontSize: 13, color: C.textDim, lineHeight: 1.65, marginTop: 12 }}>{a}</p>
+                <p style={{ fontSize: 13, color: '#64748B', lineHeight: 1.65, marginTop: 10 }}>{a}</p>
               </details>
             ))}
           </div>

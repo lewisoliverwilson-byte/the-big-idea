@@ -1,26 +1,13 @@
 import { Link } from 'react-router-dom'
+import { Lock } from 'lucide-react'
 import type { ReactNode } from 'react'
 
 interface LockedSectionProps {
   children:    ReactNode
   isLocked:    boolean
-  /** Short label shown in the lock overlay */
   featureName: string
-  /** Extra context shown in the overlay subtitle */
   subtitle?:   string
 }
-
-const C = {
-  border:  'rgba(139,92,246,0.2)',
-  purple:  '#8B5CF6',
-  purpleB: '#A78BFA',
-  text:    '#F0EEFF',
-  textDim: '#9B8ECF',
-  textMut: '#5A4F7A',
-}
-
-const GBTN = 'linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%)'
-const GRAD = 'linear-gradient(135deg, #C084FC 0%, #818CF8 50%, #22D3EE 100%)'
 
 /**
  * Wraps a report section and blurs it for free-tier users.
@@ -30,9 +17,9 @@ export function LockedSection({ children, isLocked, featureName, subtitle }: Loc
   if (!isLocked) return <>{children}</>
 
   return (
-    <div style={{ position: 'relative', borderRadius: 16, overflow: 'hidden' }}>
+    <div style={{ position: 'relative', borderRadius: 12, overflow: 'hidden', marginBottom: 16 }}>
       {/* Blurred preview */}
-      <div style={{ userSelect: 'none', pointerEvents: 'none', filter: 'blur(4px)', opacity: 0.4 }}>
+      <div style={{ userSelect: 'none', pointerEvents: 'none', filter: 'blur(3px)', opacity: 0.35 }}>
         {children}
       </div>
 
@@ -44,31 +31,31 @@ export function LockedSection({ children, isLocked, featureName, subtitle }: Loc
         flexDirection:  'column',
         alignItems:     'center',
         justifyContent: 'center',
-        background:     'linear-gradient(to bottom, rgba(7,5,17,0.2) 0%, rgba(7,5,17,0.92) 100%)',
-        backdropFilter: 'blur(2px)',
-        borderRadius:   16,
+        background:     'linear-gradient(to bottom, rgba(248,250,252,0.3) 0%, rgba(248,250,252,0.94) 100%)',
+        borderRadius:   12,
       }}>
-        <div style={{ textAlign: 'center', padding: '32px 24px', maxWidth: 340 }}>
+        <div style={{ textAlign: 'center', padding: '28px 24px', maxWidth: 340 }}>
 
           {/* Lock icon */}
           <div style={{
-            width:          56,
-            height:         56,
-            background:     GRAD,
+            width:          48,
+            height:         48,
+            background:     '#EEF2FF',
+            border:         '1px solid #C7D2FE',
             borderRadius:   '50%',
             display:        'flex',
             alignItems:     'center',
             justifyContent: 'center',
-            margin:         '0 auto 16px',
-            fontSize:       22,
-            boxShadow:      '0 0 20px rgba(139,92,246,0.4)',
+            margin:         '0 auto 14px',
           }}>
-            🔮
+            <Lock size={20} style={{ color: '#4F46E5' }} />
           </div>
 
-          <h3 style={{ fontSize: 17, fontWeight: 700, color: C.text, marginBottom: 8 }}>{featureName}</h3>
-          <p style={{ fontSize: 13, color: C.textDim, marginBottom: 20, lineHeight: 1.6 }}>
-            {subtitle ?? 'This vision is sealed for Sorcerer tier. Upgrade to unlock the full oracle.'}
+          <h3 style={{ fontSize: 16, fontWeight: 700, color: '#0F172A', marginBottom: 6, fontFamily: 'Inter, system-ui, sans-serif' }}>
+            {featureName}
+          </h3>
+          <p style={{ fontSize: 13, color: '#475569', marginBottom: 18, lineHeight: 1.6, fontFamily: 'Inter, system-ui, sans-serif' }}>
+            {subtitle ?? 'This section is available on the Pro plan. Upgrade to unlock the full report.'}
           </p>
 
           <Link
@@ -77,24 +64,25 @@ export function LockedSection({ children, isLocked, featureName, subtitle }: Loc
               display:        'inline-flex',
               alignItems:     'center',
               gap:            8,
-              background:     GBTN,
-              border:         '1px solid rgba(139,92,246,0.4)',
-              borderRadius:   99,
+              background:     '#4F46E5',
+              borderRadius:   8,
               padding:        '10px 22px',
               color:          '#fff',
               fontSize:       13,
-              fontWeight:     700,
+              fontWeight:     600,
               textDecoration: 'none',
-              boxShadow:      '0 0 16px rgba(124,58,237,0.3)',
-              transition:     'opacity 0.15s',
+              transition:     'background 0.12s',
+              fontFamily:     'Inter, system-ui, sans-serif',
             }}
-            onMouseEnter={e => ((e.currentTarget as HTMLAnchorElement).style.opacity = '0.85')}
-            onMouseLeave={e => ((e.currentTarget as HTMLAnchorElement).style.opacity = '1')}
+            onMouseEnter={e => ((e.currentTarget as HTMLAnchorElement).style.background = '#4338CA')}
+            onMouseLeave={e => ((e.currentTarget as HTMLAnchorElement).style.background = '#4F46E5')}
           >
-            ✦ Unlock with Sorcerer — £10/mo
+            Upgrade to Pro — £10/mo
           </Link>
 
-          <p style={{ fontSize: 11, color: C.textMut, marginTop: 10 }}>Cancel anytime</p>
+          <p style={{ fontSize: 11, color: '#94A3B8', marginTop: 10, fontFamily: 'Inter, system-ui, sans-serif' }}>
+            Cancel anytime
+          </p>
         </div>
       </div>
     </div>

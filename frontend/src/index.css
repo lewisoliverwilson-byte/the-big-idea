@@ -5,14 +5,16 @@
 @layer base {
   html {
     scroll-behavior: smooth;
-    background-color: #070511;
-    color: #F0EEFF;
-    font-family: 'Outfit', sans-serif;
+    background-color: #FFFFFF;
+    color: #0F172A;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
   body {
     @apply antialiased;
-    background-color: #070511;
-    color: #F0EEFF;
-    font-family: 'Outfit', sans-serif;
+    background-color: #FFFFFF;
+    color: #0F172A;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
   }
 }

@@ -14,10 +14,11 @@ const PLATFORM_LINKS: Record<string, string> = {
 }
 
 const C = {
-  text:    '#F0EEFF',
-  textDim: '#9B8ECF',
-  textMut: '#5A4F7A',
-  border:  'rgba(139,92,246,0.12)',
+  text:    '#0F172A',
+  textSec: '#475569',
+  textMut: '#94A3B8',
+  border:  '#E2E8F0',
+  primary: '#4F46E5',
 }
 
 export function PlatformTable({ platforms }: PlatformTableProps) {
@@ -25,20 +26,21 @@ export function PlatformTable({ platforms }: PlatformTableProps) {
     d === 'Low' ? 'green' : d === 'Medium' ? 'amber' : 'red'
 
   return (
-    <div style={{ overflowX: 'auto' }}>
+    <div style={{ overflowX: 'auto', fontFamily: 'Inter, system-ui, sans-serif' }}>
       <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
         <thead>
           <tr style={{ borderBottom: `1px solid ${C.border}` }}>
             {['Platform', 'Avg. Sell Price', 'Fee', 'Net Margin', 'Est. Sales/mo', 'Difficulty', ''].map((h) => (
               <th key={h} style={{
-                padding:    '10px 14px',
-                textAlign:  h === 'Platform' || h === '' ? 'left' : 'right',
-                fontSize:   11,
-                fontWeight: 700,
-                color:      C.textMut,
+                padding:       '10px 14px',
+                textAlign:     h === 'Platform' || h === '' ? 'left' : 'right',
+                fontSize:      11,
+                fontWeight:    700,
+                color:         C.textMut,
                 textTransform: 'uppercase',
                 letterSpacing: '0.06em',
-                whiteSpace: 'nowrap',
+                whiteSpace:    'nowrap',
+                background:    '#FAFAFA',
               }}>
                 {h}
               </th>
@@ -50,9 +52,9 @@ export function PlatformTable({ platforms }: PlatformTableProps) {
             <tr
               key={p.platform}
               style={{
-                borderBottom:  `1px solid ${C.border}`,
-                background:    p.recommended ? 'rgba(139,92,246,0.06)' : 'transparent',
-                transition:    'background 0.15s',
+                borderBottom: `1px solid ${C.border}`,
+                background:   p.recommended ? '#EEF2FF' : 'transparent',
+                transition:   'background 0.12s',
               }}
             >
               <td style={{ padding: '14px', whiteSpace: 'nowrap' }}>
@@ -66,18 +68,18 @@ export function PlatformTable({ platforms }: PlatformTableProps) {
               <td style={{ padding: '14px', textAlign: 'right', fontWeight: 600, color: C.text }}>
                 {formatCurrency(p.estimatedSellPrice)}
               </td>
-              <td style={{ padding: '14px', textAlign: 'right', color: C.textDim }}>
+              <td style={{ padding: '14px', textAlign: 'right', color: C.textSec }}>
                 {p.feePercent}%
               </td>
               <td style={{ padding: '14px', textAlign: 'right' }}>
                 <span style={{
                   fontWeight: 700,
-                  color: p.netMargin >= 20 ? '#34D399' : p.netMargin >= 10 ? '#FBBF24' : '#F87171',
+                  color: p.netMargin >= 20 ? '#059669' : p.netMargin >= 10 ? '#D97706' : '#DC2626',
                 }}>
                   {p.netMargin.toFixed(1)}%
                 </span>
               </td>
-              <td style={{ padding: '14px', textAlign: 'right', color: C.textDim }}>
+              <td style={{ padding: '14px', textAlign: 'right', color: C.textSec }}>
                 ~{p.estimatedMonthlySales}
               </td>
               <td style={{ padding: '14px', textAlign: 'right' }}>
@@ -90,7 +92,7 @@ export function PlatformTable({ platforms }: PlatformTableProps) {
                   href={PLATFORM_LINKS[p.platform]}
                   target="_blank"
                   rel="noopener noreferrer"
-                  style={{ color: '#A78BFA', fontSize: 12, fontWeight: 600, textDecoration: 'none', whiteSpace: 'nowrap' }}
+                  style={{ color: C.primary, fontSize: 12, fontWeight: 600, textDecoration: 'none', whiteSpace: 'nowrap' }}
                 >
                   Start selling →
                 </a>

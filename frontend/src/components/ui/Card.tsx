@@ -7,19 +7,17 @@ interface CardProps {
   style?: React.CSSProperties
 }
 
-const GLASS: React.CSSProperties = {
-  background:           'rgba(14,10,28,0.80)',
-  backdropFilter:       'blur(20px)',
-  WebkitBackdropFilter: 'blur(20px)',
-  border:               '1px solid rgba(139,92,246,0.15)',
-  boxShadow:            '0 0 0 1px rgba(139,92,246,0.06), 0 16px 32px rgba(0,0,0,0.5)',
+const CARD_STYLE: React.CSSProperties = {
+  background: '#FFFFFF',
+  border: '1px solid #E2E8F0',
+  boxShadow: '0 1px 3px 0 rgba(0,0,0,0.07), 0 1px 2px -1px rgba(0,0,0,0.07)',
 }
 
 export function Card({ children, className, style }: CardProps) {
   return (
     <div
-      className={cn('rounded-2xl overflow-hidden', className)}
-      style={{ ...GLASS, ...style }}
+      className={cn('rounded-xl overflow-hidden', className)}
+      style={{ ...CARD_STYLE, ...style }}
     >
       {children}
     </div>
@@ -29,8 +27,8 @@ export function Card({ children, className, style }: CardProps) {
 export function CardHeader({ children, className, style }: CardProps) {
   return (
     <div
-      className={cn('px-6 py-4 border-b', className)}
-      style={{ borderColor: 'rgba(139,92,246,0.15)', ...style }}
+      className={cn('px-6 py-4 border-b border-slate-200', className)}
+      style={style}
     >
       {children}
     </div>

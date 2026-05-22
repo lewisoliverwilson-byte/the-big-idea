@@ -5,37 +5,27 @@ import { useMutation } from '@tanstack/react-query'
 import { useAuthStore } from '../store/authStore'
 import { createPortalSession, deleteAccount } from '../services/api'
 import { formatDate } from '../utils/formatters'
+import { TrendingUp } from 'lucide-react'
 
 // ─── Design tokens ────────────────────────────────────────────────────────────
 const C = {
-  bg:      '#070511',
-  border:  'rgba(139,92,246,0.15)',
-  text:    '#F0EEFF',
-  textDim: '#9B8ECF',
-  textMut: '#5A4F7A',
-}
-const GRAD = 'linear-gradient(135deg, #C084FC 0%, #818CF8 50%, #22D3EE 100%)'
-const GBTN = 'linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%)'
-const GLASS: CSSProperties = {
-  background:           'rgba(14,10,28,0.80)',
-  backdropFilter:       'blur(20px)',
-  WebkitBackdropFilter: 'blur(20px)',
-  border:               `1px solid ${C.border}`,
-  borderRadius:         16,
-  overflow:             'hidden',
+  bg:      '#F8FAFC',
+  white:   '#FFFFFF',
+  border:  '#E2E8F0',
+  text:    '#0F172A',
+  textSec: '#475569',
+  textMut: '#94A3B8',
+  primary: '#4F46E5',
 }
 
-// Deterministic stars
-const STARS = Array.from({ length: 20 }, (_, i) => {
-  const g = 137.508
-  return {
-    left:  `${((i * g)        % 100).toFixed(1)}%`,
-    top:   `${((i * g * 0.61) % 100).toFixed(1)}%`,
-    size:  [1, 1, 1.5][i % 3],
-    delay: `${((i * 0.37) % 4.5).toFixed(2)}s`,
-    dur:   `${(2.8 + (i % 6) * 0.45).toFixed(1)}s`,
-  }
-})
+const CARD: CSSProperties = {
+  background:   C.white,
+  border:       `1px solid ${C.border}`,
+  borderRadius: 12,
+  overflow:     'hidden',
+  boxShadow:    '0 1px 3px rgba(0,0,0,0.06)',
+  marginBottom: 16,
+}
 
 function Section({ icon, title, children, danger = false }: {
   icon:     string
@@ -45,22 +35,28 @@ function Section({ icon, title, children, danger = false }: {
 }) {
   return (
     <div style={{
-      ...GLASS,
-      border: danger ? '1px solid rgba(248,113,113,0.2)' : `1px solid ${C.border}`,
-      marginBottom: 16,
+      ...CARD,
+      border: danger ? '1px solid #FECACA' : `1px solid ${C.border}`,
     }}>
       <div style={{
-        padding:     '14px 20px',
-        borderBottom: danger ? '1px solid rgba(248,113,113,0.15)' : `1px solid ${C.border}`,
-        background:   danger ? 'rgba(248,113,113,0.05)' : 'rgba(139,92,246,0.04)',
+        padding:     '12px 18px',
+        borderBottom: danger ? '1px solid #FEE2E2' : `1px solid ${C.border}`,
+        background:  danger ? '#FFF5F5' : '#FAFAFA',
         display:     'flex',
         alignItems:  'center',
         gap:         8,
       }}>
-        <span style={{ fontSize: 15 }}>{icon}</span>
-        <h2 style={{ fontSize: 14, fontWeight: 600, color: danger ? '#F87171' : C.text }}>{title}</h2>
+        <span style={{ fontSize: 14 }}>{icon}</span>
+        <h2 style={{
+          fontSize:   13,
+          fontWeight: 600,
+          color:      danger ? '#DC2626' : C.text,
+          fontFamily: 'Inter, system-ui, sans-serif',
+        }}>
+          {title}
+        </h2>
       </div>
-      <div style={{ padding: '20px' }}>
+      <div style={{ padding: '18px' }}>
         {children}
       </div>
     </div>
@@ -94,31 +90,16 @@ export function Account() {
     paddingBottom:  10,
     borderBottom:   `1px solid ${C.border}`,
     marginBottom:   10,
+    fontFamily:     'Inter, system-ui, sans-serif',
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: C.bg, position: 'relative', overflow: 'hidden' }}>
+    <div style={{ minHeight: '100vh', background: C.bg, fontFamily: 'Inter, system-ui, sans-serif' }}>
+      <div style={{ maxWidth: 680, margin: '0 auto', padding: '36px 20px' }}>
 
-      {/* Starfield */}
-      <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0 }}>
-        {STARS.map((s, i) => (
-          <div key={i} className="animate-twinkle" style={{
-            position:          'absolute',
-            left:              s.left,
-            top:               s.top,
-            width:             s.size,
-            height:            s.size,
-            borderRadius:      '50%',
-            background:        i % 2 === 0 ? '#A78BFA' : '#22D3EE',
-            animationDelay:    s.delay,
-            animationDuration: s.dur,
-          }} />
-        ))}
-      </div>
-
-      <div style={{ maxWidth: 680, margin: '0 auto', padding: '40px 24px', position: 'relative', zIndex: 1 }}>
-
-        <h1 style={{ fontSize: 24, fontWeight: 700, color: C.text, marginBottom: 24 }}>Account Settings</h1>
+        <h1 style={{ fontSize: 22, fontWeight: 700, color: C.text, marginBottom: 24, letterSpacing: '-0.02em' }}>
+          Account Settings
+        </h1>
 
         {/* Profile */}
         <Section icon="👤" title="Profile">
@@ -128,7 +109,7 @@ export function Account() {
             { label: 'Member since', value: user?.createdAt ? formatDate(user.createdAt) : '—' },
           ].map(({ label, value }) => (
             <div key={label} style={rowStyle}>
-              <span style={{ color: C.textDim }}>{label}</span>
+              <span style={{ color: C.textSec }}>{label}</span>
               <span style={{ fontWeight: 600, color: C.text }}>{value}</span>
             </div>
           ))}
@@ -146,26 +127,28 @@ export function Account() {
                   display:    'inline-flex',
                   alignItems: 'center',
                   gap:        6,
-                  background: GRAD,
+                  background: '#EEF2FF',
+                  border:     '1px solid #C7D2FE',
                   borderRadius: 99,
-                  padding:    '6px 16px',
+                  padding:    '5px 14px',
                   fontSize:   13,
                   fontWeight: 700,
-                  color:      '#fff',
+                  color:      '#4F46E5',
                 }}>
-                  ✦ Sorcerer — Active
+                  <TrendingUp size={13} />
+                  Pro — Active
                 </span>
               ) : user?.subscriptionStatus === 'cancelled' ? (
-                <span style={{ fontSize: 13, color: '#FBBF24', background: 'rgba(251,191,36,0.1)', border: '1px solid rgba(251,191,36,0.2)', borderRadius: 99, padding: '6px 14px' }}>
+                <span style={{ fontSize: 13, color: '#92400E', background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: 99, padding: '5px 14px' }}>
                   Cancelled
                 </span>
               ) : user?.subscriptionStatus === 'past_due' ? (
-                <span style={{ fontSize: 13, color: '#F87171', background: 'rgba(248,113,113,0.1)', border: '1px solid rgba(248,113,113,0.2)', borderRadius: 99, padding: '6px 14px' }}>
+                <span style={{ fontSize: 13, color: '#DC2626', background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 99, padding: '5px 14px' }}>
                   Past Due
                 </span>
               ) : (
-                <span style={{ fontSize: 13, color: C.textDim, background: 'rgba(90,79,122,0.2)', border: `1px solid ${C.border}`, borderRadius: 99, padding: '6px 14px' }}>
-                  Apprentice (Free)
+                <span style={{ fontSize: 13, color: C.textSec, background: '#F1F5F9', border: `1px solid ${C.border}`, borderRadius: 99, padding: '5px 14px' }}>
+                  Free
                 </span>
               )}
             </div>
@@ -176,17 +159,19 @@ export function Account() {
                   display:        'inline-flex',
                   alignItems:     'center',
                   gap:            6,
-                  background:     GBTN,
-                  border:         '1px solid rgba(139,92,246,0.4)',
-                  borderRadius:   99,
-                  padding:        '8px 18px',
+                  background:     C.primary,
+                  borderRadius:   7,
+                  padding:        '7px 16px',
                   color:          '#fff',
                   fontSize:       12,
-                  fontWeight:     700,
+                  fontWeight:     600,
                   textDecoration: 'none',
+                  transition:     'background 0.12s',
                 }}
+                onMouseEnter={e => ((e.currentTarget as HTMLAnchorElement).style.background = '#4338CA')}
+                onMouseLeave={e => ((e.currentTarget as HTMLAnchorElement).style.background = C.primary)}
               >
-                ✦ Upgrade
+                Upgrade to Pro
               </Link>
             )}
           </div>
@@ -194,15 +179,15 @@ export function Account() {
           {isPro ? (
             <div>
               <div style={{
-                background:   'rgba(139,92,246,0.06)',
+                background:   '#F8FAFC',
                 border:       `1px solid ${C.border}`,
-                borderRadius: 10,
+                borderRadius: 8,
                 padding:      '10px 14px',
                 fontSize:     13,
-                color:        C.textDim,
+                color:        C.textSec,
                 marginBottom: 12,
               }}>
-                Weekly ideas used:{' '}
+                Weekly reports used:{' '}
                 <span style={{ fontWeight: 700, color: C.text }}>
                   {user?.proReportsUsedThisWeek || 0} / 20
                 </span>
@@ -211,34 +196,35 @@ export function Account() {
                 onClick={() => portalMutation.mutate()}
                 disabled={portalMutation.isPending}
                 style={{
-                  background:  'none',
-                  border:      'none',
-                  cursor:      portalMutation.isPending ? 'not-allowed' : 'pointer',
-                  fontSize:    13,
-                  color:       '#A78BFA',
-                  display:     'flex',
-                  alignItems:  'center',
-                  gap:         6,
-                  opacity:     portalMutation.isPending ? 0.6 : 1,
+                  background:     'none',
+                  border:         'none',
+                  cursor:         portalMutation.isPending ? 'not-allowed' : 'pointer',
+                  fontSize:       13,
+                  color:          C.primary,
+                  display:        'flex',
+                  alignItems:     'center',
+                  gap:            6,
+                  opacity:        portalMutation.isPending ? 0.6 : 1,
                   textDecoration: 'underline',
+                  padding:        0,
                 }}
               >
                 {portalMutation.isPending && (
                   <div style={{
-                    width:        12,
-                    height:       12,
-                    border:       '1.5px solid rgba(167,139,250,0.3)',
-                    borderTopColor: '#A78BFA',
-                    borderRadius: '50%',
-                    animation:    'spin 0.9s linear infinite',
+                    width:          12,
+                    height:         12,
+                    border:         `1.5px solid rgba(79,70,229,0.2)`,
+                    borderTopColor: C.primary,
+                    borderRadius:   '50%',
+                    animation:      'spin 0.9s linear infinite',
                   }} />
                 )}
                 Manage billing in Stripe →
               </button>
             </div>
           ) : (
-            <p style={{ fontSize: 13, color: C.textDim }}>
-              {Math.max(0, 2 - (user?.reportsUsedFree || 0))} of 2 free spells remaining.
+            <p style={{ fontSize: 13, color: C.textSec }}>
+              {Math.max(0, 2 - (user?.reportsUsedFree || 0))} of 2 free reports remaining.
             </p>
           )}
         </Section>
@@ -247,17 +233,17 @@ export function Account() {
         <Section icon="🛡️" title="Security">
           <button
             style={{
-              background:  'none',
-              border:      'none',
-              cursor:      'pointer',
-              fontSize:    13,
-              color:       C.textDim,
+              background:     'none',
+              border:         'none',
+              cursor:         'pointer',
+              fontSize:       13,
+              color:          C.textSec,
               textDecoration: 'underline',
-              transition:  'color 0.15s',
-              padding:     0,
+              transition:     'color 0.15s',
+              padding:        0,
             }}
             onMouseEnter={e => ((e.currentTarget as HTMLButtonElement).style.color = C.text)}
-            onMouseLeave={e => ((e.currentTarget as HTMLButtonElement).style.color = C.textDim)}
+            onMouseLeave={e => ((e.currentTarget as HTMLButtonElement).style.color = C.textSec)}
             onClick={async () => {
               await signOut()
               navigate('/')
@@ -269,7 +255,7 @@ export function Account() {
 
         {/* Danger Zone */}
         <Section icon="🗑️" title="Danger Zone" danger>
-          <p style={{ fontSize: 13, color: C.textDim, marginBottom: 16 }}>
+          <p style={{ fontSize: 13, color: C.textSec, marginBottom: 16 }}>
             Permanently delete your account and all data. This cannot be undone.
           </p>
           {!showDeleteConfirm ? (
@@ -277,22 +263,22 @@ export function Account() {
               onClick={() => setShowDeleteConfirm(true)}
               style={{
                 fontSize:    13,
-                color:       '#F87171',
+                color:       '#DC2626',
                 background:  'none',
-                border:      '1px solid rgba(248,113,113,0.3)',
-                borderRadius: 8,
-                padding:     '8px 16px',
+                border:      '1px solid #FECACA',
+                borderRadius: 7,
+                padding:     '7px 16px',
                 cursor:      'pointer',
                 transition:  'border-color 0.15s',
               }}
-              onMouseEnter={e => ((e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(248,113,113,0.6)')}
-              onMouseLeave={e => ((e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(248,113,113,0.3)')}
+              onMouseEnter={e => ((e.currentTarget as HTMLButtonElement).style.borderColor = '#FCA5A5')}
+              onMouseLeave={e => ((e.currentTarget as HTMLButtonElement).style.borderColor = '#FECACA')}
             >
               Delete account
             </button>
           ) : (
             <div>
-              <p style={{ fontSize: 13, fontWeight: 700, color: '#F87171', marginBottom: 12 }}>
+              <p style={{ fontSize: 13, fontWeight: 700, color: '#DC2626', marginBottom: 12 }}>
                 Are you absolutely sure? All your reports will be permanently deleted.
               </p>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -304,23 +290,23 @@ export function Account() {
                     alignItems: 'center',
                     gap:        6,
                     fontSize:   13,
-                    color:      '#F87171',
-                    background: 'rgba(248,113,113,0.1)',
-                    border:     '1px solid rgba(248,113,113,0.3)',
-                    borderRadius: 8,
-                    padding:    '8px 16px',
+                    color:      '#DC2626',
+                    background: '#FEF2F2',
+                    border:     '1px solid #FECACA',
+                    borderRadius: 7,
+                    padding:    '7px 16px',
                     cursor:     deleteMutation.isPending ? 'not-allowed' : 'pointer',
                     opacity:    deleteMutation.isPending ? 0.6 : 1,
                   }}
                 >
                   {deleteMutation.isPending && (
-                    <div style={{ width: 12, height: 12, border: '1.5px solid rgba(248,113,113,0.3)', borderTopColor: '#F87171', borderRadius: '50%', animation: 'spin 0.9s linear infinite' }} />
+                    <div style={{ width: 12, height: 12, border: '1.5px solid #FECACA', borderTopColor: '#DC2626', borderRadius: '50%', animation: 'spin 0.9s linear infinite' }} />
                   )}
                   Yes, delete my account
                 </button>
                 <button
                   onClick={() => setShowDeleteConfirm(false)}
-                  style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, color: C.textDim }}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, color: C.textSec }}
                 >
                   Cancel
                 </button>

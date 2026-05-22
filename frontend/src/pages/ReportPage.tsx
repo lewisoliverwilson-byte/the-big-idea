@@ -15,37 +15,22 @@ import type { Report } from '../types'
 
 // ─── Design tokens ────────────────────────────────────────────────────────────
 const C = {
-  bg:      '#070511',
-  border:  'rgba(139,92,246,0.15)',
-  text:    '#F0EEFF',
-  textDim: '#9B8ECF',
-  textMut: '#5A4F7A',
-  purple:  '#8B5CF6',
-  purpleB: '#A78BFA',
+  bg:      '#F8FAFC',
+  white:   '#FFFFFF',
+  border:  '#E2E8F0',
+  text:    '#0F172A',
+  textSec: '#475569',
+  textMut: '#94A3B8',
+  primary: '#4F46E5',
 }
 
-const GLASS = {
-  background:           'rgba(14,10,28,0.80)',
-  backdropFilter:       'blur(20px)',
-  WebkitBackdropFilter: 'blur(20px)',
-  border:               `1px solid ${C.border}`,
-  borderRadius:         20,
-  overflow:             'hidden' as const,
+const CARD = {
+  background:   C.white,
+  border:       `1px solid ${C.border}`,
+  borderRadius: 12,
+  overflow:     'hidden' as const,
+  boxShadow:    '0 1px 3px 0 rgba(0,0,0,0.07)',
 }
-
-const GBTN = 'linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%)'
-
-// ─── Deterministic starfield ──────────────────────────────────────────────────
-const STARS = Array.from({ length: 30 }, (_, i) => {
-  const g = 137.508
-  return {
-    left:  `${((i * g)        % 100).toFixed(1)}%`,
-    top:   `${((i * g * 0.61) % 100).toFixed(1)}%`,
-    size:  [1, 1, 1.5][i % 3],
-    delay: `${((i * 0.37) % 4.5).toFixed(2)}s`,
-    dur:   `${(2.8 + (i % 6) * 0.45).toFixed(1)}s`,
-  }
-})
 
 // ─── CSV download ─────────────────────────────────────────────────────────────
 function downloadReportCsv(report: Report) {
@@ -57,13 +42,10 @@ function downloadReportCsv(report: Report) {
   }
 
   const rows: string[][] = [
-    // ── Overview
-    ['SORCERY REPORT', '', ''],
+    ['THE BIG IDEA REPORT', '', ''],
     ['Generated', formatDate(report.createdAt), ''],
-    ['Tier', report.tier === 'pro' ? 'Sorcerer (Pro)' : 'Free', ''],
+    ['Tier', report.tier === 'pro' ? 'Pro' : 'Free', ''],
     ['', '', ''],
-
-    // ── Product
     ['PRODUCT', '', ''],
     ['Name',              p.name,                                ''],
     ['Category',          p.category,                            ''],
@@ -71,14 +53,10 @@ function downloadReportCsv(report: Report) {
     ['Tags',              p.tags.join(', '),                     ''],
     ['Trending',          p.isTrending ? 'Yes' : 'No',           ''],
     ['', '', ''],
-
-    // ── Scores
     ['SCORES', '', ''],
     ['Opportunity Score', String(report.opportunityScore),        '/ 10'],
     ['Risk Score',        String(report.riskScore),               '/ 10'],
     ['', '', ''],
-
-    // ── Sourcing
     ['SOURCING', '', ''],
     ['Platform',          p.sourcePlatform,                       ''],
     ['Source URL',        p.sourceUrl,                            ''],
@@ -86,8 +64,6 @@ function downloadReportCsv(report: Report) {
     ['Min. Order Qty',    String(p.sourceMinOrderQty),            'units'],
     ['Est. Shipping (USD)', p.sourceShippingEstimateUsd.toFixed(2), ''],
     ['', '', ''],
-
-    // ── Market
     ['MARKET', '', ''],
     ['Best Sell Platform', p.bestSellPlatform,                    ''],
     ['Avg. Sell Price (USD)', p.avgSellPriceUsd.toFixed(2),       ''],
@@ -97,8 +73,6 @@ function downloadReportCsv(report: Report) {
     ...(p.amazonAsin  ? [['Amazon ASIN',  p.amazonAsin,  '']] as string[][] : []),
     ...(p.ebayItemId  ? [['eBay Item ID', p.ebayItemId,  '']] as string[][] : []),
     ['', '', ''],
-
-    // ── Margins
     ['MARGIN ANALYSIS', '', ''],
     ['Source Price (USD)',      m.sourcePriceUsd.toFixed(2),             ''],
     ['Shipping to UK (USD)',    m.shippingToUkUsd.toFixed(2),            ''],
@@ -111,8 +85,6 @@ function downloadReportCsv(report: Report) {
     ['Profit @ 100 units (USD)', m.profitAt100Units.toFixed(2),          ''],
     ['Profit @ 200 units (USD)', m.profitAt200Units.toFixed(2),          ''],
     ['', '', ''],
-
-    // ── Platform comparison
     ['PLATFORM COMPARISON', '', ''],
     ['Platform', 'Est. Sell Price (USD)', 'Fee %', 'Net Margin %', 'Monthly Sales', 'Difficulty', 'Recommended'],
     ...report.platformComparison.map(pl => [
@@ -125,24 +97,18 @@ function downloadReportCsv(report: Report) {
       pl.recommended ? 'Yes' : 'No',
     ]),
     ['', '', ''],
-
-    // ── AI analysis
     ['AI ANALYSIS', '', ''],
     [report.aiAnalysis, '', ''],
   ]
 
-  const csv = rows
-    .map(row => row.map(escape).join(','))
-    .join('\n')
-
-  const slug = p.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
-  const filename = `sourcery-${slug}-${report.id.slice(0, 8)}.csv`
-
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
-  const url  = URL.createObjectURL(blob)
-  const a    = document.createElement('a')
-  a.href     = url
-  a.download = filename
+  const csv      = rows.map(row => row.map(escape).join(',')).join('\n')
+  const slug     = p.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+  const filename = `report-${slug}-${report.id.slice(0, 8)}.csv`
+  const blob     = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+  const url      = URL.createObjectURL(blob)
+  const a        = document.createElement('a')
+  a.href         = url
+  a.download     = filename
   a.click()
   URL.revokeObjectURL(url)
 }
@@ -155,21 +121,24 @@ function Section({ title, icon, children, headerRight }: {
   headerRight?: React.ReactNode
 }) {
   return (
-    <div style={{ ...GLASS, marginBottom: 20 }}>
+    <div style={{ ...CARD, marginBottom: 16 }}>
       <div style={{
-        padding:       '16px 24px',
-        borderBottom:  `1px solid ${C.border}`,
-        display:       'flex',
-        alignItems:    'center',
+        padding:        '14px 20px',
+        borderBottom:   `1px solid ${C.border}`,
+        display:        'flex',
+        alignItems:     'center',
         justifyContent: 'space-between',
+        background:     '#FAFAFA',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          {icon && <span style={{ fontSize: 16 }}>{icon}</span>}
-          <h2 style={{ fontSize: 15, fontWeight: 600, color: C.text }}>{title}</h2>
+          {icon && <span style={{ fontSize: 15 }}>{icon}</span>}
+          <h2 style={{ fontSize: 14, fontWeight: 600, color: C.text, fontFamily: 'Inter, system-ui, sans-serif' }}>
+            {title}
+          </h2>
         </div>
         {headerRight}
       </div>
-      <div style={{ padding: '20px 24px' }}>
+      <div style={{ padding: '20px' }}>
         {children}
       </div>
     </div>
@@ -188,7 +157,6 @@ export function ReportPage() {
     staleTime: 1000 * 60 * 60,
   })
 
-  // ── Loading states ──────────────────────────────────────────────────────────
   if (isGenerating && reportId) {
     return <ReportLoading reportId={reportId} />
   }
@@ -196,10 +164,9 @@ export function ReportPage() {
   if (isLoading) {
     return (
       <div style={{ minHeight: '100vh', background: C.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ position: 'relative', width: 48, height: 48 }}>
-          <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', border: '2px solid rgba(139,92,246,0.15)' }} />
-          <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', border: '2px solid transparent', borderTopColor: '#8B5CF6', animation: 'spin 0.9s linear infinite' }} />
-          <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>✦</div>
+        <div style={{ position: 'relative', width: 40, height: 40 }}>
+          <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', border: `2px solid ${C.border}` }} />
+          <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', border: '2px solid transparent', borderTopColor: C.primary, animation: 'spin 0.9s linear infinite' }} />
         </div>
         <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </div>
@@ -208,12 +175,14 @@ export function ReportPage() {
 
   if (isError || !report || !('product' in report) || !report.product) {
     return (
-      <div style={{ minHeight: '100vh', background: C.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ textAlign: 'center', ...GLASS, padding: '48px 40px', maxWidth: 400 }}>
-          <div style={{ fontSize: 32, marginBottom: 16 }}>🔮</div>
-          <p style={{ fontSize: 16, fontWeight: 600, color: C.text, marginBottom: 8 }}>Report not found</p>
-          <p style={{ fontSize: 13, color: C.textDim, marginBottom: 24 }}>
-            This oracle may not exist or is still being summoned.
+      <div style={{ minHeight: '100vh', background: C.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
+        <div style={{ ...CARD, padding: '48px 40px', maxWidth: 400, textAlign: 'center' }}>
+          <div style={{ fontSize: 32, marginBottom: 16 }}>📄</div>
+          <p style={{ fontSize: 16, fontWeight: 600, color: C.text, marginBottom: 8, fontFamily: 'Inter, system-ui, sans-serif' }}>
+            Report not found
+          </p>
+          <p style={{ fontSize: 13, color: C.textSec, marginBottom: 24, fontFamily: 'Inter, system-ui, sans-serif' }}>
+            This report may not exist or is still being generated.
           </p>
           <Link
             to="/dashboard"
@@ -221,19 +190,20 @@ export function ReportPage() {
               display:        'inline-flex',
               alignItems:     'center',
               gap:            8,
-              background:     GBTN,
-              border:         '1px solid rgba(139,92,246,0.4)',
-              borderRadius:   99,
-              padding:        '10px 24px',
+              background:     C.primary,
+              borderRadius:   8,
+              padding:        '10px 22px',
               color:          '#fff',
               fontSize:       13,
-              fontWeight:     700,
+              fontWeight:     600,
               textDecoration: 'none',
+              fontFamily:     'Inter, system-ui, sans-serif',
             }}
           >
             ← Back to Dashboard
           </Link>
         </div>
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </div>
     )
   }
@@ -242,28 +212,10 @@ export function ReportPage() {
   const showLocked = report.tier === 'free'
 
   return (
-    <div style={{ minHeight: '100vh', background: C.bg, position: 'relative', overflow: 'hidden' }}>
+    <div style={{ minHeight: '100vh', background: C.bg, fontFamily: 'Inter, system-ui, sans-serif' }}>
+      <div style={{ maxWidth: 1100, margin: '0 auto', padding: '28px 20px' }}>
 
-      {/* Starfield */}
-      <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0 }}>
-        {STARS.map((s, i) => (
-          <div key={i} className="animate-twinkle" style={{
-            position:          'absolute',
-            left:              s.left,
-            top:               s.top,
-            width:             s.size,
-            height:            s.size,
-            borderRadius:      '50%',
-            background:        i % 3 === 0 ? C.purpleB : i % 3 === 1 ? '#22D3EE' : '#fff',
-            animationDelay:    s.delay,
-            animationDuration: s.dur,
-          }} />
-        ))}
-      </div>
-
-      <div style={{ maxWidth: 1100, margin: '0 auto', padding: '36px 24px', position: 'relative', zIndex: 1 }}>
-
-        {/* ── Top nav bar ─────────────────────────────────────────────────────── */}
+        {/* ── Top nav bar ── */}
         <div style={{
           display:        'flex',
           alignItems:     'center',
@@ -278,27 +230,18 @@ export function ReportPage() {
               display:        'inline-flex',
               alignItems:     'center',
               gap:            6,
-              background:     'rgba(14,10,28,0.80)',
-              backdropFilter: 'blur(20px)',
+              background:     C.white,
               border:         `1px solid ${C.border}`,
-              borderRadius:   99,
+              borderRadius:   8,
               padding:        '8px 16px',
-              color:          C.textDim,
+              color:          C.textSec,
               fontSize:       13,
-              fontWeight:     600,
+              fontWeight:     500,
               textDecoration: 'none',
               transition:     'color 0.15s, border-color 0.15s',
             }}
-            onMouseEnter={e => {
-              const el = e.currentTarget
-              el.style.color = C.text
-              el.style.borderColor = 'rgba(139,92,246,0.4)'
-            }}
-            onMouseLeave={e => {
-              const el = e.currentTarget
-              el.style.color = C.textDim
-              el.style.borderColor = C.border
-            }}
+            onMouseEnter={e => { e.currentTarget.style.color = C.text; e.currentTarget.style.borderColor = '#CBD5E1' }}
+            onMouseLeave={e => { e.currentTarget.style.color = C.textSec; e.currentTarget.style.borderColor = C.border }}
           >
             ← Dashboard
           </Link>
@@ -306,29 +249,21 @@ export function ReportPage() {
           <button
             onClick={() => downloadReportCsv(report)}
             style={{
-              display:    'inline-flex',
-              alignItems: 'center',
-              gap:        6,
-              background: 'rgba(139,92,246,0.1)',
-              border:     '1px solid rgba(139,92,246,0.3)',
-              borderRadius: 99,
-              padding:    '8px 18px',
-              color:      C.purpleB,
-              fontSize:   13,
-              fontWeight: 600,
-              cursor:     'pointer',
-              transition: 'background 0.15s, border-color 0.15s',
+              display:      'inline-flex',
+              alignItems:   'center',
+              gap:          6,
+              background:   C.white,
+              border:       `1px solid ${C.border}`,
+              borderRadius: 8,
+              padding:      '8px 16px',
+              color:        C.textSec,
+              fontSize:     13,
+              fontWeight:   500,
+              cursor:       'pointer',
+              transition:   'border-color 0.15s',
             }}
-            onMouseEnter={e => {
-              const el = e.currentTarget
-              el.style.background = 'rgba(139,92,246,0.18)'
-              el.style.borderColor = 'rgba(139,92,246,0.55)'
-            }}
-            onMouseLeave={e => {
-              const el = e.currentTarget
-              el.style.background = 'rgba(139,92,246,0.1)'
-              el.style.borderColor = 'rgba(139,92,246,0.3)'
-            }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = '#CBD5E1'; e.currentTarget.style.color = C.text }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = C.border; e.currentTarget.style.color = C.textSec }}
           >
             ⬇ Download CSV
           </button>
@@ -337,54 +272,51 @@ export function ReportPage() {
         {/* Free tier notice */}
         {showLocked && (
           <div style={{
-            ...GLASS,
-            padding:      '14px 20px',
-            marginBottom: 20,
-            display:      'flex',
-            alignItems:   'center',
+            ...CARD,
+            padding:        '12px 18px',
+            marginBottom:   16,
+            display:        'flex',
+            alignItems:     'center',
             justifyContent: 'space-between',
-            gap:          16,
-            borderColor:  'rgba(139,92,246,0.25)',
+            gap:            16,
+            background:     '#FFFBEB',
+            borderColor:    '#FDE68A',
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <span style={{ fontSize: 14 }}>🔮</span>
-              <p style={{ fontSize: 13, color: C.textDim }}>
-                <span style={{ fontWeight: 700, color: C.text }}>Free report</span>
-                {' '}— AI analysis, trend charts, and 3 more platforms are sealed.{' '}
-                Re-run this as a Sorcerer report for the full oracle.
-              </p>
-            </div>
+            <p style={{ fontSize: 13, color: '#92400E' }}>
+              <span style={{ fontWeight: 600 }}>Free report</span>
+              {' '}— AI analysis, trend charts, and additional platforms are locked.{' '}
+              Upgrade to Pro for the full report.
+            </p>
             <Link
               to="/pricing"
               style={{
                 flexShrink:     0,
-                background:     GBTN,
-                border:         '1px solid rgba(139,92,246,0.4)',
-                borderRadius:   99,
-                padding:        '8px 18px',
+                background:     C.primary,
+                borderRadius:   7,
+                padding:        '7px 16px',
                 color:          '#fff',
                 fontSize:       12,
-                fontWeight:     700,
+                fontWeight:     600,
                 textDecoration: 'none',
                 whiteSpace:     'nowrap',
               }}
             >
-              ✦ Unlock Pro
+              Upgrade to Pro
             </Link>
           </div>
         )}
 
         {/* ── Section 1: Product Hero ── */}
-        <div style={{ ...GLASS, marginBottom: 20 }}>
+        <div style={{ ...CARD, marginBottom: 16 }}>
           <div style={{ padding: '24px' }}>
-            <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap' }}>
 
               {/* Product image */}
               <img
-                src={product.sourceImageUrl || 'https://placehold.co/160x160/0D0B1E/8B5CF6?text=✦'}
+                src={product.sourceImageUrl || 'https://placehold.co/160x160/EEF2FF/4F46E5?text=Product'}
                 alt={product.name}
-                style={{ width: 140, height: 140, objectFit: 'cover', borderRadius: 14, border: `1px solid ${C.border}`, flexShrink: 0 }}
-                onError={(e) => { (e.target as HTMLImageElement).src = 'https://placehold.co/160x160/0D0B1E/8B5CF6?text=✦' }}
+                style={{ width: 130, height: 130, objectFit: 'cover', borderRadius: 10, border: `1px solid ${C.border}`, flexShrink: 0 }}
+                onError={(e) => { (e.target as HTMLImageElement).src = 'https://placehold.co/160x160/EEF2FF/4F46E5?text=Product' }}
               />
 
               {/* Product info */}
@@ -396,13 +328,13 @@ export function ReportPage() {
                       {product.isTrending && <Badge variant="green" size="sm">🔥 Trending</Badge>}
                       {showLocked
                         ? <Badge variant="gray" size="sm">Free report</Badge>
-                        : <Badge variant="blue" size="sm">✦ Sorcerer report</Badge>
+                        : <Badge variant="blue" size="sm">Pro report</Badge>
                       }
                     </div>
-                    <h1 style={{ fontSize: 22, fontWeight: 700, color: C.text, lineHeight: 1.2, marginBottom: 6 }}>
+                    <h1 style={{ fontSize: 21, fontWeight: 700, color: C.text, lineHeight: 1.2, marginBottom: 6 }}>
                       {product.name}
                     </h1>
-                    <p style={{ fontSize: 13, color: C.textDim, maxWidth: 600, lineHeight: 1.6 }}>
+                    <p style={{ fontSize: 13, color: C.textSec, maxWidth: 600, lineHeight: 1.65 }}>
                       {product.description.slice(0, 200)}{product.description.length > 200 ? '…' : ''}
                     </p>
                   </div>
@@ -421,17 +353,17 @@ export function ReportPage() {
                 </div>
 
                 {/* Key stats */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))', gap: 10, marginTop: 14 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: 10, marginTop: 14 }}>
                   {[
-                    { label: 'Buy price',         value: formatCurrency(product.sourcePriceUsd),    sub: product.sourcePlatform },
-                    { label: 'Avg. sell price',    value: formatCurrency(product.avgSellPriceUsd),   sub: product.bestSellPlatform },
-                    { label: 'Est. monthly sales', value: formatNumber(product.estimatedMonthlySales), sub: 'units/month' },
-                    { label: 'Avg. rating',        value: `${product.avgReviewScore}/5`,              sub: `${formatNumber(product.reviewCount)} reviews` },
+                    { label: 'Buy price',          value: formatCurrency(product.sourcePriceUsd),       sub: product.sourcePlatform },
+                    { label: 'Avg. sell price',    value: formatCurrency(product.avgSellPriceUsd),      sub: product.bestSellPlatform },
+                    { label: 'Est. monthly sales', value: formatNumber(product.estimatedMonthlySales),  sub: 'units/month' },
+                    { label: 'Avg. rating',        value: `${product.avgReviewScore}/5`,                sub: `${formatNumber(product.reviewCount)} reviews` },
                   ].map(({ label, value, sub }) => (
-                    <div key={label} style={{ background: 'rgba(139,92,246,0.06)', border: `1px solid ${C.border}`, borderRadius: 12, padding: '10px 14px' }}>
+                    <div key={label} style={{ background: '#F8FAFC', border: `1px solid ${C.border}`, borderRadius: 8, padding: '10px 12px' }}>
                       <p style={{ fontSize: 10, color: C.textMut, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>{label}</p>
                       <p style={{ fontSize: 16, fontWeight: 700, color: C.text }}>{value}</p>
-                      <p style={{ fontSize: 11, color: C.textDim, textTransform: 'capitalize', marginTop: 2 }}>{sub}</p>
+                      <p style={{ fontSize: 11, color: C.textSec, textTransform: 'capitalize', marginTop: 2 }}>{sub}</p>
                     </div>
                   ))}
                 </div>
@@ -440,7 +372,7 @@ export function ReportPage() {
 
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginTop: 16, paddingTop: 14, borderTop: `1px solid ${C.border}`, flexWrap: 'wrap' }}>
               <span style={{ fontSize: 12, color: C.textMut }}>
-                📜 Report saved · {formatDate(report.createdAt)}
+                Report saved · {formatDate(report.createdAt)}
               </span>
               <button
                 onClick={() => downloadReportCsv(report)}
@@ -450,24 +382,16 @@ export function ReportPage() {
                   gap:        5,
                   background: 'none',
                   border:     `1px solid ${C.border}`,
-                  borderRadius: 99,
-                  padding:    '5px 14px',
-                  color:      C.textDim,
+                  borderRadius: 7,
+                  padding:    '5px 12px',
+                  color:      C.textSec,
                   fontSize:   11,
-                  fontWeight: 600,
+                  fontWeight: 500,
                   cursor:     'pointer',
                   transition: 'color 0.15s, border-color 0.15s',
                 }}
-                onMouseEnter={e => {
-                  const el = e.currentTarget
-                  el.style.color = C.purpleB
-                  el.style.borderColor = 'rgba(139,92,246,0.4)'
-                }}
-                onMouseLeave={e => {
-                  const el = e.currentTarget
-                  el.style.color = C.textDim
-                  el.style.borderColor = C.border
-                }}
+                onMouseEnter={e => { e.currentTarget.style.color = C.text; e.currentTarget.style.borderColor = '#CBD5E1' }}
+                onMouseLeave={e => { e.currentTarget.style.color = C.textSec; e.currentTarget.style.borderColor = C.border }}
               >
                 ⬇ Download CSV
               </button>
@@ -478,35 +402,35 @@ export function ReportPage() {
         {/* ── Section 2: AI Analysis ── */}
         <LockedSection
           isLocked={showLocked}
-          featureName="Full Oracle Analysis"
-          subtitle="Sorcerer reports include a 5-paragraph deep-dive: opportunity summary, target market, competitive landscape, recommended strategy, and trend outlook."
+          featureName="Full AI Analysis"
+          subtitle="Pro reports include a 5-paragraph deep-dive: opportunity summary, target market, competitive landscape, recommended strategy, and trend outlook."
         >
           <Section
-            title="Oracle Analysis"
+            title="AI Analysis"
             icon="✨"
             headerRight={
               <span style={{
-                fontSize:   11,
-                color:      showLocked ? C.textDim : '#A78BFA',
-                background: showLocked ? 'rgba(90,79,122,0.2)' : 'rgba(139,92,246,0.12)',
-                border:     `1px solid ${showLocked ? 'rgba(90,79,122,0.3)' : 'rgba(139,92,246,0.3)'}`,
+                fontSize:     11,
+                color:        showLocked ? C.textMut : C.primary,
+                background:   showLocked ? '#F1F5F9' : '#EEF2FF',
+                border:       `1px solid ${showLocked ? C.border : '#C7D2FE'}`,
                 borderRadius: 99,
-                padding:    '3px 10px',
-                fontWeight: 600,
+                padding:      '3px 10px',
+                fontWeight:   600,
               }}>
-                {showLocked ? 'GPT-4o mini · Free' : 'GPT-4o · Sorcerer'}
+                {showLocked ? 'GPT-4o mini · Free' : 'GPT-4o · Pro'}
               </span>
             }
           >
             <div>
               {report.aiAnalysis.split('\n').filter(Boolean).map((paragraph, i) => (
-                <p key={i} style={{ fontSize: 14, color: C.textDim, lineHeight: 1.75, marginBottom: 12 }}>
+                <p key={i} style={{ fontSize: 14, color: C.textSec, lineHeight: 1.75, marginBottom: 12 }}>
                   {paragraph}
                 </p>
               ))}
               {showLocked && (
                 <p style={{ fontSize: 12, color: C.textMut, fontStyle: 'italic', marginTop: 8, paddingTop: 12, borderTop: `1px solid ${C.border}` }}>
-                  This is a 1-paragraph summary. Sorcerer reports include 5 full paragraphs.
+                  This is a 1-paragraph summary. Pro reports include 5 full paragraphs.
                 </p>
               )}
             </div>
@@ -533,14 +457,14 @@ export function ReportPage() {
         <LockedSection
           isLocked={showLocked}
           featureName="All 4 Platform Comparisons"
-          subtitle="Free reports show only the best platform. Sorcerer compares Amazon, eBay, Etsy, and Shopify side-by-side."
+          subtitle="Free reports show only the best platform. Pro compares Amazon, eBay, Etsy, and Shopify side-by-side."
         >
           <Section title="Platform Comparison" icon="🏪">
             <PlatformTable platforms={report.platformComparison} />
           </Section>
         </LockedSection>
 
-        {/* ── Section 6: Where to Buy ── (always visible) */}
+        {/* ── Section 6: Where to Source ── (always visible) */}
         <Section title="Where to Source" icon="📦">
           <SourceCards product={product} />
         </Section>
@@ -558,9 +482,9 @@ export function ReportPage() {
               <div
                 key={p.platform}
                 style={{
-                  borderRadius: 14,
-                  border:       p.recommended ? '1px solid rgba(139,92,246,0.4)' : `1px solid ${C.border}`,
-                  background:   p.recommended ? 'rgba(139,92,246,0.08)' : 'rgba(7,5,17,0.5)',
+                  borderRadius: 10,
+                  border:       p.recommended ? `2px solid ${C.primary}` : `1px solid ${C.border}`,
+                  background:   p.recommended ? '#EEF2FF' : C.white,
                   padding:      '14px',
                 }}
               >
@@ -573,14 +497,14 @@ export function ReportPage() {
                 <p style={{ fontSize: 18, fontWeight: 700, color: C.text, marginBottom: 4 }}>
                   {formatCurrency(p.estimatedSellPrice)}
                 </p>
-                <p style={{ fontSize: 12, color: C.textDim }}>
+                <p style={{ fontSize: 12, color: C.textSec }}>
                   {p.netMargin.toFixed(1)}% margin · {p.feePercent}% fee
                 </p>
                 <a
                   href={`https://www.${p.platform}.com`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  style={{ display: 'block', marginTop: 10, fontSize: 12, color: '#A78BFA', fontWeight: 600, textDecoration: 'none' }}
+                  style={{ display: 'block', marginTop: 10, fontSize: 12, color: C.primary, fontWeight: 600, textDecoration: 'none' }}
                 >
                   Start selling →
                 </a>
@@ -590,19 +514,19 @@ export function ReportPage() {
             {/* Locked platform placeholders (free tier) */}
             {showLocked && [1, 2, 3].map((i) => (
               <div key={`locked-${i}`} style={{
-                borderRadius: 14,
-                border:       `1px solid ${C.border}`,
-                background:   'rgba(7,5,17,0.3)',
+                borderRadius: 10,
+                border:       `1px dashed ${C.border}`,
+                background:   '#F8FAFC',
                 padding:      '14px',
                 display:      'flex',
                 flexDirection: 'column',
                 alignItems:   'center',
                 justifyContent: 'center',
-                opacity:      0.35,
+                opacity:      0.5,
                 minHeight:    100,
               }}>
                 <span style={{ fontSize: 18, marginBottom: 4 }}>🔒</span>
-                <p style={{ fontSize: 11, color: C.textDim }}>Pro only</p>
+                <p style={{ fontSize: 11, color: C.textMut }}>Pro only</p>
               </div>
             ))}
           </div>
@@ -610,12 +534,12 @@ export function ReportPage() {
 
         {/* Bottom upgrade CTA for free tier */}
         {showLocked && (
-          <div style={{ marginBottom: 20 }}>
+          <div style={{ marginBottom: 16 }}>
             <UpgradeBanner
               variant="full"
-              title="You're seeing the free version of this report"
-              description="Upgrade to Sorcerer and re-run this search to get the full 5-paragraph oracle, all 4 platform comparisons, 6-month trend charts, and 20 fresh ideas every week."
-              ctaLabel="✦ Ascend to Sorcerer — £10/mo"
+              title="You're on the free plan"
+              description="Upgrade to Pro and get the full 5-paragraph AI analysis, all 4 platform comparisons, 6-month trend charts, and 20 reports every week."
+              ctaLabel="Upgrade to Pro — £10/month"
             />
           </div>
         )}
@@ -624,13 +548,13 @@ export function ReportPage() {
         <Section title="Product Details" icon="📋">
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 24 }}>
             <div>
-              <h3 style={{ fontSize: 12, fontWeight: 700, color: C.textMut, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 10 }}>
+              <h3 style={{ fontSize: 11, fontWeight: 700, color: C.textMut, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 10 }}>
                 Full Description
               </h3>
-              <p style={{ fontSize: 13, color: C.textDim, lineHeight: 1.7 }}>{product.description}</p>
+              <p style={{ fontSize: 13, color: C.textSec, lineHeight: 1.7 }}>{product.description}</p>
             </div>
             <div>
-              <h3 style={{ fontSize: 12, fontWeight: 700, color: C.textMut, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 10 }}>
+              <h3 style={{ fontSize: 11, fontWeight: 700, color: C.textMut, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 10 }}>
                 Specifications
               </h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -643,7 +567,7 @@ export function ReportPage() {
                   { label: 'Last Updated',    value: formatDate(product.lastRefreshed) },
                 ].map(({ label, value }) => (
                   <div key={label} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, paddingBottom: 8, borderBottom: `1px solid ${C.border}` }}>
-                    <span style={{ color: C.textDim }}>{label}</span>
+                    <span style={{ color: C.textSec }}>{label}</span>
                     <span style={{ fontWeight: 600, color: C.text }}>{value}</span>
                   </div>
                 ))}
@@ -667,14 +591,13 @@ export function ReportPage() {
               display:        'inline-flex',
               alignItems:     'center',
               gap:            8,
-              background:     'rgba(14,10,28,0.80)',
-              backdropFilter: 'blur(20px)',
+              background:     C.white,
               border:         `1px solid ${C.border}`,
-              borderRadius:   99,
+              borderRadius:   8,
               padding:        '10px 24px',
-              color:          C.textDim,
+              color:          C.textSec,
               fontSize:       13,
-              fontWeight:     600,
+              fontWeight:     500,
               textDecoration: 'none',
             }}
           >
@@ -683,6 +606,7 @@ export function ReportPage() {
         </div>
 
       </div>
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   )
 }

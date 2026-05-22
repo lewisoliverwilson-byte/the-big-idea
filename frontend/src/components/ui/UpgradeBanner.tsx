@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { TrendingUp } from 'lucide-react'
 
 interface UpgradeBannerProps {
   title?:       string
@@ -7,41 +8,33 @@ interface UpgradeBannerProps {
   variant?:     'inline' | 'full'
 }
 
-const GBTN = 'linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%)'
-const GRAD = 'linear-gradient(135deg, #C084FC 0%, #818CF8 50%, #22D3EE 100%)'
-
 /**
- * Dark magic upgrade CTA — used across Dashboard, ReportPage, etc.
+ * Professional upgrade CTA — used across Dashboard, ReportPage, etc.
  */
 export function UpgradeBanner({
   title       = 'Unlock the full picture',
-  description = 'Pro gives you 20 ideas a week, full 5-paragraph AI analysis, all 4 platform comparisons, and trend charts — everything you need to make the right call.',
-  ctaLabel    = '✦ Go Pro — £10/month',
+  description = 'Pro gives you 20 reports a week, full 5-paragraph AI analysis, all 4 platform comparisons, and trend charts — everything you need to make the right call.',
+  ctaLabel    = 'Upgrade to Pro — £10/month',
   variant     = 'inline',
 }: UpgradeBannerProps) {
   if (variant === 'full') {
     return (
       <div style={{
-        position:     'relative',
-        overflow:     'hidden',
-        borderRadius: 20,
-        background:   'rgba(14,10,28,0.85)',
-        border:       '1px solid rgba(139,92,246,0.3)',
-        padding:      '32px 32px',
-        boxShadow:    '0 0 40px rgba(124,58,237,0.12)',
+        background:   '#FFFFFF',
+        border:       '1px solid #E2E8F0',
+        borderRadius: 12,
+        padding:      '24px 28px',
+        boxShadow:    '0 1px 3px 0 rgba(0,0,0,0.07)',
+        fontFamily:   'Inter, system-ui, sans-serif',
       }}>
-        {/* Ambient glows */}
-        <div style={{ position: 'absolute', top: -60, right: -60, width: 220, height: 220, borderRadius: '50%', background: 'radial-gradient(circle, rgba(139,92,246,0.2) 0%, transparent 70%)', pointerEvents: 'none' }} />
-        <div style={{ position: 'absolute', bottom: -40, left: -40, width: 160, height: 160, borderRadius: '50%', background: 'radial-gradient(circle, rgba(34,211,238,0.1) 0%, transparent 70%)', pointerEvents: 'none' }} />
-
-        <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 24 }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 20 }}>
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-              <span style={{ fontSize: 14 }}>✦</span>
-              <span style={{ color: '#A78BFA', fontSize: 12, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Sorcerer Plan</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 7 }}>
+              <TrendingUp size={14} style={{ color: '#4F46E5' }} />
+              <span style={{ color: '#4F46E5', fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Pro Plan</span>
             </div>
-            <h2 style={{ fontSize: 22, fontWeight: 700, color: '#F0EEFF', marginBottom: 8 }}>{title}</h2>
-            <p style={{ color: '#9B8ECF', maxWidth: 500, fontSize: 13, lineHeight: 1.65 }}>{description}</p>
+            <h2 style={{ fontSize: 18, fontWeight: 700, color: '#0F172A', marginBottom: 7, letterSpacing: '-0.02em' }}>{title}</h2>
+            <p style={{ color: '#64748B', maxWidth: 500, fontSize: 13, lineHeight: 1.65 }}>{description}</p>
           </div>
           <div style={{ flexShrink: 0 }}>
             <Link
@@ -49,22 +42,24 @@ export function UpgradeBanner({
               style={{
                 display:        'inline-flex',
                 alignItems:     'center',
-                gap:            8,
-                background:     GBTN,
-                border:         '1px solid rgba(139,92,246,0.4)',
-                borderRadius:   99,
-                padding:        '12px 28px',
+                gap:            7,
+                background:     '#4F46E5',
+                border:         'none',
+                borderRadius:   8,
+                padding:        '10px 22px',
                 color:          '#fff',
                 fontSize:       13,
-                fontWeight:     700,
+                fontWeight:     600,
                 textDecoration: 'none',
-                boxShadow:      '0 0 20px rgba(124,58,237,0.3)',
                 whiteSpace:     'nowrap',
+                transition:     'background 0.12s',
               }}
+              onMouseEnter={e => ((e.currentTarget as HTMLAnchorElement).style.background = '#4338CA')}
+              onMouseLeave={e => ((e.currentTarget as HTMLAnchorElement).style.background = '#4F46E5')}
             >
               {ctaLabel}
             </Link>
-            <p style={{ color: '#5A4F7A', fontSize: 11, marginTop: 8, textAlign: 'center' }}>Cancel anytime</p>
+            <p style={{ color: '#94A3B8', fontSize: 11, marginTop: 7, textAlign: 'center' }}>Cancel anytime</p>
           </div>
         </div>
       </div>
@@ -73,33 +68,33 @@ export function UpgradeBanner({
 
   return (
     <div style={{
-      borderRadius: 16,
-      background:   'rgba(14,10,28,0.80)',
-      border:       '1px solid rgba(139,92,246,0.2)',
-      padding:      '14px 20px',
-      display:      'flex',
-      alignItems:   'center',
+      borderRadius:   10,
+      background:     '#F8FAFC',
+      border:         '1px solid #E2E8F0',
+      padding:        '12px 16px',
+      display:        'flex',
+      alignItems:     'center',
       justifyContent: 'space-between',
-      gap:          16,
-      boxShadow:    '0 0 16px rgba(124,58,237,0.08)',
+      gap:            14,
+      fontFamily:     'Inter, system-ui, sans-serif',
     }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
         <div style={{
           flexShrink:     0,
-          width:          32,
-          height:         32,
+          width:          30,
+          height:         30,
           borderRadius:   '50%',
-          background:     GRAD,
+          background:     '#EEF2FF',
+          border:         '1px solid #C7D2FE',
           display:        'flex',
           alignItems:     'center',
           justifyContent: 'center',
-          fontSize:       13,
         }}>
-          ✦
+          <TrendingUp size={13} style={{ color: '#4F46E5' }} />
         </div>
         <div>
-          <p style={{ fontSize: 13, fontWeight: 600, color: '#F0EEFF' }}>{title}</p>
-          <p style={{ fontSize: 11, color: '#9B8ECF', marginTop: 2 }}>{description}</p>
+          <p style={{ fontSize: 13, fontWeight: 600, color: '#0F172A' }}>{title}</p>
+          <p style={{ fontSize: 11, color: '#64748B', marginTop: 2 }}>{description}</p>
         </div>
       </div>
       <Link
@@ -108,17 +103,20 @@ export function UpgradeBanner({
           flexShrink:     0,
           display:        'inline-flex',
           alignItems:     'center',
-          gap:            6,
-          background:     GBTN,
-          border:         '1px solid rgba(139,92,246,0.4)',
-          borderRadius:   99,
-          padding:        '8px 18px',
+          gap:            5,
+          background:     '#4F46E5',
+          border:         'none',
+          borderRadius:   7,
+          padding:        '7px 14px',
           color:          '#fff',
           fontSize:       12,
-          fontWeight:     700,
+          fontWeight:     600,
           textDecoration: 'none',
           whiteSpace:     'nowrap',
+          transition:     'background 0.12s',
         }}
+        onMouseEnter={e => ((e.currentTarget as HTMLAnchorElement).style.background = '#4338CA')}
+        onMouseLeave={e => ((e.currentTarget as HTMLAnchorElement).style.background = '#4F46E5')}
       >
         {ctaLabel}
       </Link>

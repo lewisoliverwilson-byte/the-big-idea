@@ -19,53 +19,52 @@ const PLATFORM_COLORS: Record<SourcePlatform, string> = {
 }
 
 const C = {
-  text:    '#F0EEFF',
-  textDim: '#9B8ECF',
-  textMut: '#5A4F7A',
-  border:  'rgba(139,92,246,0.15)',
+  text:    '#0F172A',
+  textSec: '#475569',
+  textMut: '#94A3B8',
+  border:  '#E2E8F0',
+  primary: '#4F46E5',
 }
-const GBTN = 'linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%)'
 
 export function SourceCards({ product }: SourceCardsProps) {
-  const platformColor = PLATFORM_COLORS[product.sourcePlatform] || '#8B5CF6'
+  const platformColor = PLATFORM_COLORS[product.sourcePlatform] || C.primary
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16 }}>
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16, fontFamily: 'Inter, system-ui, sans-serif' }}>
 
       {/* Primary source card */}
       <div style={{
-        background:   'rgba(139,92,246,0.08)',
-        border:       '1px solid rgba(139,92,246,0.3)',
-        borderRadius: 16,
+        background:   '#EEF2FF',
+        border:       `2px solid #C7D2FE`,
+        borderRadius: 12,
         padding:      '20px',
         position:     'relative',
       }}>
         {/* Best Value tag */}
         <div style={{
-          position:   'absolute',
-          top:        -10,
-          left:       16,
-          background: GBTN,
+          position:     'absolute',
+          top:          -10,
+          left:         16,
+          background:   C.primary,
           borderRadius: 99,
-          padding:    '3px 12px',
-          fontSize:   10,
-          fontWeight: 700,
-          color:      '#fff',
-          border:     '1px solid rgba(139,92,246,0.4)',
+          padding:      '3px 12px',
+          fontSize:     10,
+          fontWeight:   700,
+          color:        '#fff',
         }}>
-          ✦ Best Value
+          Best Value
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14, marginTop: 6 }}>
           <div style={{
-            width:          34,
-            height:         34,
-            borderRadius:   10,
+            width:          32,
+            height:         32,
+            borderRadius:   8,
             background:     platformColor,
             display:        'flex',
             alignItems:     'center',
             justifyContent: 'center',
-            fontSize:       14,
+            fontSize:       13,
             fontWeight:     700,
             color:          '#fff',
             flexShrink:     0,
@@ -79,14 +78,14 @@ export function SourceCards({ product }: SourceCardsProps) {
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8, fontSize: 13 }}>
           {[
-            { label: 'Unit price',    value: formatCurrency(product.sourcePriceUsd),          highlight: true  },
-            { label: 'Min. order',    value: `${product.sourceMinOrderQty} units`,             highlight: false },
+            { label: 'Unit price',    value: formatCurrency(product.sourcePriceUsd),           highlight: true  },
+            { label: 'Min. order',    value: `${product.sourceMinOrderQty} units`,              highlight: false },
             { label: 'Shipping est.', value: formatCurrency(product.sourceShippingEstimateUsd), highlight: false },
-            { label: 'Delivery time', value: '7–14 days',                                      highlight: false },
+            { label: 'Delivery time', value: '7–14 days',                                       highlight: false },
           ].map(({ label, value, highlight }) => (
             <div key={label} style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span style={{ color: C.textDim }}>{label}</span>
-              <span style={{ fontWeight: 600, color: highlight ? '#34D399' : C.text }}>{value}</span>
+              <span style={{ color: C.textSec }}>{label}</span>
+              <span style={{ fontWeight: 600, color: highlight ? '#059669' : C.text }}>{value}</span>
             </div>
           ))}
         </div>
@@ -103,15 +102,17 @@ export function SourceCards({ product }: SourceCardsProps) {
             gap:            6,
             width:          '100%',
             padding:        '10px',
-            background:     GBTN,
-            border:         '1px solid rgba(139,92,246,0.4)',
-            borderRadius:   10,
+            background:     C.primary,
+            borderRadius:   8,
             color:          '#fff',
             fontSize:       13,
             fontWeight:     600,
             textDecoration: 'none',
             boxSizing:      'border-box',
+            transition:     'background 0.12s',
           }}
+          onMouseEnter={e => ((e.currentTarget as HTMLAnchorElement).style.background = '#4338CA')}
+          onMouseLeave={e => ((e.currentTarget as HTMLAnchorElement).style.background = C.primary)}
         >
           View listing
           <ExternalLink size={13} />
@@ -120,9 +121,9 @@ export function SourceCards({ product }: SourceCardsProps) {
 
       {/* Alternative sources note */}
       <div style={{
-        background:   'rgba(14,10,28,0.6)',
+        background:   '#F8FAFC',
         border:       `1px dashed ${C.border}`,
-        borderRadius: 16,
+        borderRadius: 12,
         padding:      '20px',
         display:      'flex',
         alignItems:   'center',
@@ -151,7 +152,7 @@ export function SourceCards({ product }: SourceCardsProps) {
                 href={href}
                 target="_blank"
                 rel="noopener noreferrer"
-                style={{ color: '#A78BFA', fontSize: 13, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 4 }}
+                style={{ color: C.primary, fontSize: 13, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 4 }}
                 onMouseEnter={e => ((e.currentTarget as HTMLAnchorElement).style.textDecoration = 'underline')}
                 onMouseLeave={e => ((e.currentTarget as HTMLAnchorElement).style.textDecoration = 'none')}
               >
