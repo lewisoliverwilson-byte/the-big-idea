@@ -2,6 +2,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../../store/authStore'
 import { LogOut, User, LayoutDashboard } from 'lucide-react'
 import type { CSSProperties } from 'react'
+import { Logo } from '../../pages/Landing'
 
 // ─── Design tokens ────────────────────────────────────────────────────────────
 
@@ -14,18 +15,6 @@ const NAV_GLASS: CSSProperties = {
 }
 
 // ─── Logo ─────────────────────────────────────────────────────────────────────
-
-function SIcon({ size = 28 }: { size?: number }) {
-  return (
-    <svg viewBox="0 0 100 100" width={size} height={size} aria-hidden="true" style={{ flexShrink: 0 }}>
-      <path d="M 29,86 A 42,42 0 1,1 71,86" fill="none" stroke="#DDD6FE" strokeWidth="2.5" strokeLinecap="round"/>
-      <path d="M 33,79 A 34,34 0 1,1 67,79" fill="none" stroke="#DDD6FE" strokeWidth="1" strokeLinecap="round" opacity="0.28"/>
-      <path d="M 16,50 C 20,28 80,28 84,50 C 80,72 20,72 16,50 Z" fill="none" stroke="#DDD6FE" strokeWidth="2"/>
-      <polygon points="50,39 58,50 50,61 42,50" fill="#7C3AED"/>
-      <circle cx="50" cy="50" r="3.5" fill="#DDD6FE"/>
-    </svg>
-  )
-}
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
@@ -54,11 +43,11 @@ export function Navbar() {
 
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2.5 select-none" style={{ textDecoration: 'none' }}>
-            <SIcon size={28} />
+            <Logo size={28} />
             <span style={{
               fontFamily:    '"Cinzel Decorative", "Cinzel", serif',
               fontWeight:    700,
-              fontSize:      17,
+              fontSize:      18,
               color:         '#DDD6FE',
               letterSpacing: '0.06em',
               lineHeight:    1,

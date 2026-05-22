@@ -365,28 +365,6 @@ function CastleBackground() {
   )
 }
 
-// ─── Wizard character (left hero, xl+ only) ──────────────────────────────────
-function WizardFigure() {
-  return (
-    <div className="hidden xl:block" style={{
-      position: 'absolute', bottom: 0, left: 0,
-      width: 'clamp(200px, 18vw, 300px)',
-      pointerEvents: 'none', zIndex: 2,
-    }}>
-      <img
-        src="/assets/wizard.png"
-        alt=""
-        style={{
-          width: '100%', display: 'block',
-          mixBlendMode: 'multiply',
-          opacity: 0.88,
-          filter: 'brightness(0.80) saturate(0.75)',
-        }}
-      />
-    </div>
-  )
-}
-
 // ─── Main component ───────────────────────────────────────────────────────────
 export function Landing() {
   const navigate                   = useNavigate()
@@ -575,9 +553,6 @@ export function Landing() {
           alignItems:    'center',
           position:      'relative',
         }}>
-          {/* Wizard figure — bottom-left, xl screens only */}
-          <WizardFigure />
-
           <div
             className="flex flex-col lg:flex-row items-center"
             style={{ maxWidth: 1160, width: '100%', margin: '0 auto', gap: 48, position: 'relative', zIndex: 3 }}
@@ -588,23 +563,6 @@ export function Landing() {
               className="flex flex-col items-center lg:items-start text-center lg:text-left"
               style={{ flex: '1 1 420px', minWidth: 0 }}
             >
-              {/* Badge */}
-              <span style={{
-                display: 'inline-flex', alignItems: 'center', gap: 6,
-                fontFamily: '"DM Mono",monospace', fontSize: 11, letterSpacing: '0.06em',
-                color: C.purpleBright,
-                background: 'rgba(139,92,246,0.08)', border: `1px solid ${C.border}`,
-                padding: '6px 16px', borderRadius: 9999,
-                marginBottom: 28,
-              }}>
-                <span className="animate-pulse-glow" style={{
-                  width: 6, height: 6, borderRadius: '50%', background: C.purple,
-                  display: 'inline-block', flexShrink: 0,
-                  boxShadow: `0 0 8px ${C.purple}`,
-                }} />
-                1,200+ ENTREPRENEURS · TRUSTED WORLDWIDE
-              </span>
-
               {/* Headline */}
               <h1 style={{
                 fontFamily:    '"Barlow Condensed","Arial Narrow",sans-serif',
