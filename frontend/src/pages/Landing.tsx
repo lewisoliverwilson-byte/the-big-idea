@@ -514,19 +514,19 @@ export function Landing() {
           <Wordmark />
           <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
             <a href="#how-it-works"
-              style={{ fontFamily: 'Outfit,sans-serif', fontSize: 13, color: C.textDim, textDecoration: 'none' }}
+              style={{ fontFamily: 'Outfit,sans-serif', fontSize: 13, color: C.textDim, textDecoration: 'none', padding: '12px 4px', display: 'inline-flex', alignItems: 'center' }}
               className="hidden sm:block hover:text-white transition-colors"
             >
               How it works
             </a>
             <a href="#pricing"
-              style={{ fontFamily: 'Outfit,sans-serif', fontSize: 13, color: C.textDim, textDecoration: 'none' }}
+              style={{ fontFamily: 'Outfit,sans-serif', fontSize: 13, color: C.textDim, textDecoration: 'none', padding: '12px 4px', display: 'inline-flex', alignItems: 'center' }}
               className="hidden sm:block hover:text-white transition-colors"
             >
               Pricing
             </a>
             <Link to="/auth/signin"
-              style={{ fontFamily: 'Outfit,sans-serif', fontSize: 13, color: C.textDim, textDecoration: 'none' }}
+              style={{ fontFamily: 'Outfit,sans-serif', fontSize: 13, color: C.textDim, textDecoration: 'none', padding: '12px 4px', display: 'inline-flex', alignItems: 'center' }}
               className="hover:text-white transition-colors"
             >
               Sign in
@@ -534,8 +534,9 @@ export function Landing() {
             <Link to="/auth/signup" style={{
               fontFamily: 'Outfit,sans-serif', fontWeight: 600, fontSize: 13,
               color: '#fff', background: GBTN,
-              padding: '7px 16px', borderRadius: 7, textDecoration: 'none',
+              padding: '10px 18px', borderRadius: 7, textDecoration: 'none',
               boxShadow: '0 0 14px rgba(124,58,237,0.35)',
+              display: 'inline-flex', alignItems: 'center',
             }}>
               Start free
             </Link>
@@ -866,10 +867,11 @@ export function Landing() {
                   <p style={{ fontFamily: 'Outfit,sans-serif', fontSize: 13, color: C.textDim, lineHeight: 1.72 }}>{desc}</p>
 
                   {idx < 2 && (
-                    <div style={{
-                      position: 'absolute', top: '50%', right: -18,
-                      color: C.textMuted, fontSize: 12,
-                      display: 'none', // hidden on mobile via CSS; visible on md+
+                    <div className="hidden lg:flex" style={{
+                      position: 'absolute', top: '50%', right: -22,
+                      transform: 'translateY(-50%)',
+                      color: C.textMuted, fontSize: 16,
+                      alignItems: 'center', zIndex: 2,
                     }}>
                       →
                     </div>
@@ -1141,14 +1143,14 @@ export function Landing() {
               </div>
             </div>
 
-            <p style={{ textAlign: 'center', marginTop: 24 }}>
+            <div style={{ textAlign: 'center', marginTop: 24 }}>
               <Link to="/pricing"
-                style={{ fontFamily: 'Outfit,sans-serif', fontSize: 13, color: C.textMuted, textDecoration: 'none' }}
+                style={{ fontFamily: 'Outfit,sans-serif', fontSize: 13, color: C.textMuted, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', padding: '12px 8px' }}
                 className="hover:text-white transition-colors"
               >
                 See full feature comparison →
               </Link>
-            </p>
+            </div>
           </div>
         </section>
 
@@ -1163,7 +1165,7 @@ export function Landing() {
               </p>
               <h2 style={{
                 fontFamily:    '"Barlow Condensed","Arial Narrow",sans-serif', fontWeight: 700,
-                textTransform: 'uppercase', fontSize: 'clamp(28px,4vw,46px)',
+                textTransform: 'uppercase', fontSize: 'clamp(30px,4vw,52px)',
                 letterSpacing: '-0.01em', lineHeight: 0.97, margin: 0,
               }}>
                 <span style={{ color: C.text }}>Common</span>{' '}
