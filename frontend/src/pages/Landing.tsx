@@ -850,24 +850,6 @@ export function Landing() {
                 </div>
               </div>
 
-              {/* Social proof under card */}
-              <div style={{ marginTop: 14, display: 'flex', justifyContent: 'center', gap: 6, flexWrap: 'wrap' }}>
-                {[
-                  { icon: '💰', text: 'Margins up to 80%' },
-                  { icon: '⚡', text: 'Results in 30 seconds' },
-                  { icon: '✅', text: 'Free to start' },
-                ].map(({ icon, text }) => (
-                  <span key={text} style={{
-                    display: 'inline-flex', alignItems: 'center', gap: 5,
-                    fontSize: 11, color: C.textMut,
-                    background: '#F9FAFB', border: `1px solid ${C.border}`,
-                    borderRadius: 99, padding: '4px 12px',
-                    fontFamily: 'Inter, system-ui, sans-serif',
-                  }}>
-                    <span>{icon}</span>{text}
-                  </span>
-                ))}
-              </div>
             </motion.div>
 
           </div>
