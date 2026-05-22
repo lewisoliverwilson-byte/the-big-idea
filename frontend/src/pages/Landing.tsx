@@ -611,7 +611,7 @@ export function Landing() {
                 fontSize: 17, color: C.textSec,
                 lineHeight: 1.68, maxWidth: 460, marginBottom: 40,
               }}>
-                Answer 5 questions. Our AI finds high-margin products, shows your exact profit after every fee, and tells you exactly where to sell — in under 30 seconds. Your first £1,000/month product could be one search away.
+                The professional market research tool for people who want to make money quickly from reselling. Answer 5 questions — our AI finds high-margin products, calculates your exact profit, and tells you exactly where to sell. In under 30 seconds.
               </p>
 
               {/* Stats row */}
@@ -910,8 +910,8 @@ export function Landing() {
             }}>
               From zero to your<br />first winning product
             </h2>
-            <p style={{ fontSize: 16, color: C.textSec, maxWidth: 420, margin: '0 auto', lineHeight: 1.68 }}>
-              No guesswork. No spreadsheets. Three steps to a product that actually sells.
+            <p style={{ fontSize: 16, color: C.textSec, maxWidth: 440, margin: '0 auto', lineHeight: 1.68 }}>
+              No guesswork. No hours of research. Three steps from zero to a product that sells — designed for people who want to make money quickly.
             </p>
           </FadeUp>
 
@@ -1429,9 +1429,9 @@ export function Landing() {
 
           <p style={{
             fontSize: 17, color: 'rgba(255,255,255,0.65)',
-            maxWidth: 420, margin: '0 auto 44px', lineHeight: 1.68,
+            maxWidth: 440, margin: '0 auto 44px', lineHeight: 1.68,
           }}>
-            Start free in 30 seconds. No credit card. Just products that make you money.
+            Built for people who want to make money quickly. The fastest, most accurate reselling research tool available. Start free — no credit card needed.
           </p>
 
           <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 14 }}>
