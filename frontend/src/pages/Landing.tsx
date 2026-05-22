@@ -4,7 +4,7 @@ import { useNavigate, Link } from 'react-router-dom'
 import type { CSSProperties } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
-  ArrowRight, ChevronLeft, Check,
+  ArrowRight, ChevronLeft, Check, Star,
   TrendingUp, BarChart2, DollarSign, ShieldCheck, Zap, Globe, Sparkles,
   Leaf, Briefcase, Package, Layers, Package2, Building2, Home, Gamepad2,
   Shuffle, ShoppingBag, Palette, HelpCircle, Flame,
@@ -12,23 +12,26 @@ import {
 import type { LucideIcon } from 'lucide-react'
 import { useAuthStore } from '../store/authStore'
 import type { QuizAnswers } from '../types'
-import { Logo } from '../components/layout/Navbar'
+import { Logo, Wordmark } from '../components/layout/Navbar'
 
 // ─── Design tokens ─────────────────────────────────────────────────────────────
 const C = {
-  bg:       '#FFFFFF',
-  bgSubtle: '#F8FAFC',
-  border:   '#E2E8F0',
-  borderFocus: '#6366F1',
-  primary:  '#4F46E5',
-  primaryH: '#4338CA',
-  primaryL: '#EEF2FF',
-  text:     '#0F172A',
-  textSec:  '#475569',
-  textMut:  '#94A3B8',
-  success:  '#059669',
-  warning:  '#D97706',
-  error:    '#DC2626',
+  bg:          '#FFFFFF',
+  bgSubtle:    '#F9FAFB',
+  bgDark:      '#111827',
+  border:      '#E5E7EB',
+  borderLight: '#F3F4F6',
+  primary:     '#4F46E5',
+  primaryH:    '#4338CA',
+  primaryL:    '#EEF2FF',
+  primaryBdr:  '#C7D2FE',
+  text:        '#111827',
+  textSec:     '#6B7280',
+  textMut:     '#9CA3AF',
+  success:     '#059669',
+  warning:     '#D97706',
+  error:       '#DC2626',
+  amber:       '#F59E0B',
 } as const
 
 // ─── Storage helpers ──────────────────────────────────────────────────────────
@@ -41,27 +44,6 @@ export function getQuizFromStorage(): QuizAnswers | null {
 export function clearQuizFromStorage() { localStorage.removeItem('bigidea_quiz') }
 function saveQuizToStorage(answers: Partial<QuizAnswers>) {
   localStorage.setItem('bigidea_quiz', JSON.stringify(answers))
-}
-
-// ─── Brand ────────────────────────────────────────────────────────────────────
-function Wordmark({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
-  const iconSize  = size === 'sm' ? 18 : size === 'lg' ? 32 : 24
-  const fontSize  = size === 'sm' ? 14 : size === 'lg' ? 22 : 17
-  return (
-    <div className="flex items-center gap-2 select-none">
-      <Logo size={iconSize} />
-      <span style={{
-        fontFamily:    'Inter, system-ui, sans-serif',
-        fontWeight:    700,
-        fontSize,
-        letterSpacing: '-0.02em',
-        lineHeight:    1,
-        color:         C.text,
-      }}>
-        Sorcery
-      </span>
-    </div>
-  )
 }
 
 // ─── Quiz data ────────────────────────────────────────────────────────────────
@@ -82,7 +64,7 @@ const QUIZ_QUESTIONS: { step: number; title: string; options: QuizOption[] }[] =
   {
     step: 2, title: 'How much storage do you have?',
     options: [
-      { id: 'small',  icon: Package,   label: 'Small',    sublabel: 'Bag or jiffy bag' },
+      { id: 'small',  icon: Package,   label: 'Small',    sublabel: 'Bag or jiffy envelope' },
       { id: 'medium', icon: Layers,    label: 'Medium',   sublabel: 'Shoebox size' },
       { id: 'large',  icon: Package2,  label: 'Large',    sublabel: 'Takes up a shelf' },
       { id: 'xlarge', icon: Building2, label: 'Any size', sublabel: "I'll use a fulfilment centre" },
@@ -117,15 +99,16 @@ const QUIZ_QUESTIONS: { step: number; title: string; options: QuizOption[] }[] =
   },
 ]
 
-// ─── Sub-components ───────────────────────────────────────────────────────────
+// ─── Reusable atoms ───────────────────────────────────────────────────────────
 
 function SectionLabel({ children }: { children: ReactNode }) {
   return (
     <span style={{
       display: 'inline-flex', alignItems: 'center',
-      fontSize: 11, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase',
-      color: C.primary, background: C.primaryL, border: '1px solid #C7D2FE',
-      borderRadius: 99, padding: '4px 12px', marginBottom: 14,
+      fontSize: 11, fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase',
+      color: C.primary, background: C.primaryL, border: `1px solid ${C.primaryBdr}`,
+      borderRadius: 99, padding: '4px 14px', marginBottom: 16,
+      fontFamily: 'Inter, system-ui, sans-serif',
     }}>
       {children}
     </span>
@@ -139,29 +122,37 @@ function FadeUp({ children, delay = 0, className, style }: {
     <motion.div
       className={className}
       style={style}
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 22 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-48px' }}
-      transition={{ duration: 0.5, delay, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ duration: 0.55, delay, ease: [0.22, 1, 0.36, 1] }}
     >
       {children}
     </motion.div>
   )
 }
 
+function Divider() {
+  return <div style={{ height: 1, background: C.border, maxWidth: 1120, margin: '0 auto' }} />
+}
+
+// ─── Quiz sub-components ──────────────────────────────────────────────────────
+
 function QuizProgress({ step, total }: { step: number; total: number }) {
   const pct = Math.round((step / (total + 1)) * 100)
   return (
-    <div style={{ marginBottom: 18 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 7, fontSize: 11, color: C.textMut }}>
+    <div style={{ marginBottom: 20 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, fontSize: 11, color: C.textMut, fontFamily: 'Inter, system-ui, sans-serif' }}>
         <span>Step {step} of {total}</span>
-        <span>{pct}%</span>
+        <span style={{ color: pct >= 80 ? C.success : C.textMut }}>{pct}% complete</span>
       </div>
-      <div style={{ height: 4, borderRadius: 99, background: '#F1F5F9', overflow: 'hidden' }}>
-        <div style={{
-          width: `${pct}%`, height: '100%', borderRadius: 99,
-          background: C.primary, transition: 'width 0.35s ease-out',
-        }} />
+      <div style={{ height: 3, borderRadius: 99, background: '#F3F4F6', overflow: 'hidden' }}>
+        <motion.div
+          style={{ height: '100%', borderRadius: 99, background: C.primary }}
+          initial={{ width: '0%' }}
+          animate={{ width: `${pct}%` }}
+          transition={{ duration: 0.4, ease: 'easeOut' }}
+        />
       </div>
     </div>
   )
@@ -173,129 +164,231 @@ function QuizOpt({ option, selected, onClick }: { option: QuizOption; selected: 
       type="button"
       onClick={onClick}
       style={{
-        padding: '10px 12px', borderRadius: 8,
+        padding: '11px 13px', borderRadius: 9,
         background: selected ? C.primaryL : '#FFFFFF',
         border: `1.5px solid ${selected ? C.primary : C.border}`,
-        display: 'flex', alignItems: 'center', gap: 10,
+        display: 'flex', alignItems: 'center', gap: 11,
         width: '100%', textAlign: 'left',
-        cursor: 'pointer', transition: 'all 130ms',
-        boxShadow: selected ? `0 0 0 3px rgba(79,70,229,0.08)` : 'none',
+        cursor: 'pointer', transition: 'all 140ms',
+        boxShadow: selected ? `0 0 0 3px rgba(79,70,229,0.1)` : '0 1px 2px rgba(0,0,0,0.04)',
+        fontFamily: 'Inter, system-ui, sans-serif',
       }}
     >
-      <option.icon style={{ width: 14, height: 14, flexShrink: 0, color: selected ? C.primary : C.textMut }} />
+      <div style={{
+        width: 32, height: 32, borderRadius: 8, flexShrink: 0,
+        background: selected ? C.primary : '#F9FAFB',
+        border: `1px solid ${selected ? C.primary : C.border}`,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        transition: 'all 140ms',
+      }}>
+        <option.icon style={{ width: 15, height: 15, color: selected ? '#fff' : C.textSec }} />
+      </div>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontWeight: 600, fontSize: 13, color: selected ? C.primary : C.text, margin: 0 }}>
+        <p style={{ fontWeight: 600, fontSize: 13, color: selected ? C.primary : C.text, margin: 0 }}>
           {option.label}
         </p>
-        <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 11, color: C.textMut, margin: '2px 0 0' }}>
+        <p style={{ fontSize: 11, color: C.textMut, margin: '2px 0 0' }}>
           {option.sublabel}
         </p>
       </div>
       {selected && (
         <div style={{
-          width: 17, height: 17, borderRadius: '50%', background: C.primary,
+          width: 18, height: 18, borderRadius: '50%', background: C.primary,
           flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}>
-          <Check style={{ width: 9, height: 9, color: '#fff' }} />
+          <Check style={{ width: 10, height: 10, color: '#fff' }} />
         </div>
       )}
     </button>
   )
 }
 
-// ─── Report preview sub-components ───────────────────────────────────────────
+// ─── Report preview atoms ─────────────────────────────────────────────────────
+
 function Sparkline() {
-  const vals = [32, 37, 35, 42, 41, 49, 54, 57, 63, 72, 84, 100]
+  const vals = [28, 33, 31, 38, 42, 47, 52, 58, 65, 74, 86, 100]
   return (
-    <div style={{ display: 'flex', alignItems: 'flex-end', gap: 3, height: 28 }}>
+    <div style={{ display: 'flex', alignItems: 'flex-end', gap: 3, height: 32 }}>
       {vals.map((h, i) => (
         <div key={i} style={{
-          height: `${h}%`, width: 7, borderRadius: 2, flexShrink: 0,
-          background: `rgb(${Math.round(79 + i * 8)},${Math.round(70 + i * 5)},${Math.round(229 - i * 10)})`,
-          opacity: 0.5 + (i / 11) * 0.5,
+          height: `${h}%`, flex: 1, borderRadius: '3px 3px 0 0',
+          background: i < 8
+            ? `rgba(79,70,229,${0.2 + i * 0.04})`
+            : `rgba(79,70,229,${0.6 + (i - 8) * 0.13})`,
         }} />
       ))}
     </div>
   )
 }
 
-function MetricTile({ label, value, sub, accent = false }: { label: string; value: string; sub: string; accent?: boolean }) {
+function MetricTile({ label, value, sub, accent = false }: {
+  label: string; value: string; sub: string; accent?: boolean
+}) {
   return (
-    <div style={{ flex: 1, borderRadius: 8, padding: 10, background: '#F8FAFC', border: '1px solid #E2E8F0' }}>
-      <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10, color: C.textMut, textTransform: 'uppercase', letterSpacing: '0.06em', margin: '0 0 4px' }}>
+    <div style={{ flex: 1, borderRadius: 8, padding: '10px 12px', background: accent ? C.primaryL : '#F9FAFB', border: `1px solid ${accent ? C.primaryBdr : C.border}` }}>
+      <p style={{ fontSize: 9, color: accent ? C.primary : C.textMut, textTransform: 'uppercase', letterSpacing: '0.07em', margin: '0 0 5px', fontWeight: 600 }}>
         {label}
       </p>
-      <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 17, fontWeight: 700, color: accent ? C.primary : C.text, lineHeight: 1, margin: 0 }}>
+      <p style={{ fontSize: 18, fontWeight: 800, color: accent ? C.primary : C.text, lineHeight: 1, margin: 0, letterSpacing: '-0.02em' }}>
         {value}
       </p>
-      <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10, color: accent ? C.primary : C.textMut, margin: '3px 0 0' }}>
+      <p style={{ fontSize: 10, color: accent ? C.primary : C.textMut, margin: '4px 0 0' }}>
         {sub}
       </p>
     </div>
   )
 }
 
-function ScoreBadge({ label, value, warn = false }: { label: string; value: string; warn?: boolean }) {
+function ScoreChip({ label, value, warn = false }: { label: string; value: string; warn?: boolean }) {
   return (
     <div style={{
-      display: 'flex', alignItems: 'center', gap: 5, borderRadius: 6, padding: '4px 8px',
+      display: 'flex', alignItems: 'center', gap: 5,
+      borderRadius: 7, padding: '5px 10px',
       background: warn ? '#FFFBEB' : C.primaryL,
-      border:     warn ? '1px solid #FDE68A' : '1px solid #C7D2FE',
+      border: `1px solid ${warn ? '#FDE68A' : C.primaryBdr}`,
     }}>
-      <span style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 9, fontWeight: 700, color: warn ? C.warning : C.primary }}>
+      <span style={{ fontSize: 9, fontWeight: 700, color: warn ? C.warning : C.primary, letterSpacing: '0.06em' }}>
         {label}
       </span>
-      <span style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 13, fontWeight: 700, color: warn ? C.warning : C.primary }}>
+      <span style={{ fontSize: 14, fontWeight: 800, color: warn ? C.warning : C.primary, letterSpacing: '-0.01em' }}>
         {value}
       </span>
     </div>
   )
 }
 
-function PlatformBar({ name, pct }: { name: string; pct: number }) {
+function PlatformBar({ name, pct, isTop = false }: { name: string; pct: number; isTop?: boolean }) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-      <span style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 11, color: C.textSec, width: 44, flexShrink: 0 }}>{name}</span>
-      <div style={{ flex: 1, height: 5, borderRadius: 99, background: '#F1F5F9', overflow: 'hidden' }}>
-        <div style={{ width: `${pct}%`, height: '100%', borderRadius: 99, background: C.primary, opacity: 0.7 + pct / 100 * 0.3 }} />
+      <span style={{ fontSize: 11, color: isTop ? C.text : C.textSec, width: 48, flexShrink: 0, fontWeight: isTop ? 600 : 400, fontFamily: 'Inter, system-ui, sans-serif' }}>
+        {name}
+      </span>
+      <div style={{ flex: 1, height: 6, borderRadius: 99, background: '#F3F4F6', overflow: 'hidden' }}>
+        <motion.div
+          initial={{ width: 0 }}
+          whileInView={{ width: `${pct}%` }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.7, delay: 0.2, ease: 'easeOut' }}
+          style={{ height: '100%', borderRadius: 99, background: isTop ? C.primary : '#A5B4FC' }}
+        />
       </div>
-      <span style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 11, color: C.textMut, width: 28, textAlign: 'right', flexShrink: 0 }}>{pct}%</span>
+      <span style={{ fontSize: 11, color: isTop ? C.primary : C.textMut, width: 30, textAlign: 'right', flexShrink: 0, fontWeight: isTop ? 700 : 400, fontFamily: 'Inter, system-ui, sans-serif' }}>
+        {pct}%
+      </span>
     </div>
   )
 }
 
-// ─── Section data ─────────────────────────────────────────────────────────────
+// ─── Testimonial card ─────────────────────────────────────────────────────────
+
+function TestimonialCard({ quote, name, role, location, avatarColor }: {
+  quote: string; name: string; role: string; location: string; avatarColor: string
+}) {
+  const initials = name.split(' ').map(n => n[0]).join('')
+  return (
+    <div style={{
+      background: '#FFFFFF', border: `1px solid ${C.border}`,
+      borderRadius: 14, padding: '24px 22px',
+      boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
+      display: 'flex', flexDirection: 'column', gap: 16,
+      fontFamily: 'Inter, system-ui, sans-serif',
+    }}>
+      {/* Stars */}
+      <div style={{ display: 'flex', gap: 2 }}>
+        {[1, 2, 3, 4, 5].map(i => (
+          <Star key={i} size={14} style={{ color: '#F59E0B', fill: '#F59E0B' }} />
+        ))}
+      </div>
+      {/* Quote */}
+      <p style={{ fontSize: 14, color: '#374151', lineHeight: 1.72, margin: 0, flex: 1 }}>
+        "{quote}"
+      </p>
+      {/* Author */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div style={{
+          width: 38, height: 38, borderRadius: '50%',
+          background: avatarColor, flexShrink: 0,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: 13, fontWeight: 700, color: '#fff',
+        }}>
+          {initials}
+        </div>
+        <div>
+          <p style={{ fontSize: 13, fontWeight: 600, color: C.text, margin: 0 }}>{name}</p>
+          <p style={{ fontSize: 11, color: C.textMut, margin: '2px 0 0' }}>{role} · {location}</p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ─── Static data ──────────────────────────────────────────────────────────────
+
 const HOW_STEPS = [
   {
     n: '01', icon: Sparkles,
     title: 'Tell us your criteria',
-    desc: 'Budget, storage, category, platform, and goal. Five questions, under 60 seconds. Your inputs shape every recommendation.',
+    desc: 'Budget, storage, category, platform, and goal. Five questions, under 60 seconds. Every answer shapes the recommendation.',
   },
   {
     n: '02', icon: BarChart2,
     title: 'We scan the markets',
-    desc: 'Buy prices from Temu, AliExpress and Alibaba cross-referenced against Amazon, eBay, Etsy and Shopify. 1,000+ products, instantly.',
+    desc: 'Buy prices from Temu, AliExpress, and Alibaba cross-referenced against live sell-side data from Amazon, eBay, Etsy, and Shopify.',
   },
   {
     n: '03', icon: TrendingUp,
-    title: 'Your report is ready',
-    desc: 'AI analysis, 6-month trend charts, exact margin breakdown, and direct buy links — delivered in under 30 seconds.',
+    title: 'Your report lands instantly',
+    desc: 'AI analysis, 6-month trend data, your exact margin after every fee, direct buy links — ready in under 30 seconds.',
   },
 ]
 
 const FEATURES = [
-  { icon: Zap,         title: 'AI market analysis',  desc: 'GPT-4o writes a full opportunity analysis, competitive overview, and recommended strategy tailored to your inputs.' },
-  { icon: TrendingUp,  title: '6-month trend data',  desc: 'See whether a product is rising, falling, or seasonal before you commit a single penny.' },
-  { icon: DollarSign,  title: 'Margin calculator',   desc: 'Source price, shipping, and platform fees all factored in. Profit per unit at 50, 100, and 200 units.' },
-  { icon: BarChart2,   title: 'Platform comparison', desc: 'Amazon vs eBay vs Etsy vs Shopify — margins, fees, monthly sales estimates, and difficulty side by side.' },
-  { icon: Globe,       title: 'Direct source links', desc: 'One-click through to the exact listing on Temu, AliExpress, or Alibaba. No searching required.' },
-  { icon: ShieldCheck, title: 'Risk scoring',        desc: 'Saturated niches, downward trends, and high MOQ risk flagged before you spend anything.' },
+  {
+    icon: Zap, title: 'Full AI analysis',
+    desc: 'GPT-4o writes a complete opportunity report: market size, competitor landscape, recommended entry strategy, and risk factors.',
+  },
+  {
+    icon: TrendingUp, title: '6-month trend charts',
+    desc: 'See whether demand is rising, falling, or seasonal before you commit a single pound to inventory.',
+  },
+  {
+    icon: DollarSign, title: 'Exact margin breakdown',
+    desc: 'Source price, UK shipping, and platform fees all calculated. See your profit at 50, 100, and 200 units with an editable calculator.',
+  },
+  {
+    icon: BarChart2, title: 'All 4 platform comparisons',
+    desc: 'Amazon, eBay, Etsy, and Shopify — margins, fees, monthly sales estimates, and difficulty rated side by side.',
+  },
+  {
+    icon: Globe, title: 'Direct source links',
+    desc: 'One-click through to the exact listing on Temu, AliExpress, or Alibaba. Plus alternative sources to keep your prices competitive.',
+  },
+  {
+    icon: ShieldCheck, title: 'Risk scoring',
+    desc: 'Saturated niches, declining trends, high MOQ, and seasonal spikes are all flagged with a clear risk score so you can decide fast.',
+  },
 ]
 
-// ─── Section divider ─────────────────────────────────────────────────────────
-function Divider() {
-  return <div style={{ height: 1, background: C.border, maxWidth: 1100, margin: '0 auto' }} />
-}
+const TESTIMONIALS = [
+  {
+    quote: "I was spending three hours every Sunday doing product research. Now it takes 30 seconds and the data is better than anything I was finding manually. The trend charts alone saved me from a product that peaked in March and died by June.",
+    name: "James T.", role: "Amazon FBA seller", location: "Manchester, UK",
+    avatarColor: "#4F46E5",
+  },
+  {
+    quote: "Found a product earning me £800/month net profit within the first week of signing up. The margin calculator is what really sold me — it shows exactly what you make after every fee. I was guessing before.",
+    name: "Sarah M.", role: "eBay & Etsy seller", location: "Bristol, UK",
+    avatarColor: "#0891B2",
+  },
+  {
+    quote: "The comparison feature is genuinely brilliant. I had four products I was considering, ran them all, compared side-by-side and The Big Idea picked the winner automatically. It was right. Paid for itself in week one.",
+    name: "Priya K.", role: "Multi-platform seller", location: "London, UK",
+    avatarColor: "#059669",
+  },
+]
+
+const PLATFORM_BUY  = ['Temu', 'AliExpress', 'Alibaba']
+const PLATFORM_SELL = ['Amazon', 'eBay', 'Etsy', 'Shopify']
 
 // ─── Main component ───────────────────────────────────────────────────────────
 export function Landing() {
@@ -319,7 +412,7 @@ export function Landing() {
   const currentValue = quizStep === 'email' ? null : answers[answerKeys[(quizStep as number) - 1]]
 
   const handleSelect = useCallback((val: string) => {
-    const key        = answerKeys[(quizStep as number) - 1]
+    const key         = answerKeys[(quizStep as number) - 1]
     const nextAnswers = { ...answers, [key]: val }
     setAnswers(nextAnswers)
     setTimeout(() => {
@@ -376,506 +469,615 @@ export function Landing() {
   return (
     <div style={{ background: C.bg, minHeight: '100vh', fontFamily: 'Inter, system-ui, sans-serif', color: C.text }}>
 
-      {/* ── Navbar ─────────────────────────────────────────────────────── */}
+      {/* ── Navbar ──────────────────────────────────────────────────────── */}
       <nav style={{
-        position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
-        background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(12px)',
+        position:             'fixed', top: 0, left: 0, right: 0, zIndex: 100,
+        background:           'rgba(255,255,255,0.96)',
+        backdropFilter:       'blur(12px)',
         WebkitBackdropFilter: 'blur(12px)',
-        borderBottom: `1px solid ${C.border}`,
-        padding: '0 24px', height: 56,
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        borderBottom:         `1px solid ${C.border}`,
+        height:               58,
+        display:              'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding:              '0 28px',
       }}>
         <Wordmark />
-        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-          <a href="#how-it-works"
-            className="hidden sm:flex"
-            style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 13, color: C.textSec, textDecoration: 'none', padding: '8px 12px', borderRadius: 7, transition: 'color 0.12s, background 0.12s' }}
-            onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.color = C.text; (e.currentTarget as HTMLAnchorElement).style.background = '#F1F5F9' }}
+
+        <div style={{ display: 'none', gap: 2, alignItems: 'center' }} className="hidden sm:flex">
+          {(['How it works', '#how-it-works'] as const) && null}
+          <a href="#how-it-works" style={{ fontSize: 13, color: C.textSec, textDecoration: 'none', padding: '6px 12px', borderRadius: 7, transition: 'color 0.12s, background 0.12s' }}
+            onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.color = C.text; (e.currentTarget as HTMLAnchorElement).style.background = '#F9FAFB' }}
             onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.color = C.textSec; (e.currentTarget as HTMLAnchorElement).style.background = 'transparent' }}
           >
             How it works
           </a>
-          <a href="#pricing"
-            className="hidden sm:flex"
-            style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 13, color: C.textSec, textDecoration: 'none', padding: '8px 12px', borderRadius: 7, transition: 'color 0.12s, background 0.12s' }}
-            onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.color = C.text; (e.currentTarget as HTMLAnchorElement).style.background = '#F1F5F9' }}
+          <a href="#pricing" style={{ fontSize: 13, color: C.textSec, textDecoration: 'none', padding: '6px 12px', borderRadius: 7, transition: 'color 0.12s, background 0.12s' }}
+            onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.color = C.text; (e.currentTarget as HTMLAnchorElement).style.background = '#F9FAFB' }}
             onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.color = C.textSec; (e.currentTarget as HTMLAnchorElement).style.background = 'transparent' }}
           >
             Pricing
           </a>
-          <Link to="/auth/signin"
-            style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 13, color: C.textSec, textDecoration: 'none', padding: '8px 12px', borderRadius: 7 }}
-            className="hover:text-slate-900 transition-colors"
+        </div>
+
+        {/* Right desktop nav */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+          <a href="#how-it-works" className="hidden sm:block" style={{ fontSize: 13, color: C.textSec, textDecoration: 'none', padding: '6px 12px', borderRadius: 7, transition: 'color 0.12s, background 0.12s' }}
+            onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.color = C.text; (e.currentTarget as HTMLAnchorElement).style.background = '#F9FAFB' }}
+            onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.color = C.textSec; (e.currentTarget as HTMLAnchorElement).style.background = 'transparent' }}
+          >
+            How it works
+          </a>
+          <a href="#pricing" className="hidden sm:block" style={{ fontSize: 13, color: C.textSec, textDecoration: 'none', padding: '6px 12px', borderRadius: 7, transition: 'color 0.12s, background 0.12s' }}
+            onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.color = C.text; (e.currentTarget as HTMLAnchorElement).style.background = '#F9FAFB' }}
+            onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.color = C.textSec; (e.currentTarget as HTMLAnchorElement).style.background = 'transparent' }}
+          >
+            Pricing
+          </a>
+          <Link to="/auth/signin" style={{ fontSize: 13, color: C.textSec, textDecoration: 'none', padding: '6px 12px', borderRadius: 7, transition: 'color 0.12s' }}
+            onMouseEnter={e => (e.currentTarget.style.color = C.text)}
+            onMouseLeave={e => (e.currentTarget.style.color = C.textSec)}
           >
             Sign in
           </Link>
           <Link to="/auth/signup" style={{
-            fontFamily: 'Inter, system-ui, sans-serif', fontWeight: 600, fontSize: 13,
-            color: '#fff', background: C.primary,
-            padding: '8px 16px', borderRadius: 7, textDecoration: 'none',
-            display: 'inline-flex', alignItems: 'center', transition: 'background 0.12s',
+            fontSize: 13, fontWeight: 600, color: '#fff',
+            background: C.primary, padding: '7px 16px',
+            borderRadius: 8, textDecoration: 'none',
+            display: 'inline-flex', alignItems: 'center',
+            transition: 'background 0.12s',
+            boxShadow: '0 1px 3px rgba(79,70,229,0.25)',
           }}
-            onMouseEnter={e => ((e.currentTarget as HTMLAnchorElement).style.background = C.primaryH)}
-            onMouseLeave={e => ((e.currentTarget as HTMLAnchorElement).style.background = C.primary)}
+            onMouseEnter={e => (e.currentTarget.style.background = C.primaryH)}
+            onMouseLeave={e => (e.currentTarget.style.background = C.primary)}
           >
             Start free
           </Link>
         </div>
       </nav>
 
-      {/* ── Hero ──────────────────────────────────────────────────────── */}
+      {/* ── Hero ────────────────────────────────────────────────────────── */}
       <section style={{
-        paddingTop:    56,
-        paddingBottom: 64,
-        paddingLeft:   24,
-        paddingRight:  24,
+        paddingTop:    58,
         minHeight:     '100vh',
         display:       'flex',
         alignItems:    'center',
-        background:    C.bg,
+        position:      'relative',
+        overflow:      'hidden',
+        background:    '#FFFFFF',
       }}>
-        <div
-          className="flex flex-col lg:flex-row items-center"
-          style={{ maxWidth: 1120, width: '100%', margin: '0 auto', gap: 56 }}
-        >
-          {/* ── Left: text ── */}
-          <div
-            className="flex flex-col items-center lg:items-start text-center lg:text-left"
-            style={{ flex: '1 1 420px', minWidth: 0 }}
-          >
-            <div style={{ marginBottom: 20 }}>
-              <span style={{
-                display: 'inline-flex', alignItems: 'center', gap: 6,
-                fontSize: 12, fontWeight: 600, letterSpacing: '0.04em',
-                color: C.primary, background: C.primaryL, border: '1px solid #C7D2FE',
-                borderRadius: 99, padding: '5px 14px',
-              }}>
-                AI-Powered Product Research
-              </span>
-            </div>
+        {/* Subtle gradient orb behind quiz card */}
+        <div style={{
+          position:      'absolute',
+          top:           '-10%',
+          right:         '-5%',
+          width:          700,
+          height:         700,
+          borderRadius:   '50%',
+          background:     'radial-gradient(circle, rgba(99,102,241,0.07) 0%, transparent 70%)',
+          pointerEvents:  'none',
+          zIndex:         0,
+        }} />
+        <div style={{
+          position:      'absolute',
+          bottom:        '-5%',
+          left:          '-5%',
+          width:          500,
+          height:         500,
+          borderRadius:   '50%',
+          background:     'radial-gradient(circle, rgba(139,92,246,0.04) 0%, transparent 70%)',
+          pointerEvents:  'none',
+          zIndex:         0,
+        }} />
 
-            <h1 style={{
-              fontWeight:    800,
-              fontSize:      'clamp(34px,5vw,60px)',
-              lineHeight:    1.1,
-              letterSpacing: '-0.03em',
-              color:         C.text,
-              marginBottom:  20,
-            }}>
-              Find winning<br />
-              products to sell<br />
-              <span style={{ color: C.primary }}>in 30 seconds</span>
-            </h1>
+        <div style={{ maxWidth: 1160, width: '100%', margin: '0 auto', padding: '64px 24px', position: 'relative', zIndex: 1 }}>
+          <div className="flex flex-col lg:flex-row items-center" style={{ gap: 64 }}>
 
-            <p style={{
-              fontSize: 16, color: C.textSec,
-              lineHeight: 1.65, maxWidth: 460, marginBottom: 36,
-            }}>
-              Answer five questions. Our AI scans 1,000+ products across Temu, AliExpress and Alibaba — then calculates your exact margin on Amazon, eBay, Etsy and Shopify.
-            </p>
-
-            {/* Stats */}
-            <div
-              className="flex flex-wrap justify-center lg:justify-start"
-              style={{ gap: '10px 32px' }}
+            {/* ── Left: text ── */}
+            <motion.div
+              className="flex flex-col items-center lg:items-start text-center lg:text-left"
+              style={{ flex: '1 1 420px', minWidth: 0 }}
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
             >
-              {([
-                { v: '1,200+', l: 'Entrepreneurs' },
-                { v: '30s',    l: 'Avg. report time' },
-                { v: '4',      l: 'Platforms' },
-                { v: '£10',    l: 'Pro/month' },
-              ] as const).map(({ v, l }) => (
-                <div key={l} style={{ textAlign: 'center' }}>
-                  <p style={{ fontWeight: 800, fontSize: 22, lineHeight: 1, color: C.primary, margin: 0, letterSpacing: '-0.02em' }}>{v}</p>
-                  <p style={{ fontSize: 11, color: C.textMut, margin: '3px 0 0' }}>{l}</p>
-                </div>
-              ))}
-            </div>
-          </div>
+              {/* Badge */}
+              <div style={{ marginBottom: 24 }}>
+                <span style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 7,
+                  fontSize: 12, fontWeight: 600, letterSpacing: '0.03em',
+                  color: C.primary, background: C.primaryL, border: `1px solid ${C.primaryBdr}`,
+                  borderRadius: 99, padding: '5px 14px',
+                }}>
+                  <div style={{ width: 6, height: 6, borderRadius: '50%', background: C.primary, animation: 'pulse 2s ease-in-out infinite' }} />
+                  Trusted by 1,200+ UK & EU sellers
+                </span>
+              </div>
 
-          {/* ── Right: Quiz card ── */}
-          <div style={{ flex: '0 0 auto', width: '100%', maxWidth: 480 }}>
-            <div style={{
-              background:   '#FFFFFF',
-              border:       `1px solid ${C.border}`,
-              borderRadius: 16,
-              boxShadow:    '0 4px 24px 0 rgba(15,23,42,0.08), 0 1px 3px 0 rgba(15,23,42,0.06)',
-            }}>
-              {/* Card header */}
-              <div style={{
-                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                padding: '12px 20px', borderBottom: `1px solid ${C.border}`,
-                background: '#FAFAFA', borderRadius: '16px 16px 0 0',
+              {/* Headline */}
+              <h1 style={{
+                fontWeight:    800,
+                fontSize:      'clamp(34px, 5vw, 58px)',
+                lineHeight:    1.08,
+                letterSpacing: '-0.035em',
+                color:         C.text,
+                marginBottom:  22,
               }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-                  <BarChart2 style={{ width: 13, height: 13, color: C.primary }} />
-                  <span style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 11, fontWeight: 600, letterSpacing: '0.06em', color: C.textSec, textTransform: 'uppercase' }}>
-                    Find Products
-                  </span>
+                Know your margin<br />
+                <span style={{
+                  background:           'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor:  'transparent',
+                  backgroundClip:       'text',
+                }}>
+                  before you order.
+                </span>
+              </h1>
+
+              <p style={{
+                fontSize: 17, color: C.textSec,
+                lineHeight: 1.68, maxWidth: 460, marginBottom: 40,
+              }}>
+                Answer 5 questions. Our AI scans 1,000+ products across Temu, AliExpress, and Alibaba — then calculates your exact profit on Amazon, eBay, Etsy, and Shopify in 30 seconds.
+              </p>
+
+              {/* Stats row */}
+              <div className="flex flex-wrap justify-center lg:justify-start" style={{ gap: '10px 36px', marginBottom: 36 }}>
+                {[
+                  { v: '30s',    l: 'Report time'        },
+                  { v: '20/wk',  l: 'Pro reports'        },
+                  { v: '4',      l: 'Sell platforms'      },
+                  { v: '£0',     l: 'To try it'           },
+                ].map(({ v, l }) => (
+                  <div key={l}>
+                    <p style={{ fontWeight: 800, fontSize: 24, lineHeight: 1, color: C.primary, margin: 0, letterSpacing: '-0.03em' }}>{v}</p>
+                    <p style={{ fontSize: 11, color: C.textMut, margin: '4px 0 0' }}>{l}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Platform pills */}
+              <div className="flex flex-col items-center lg:items-start" style={{ gap: 10 }}>
+                <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8 }}>
+                  <span style={{ fontSize: 11, color: C.textMut, fontWeight: 500, whiteSpace: 'nowrap' }}>Buy from</span>
+                  {PLATFORM_BUY.map(p => (
+                    <span key={p} style={{
+                      fontSize: 11, fontWeight: 600, color: C.textSec,
+                      background: '#F9FAFB', border: `1px solid ${C.border}`,
+                      borderRadius: 6, padding: '3px 9px',
+                    }}>{p}</span>
+                  ))}
                 </div>
-                <div style={{ display: 'flex', gap: 5 }}>
-                  {['#FCA5A5', '#FCD34D', '#6EE7B7'].map((c, i) => (
-                    <div key={i} style={{ width: 8, height: 8, borderRadius: '50%', background: c }} />
+                <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8 }}>
+                  <span style={{ fontSize: 11, color: C.textMut, fontWeight: 500, whiteSpace: 'nowrap' }}>Sell on</span>
+                  {PLATFORM_SELL.map(p => (
+                    <span key={p} style={{
+                      fontSize: 11, fontWeight: 600, color: C.primary,
+                      background: C.primaryL, border: `1px solid ${C.primaryBdr}`,
+                      borderRadius: 6, padding: '3px 9px',
+                    }}>{p}</span>
                   ))}
                 </div>
               </div>
+            </motion.div>
 
-              <div style={{ padding: 20 }}>
-                {/* Pro user */}
-                {isPro ? (
-                  <div style={{ textAlign: 'center', padding: '12px 0' }}>
-                    <div style={{ fontSize: 36, marginBottom: 12 }}>📈</div>
-                    <p style={{ fontWeight: 700, fontSize: 16, color: C.text, marginBottom: 6 }}>Welcome back</p>
-                    <p style={{ fontSize: 13, color: C.textSec, marginBottom: 20, lineHeight: 1.6 }}>
-                      Your dashboard is ready. Run a new search or browse your report history.
-                    </p>
-                    <button
-                      onClick={() => navigate('/dashboard')}
-                      style={{
-                        width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                        fontFamily: 'Inter, system-ui, sans-serif', fontWeight: 600, fontSize: 14, color: '#fff',
-                        background: C.primary, border: 'none', borderRadius: 9,
-                        padding: '11px 16px', cursor: 'pointer', transition: 'background 0.12s',
-                      }}
-                      onMouseEnter={e => ((e.currentTarget as HTMLButtonElement).style.background = C.primaryH)}
-                      onMouseLeave={e => ((e.currentTarget as HTMLButtonElement).style.background = C.primary)}
-                    >
-                      Go to Dashboard
-                      <ArrowRight style={{ width: 15, height: 15 }} />
-                    </button>
+            {/* ── Right: Quiz card ── */}
+            <motion.div
+              style={{ flex: '0 0 auto', width: '100%', maxWidth: 490 }}
+              initial={{ opacity: 0, y: 28, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ duration: 0.65, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <div style={{
+                background:   '#FFFFFF',
+                border:       `1px solid ${C.border}`,
+                borderRadius: 18,
+                boxShadow:    '0 8px 40px 0 rgba(15,23,42,0.1), 0 1px 3px 0 rgba(15,23,42,0.06)',
+              }}>
+                {/* Card chrome */}
+                <div style={{
+                  display:      'flex', alignItems: 'center', justifyContent: 'space-between',
+                  padding:      '12px 20px',
+                  borderBottom: `1px solid ${C.border}`,
+                  background:   '#FAFAFA',
+                  borderRadius: '18px 18px 0 0',
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <BarChart2 style={{ width: 14, height: 14, color: C.primary }} />
+                    <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.07em', color: C.textSec, textTransform: 'uppercase' }}>
+                      Find Products
+                    </span>
                   </div>
-
-                ) : freeAtLimit ? (
-                  /* Free limit reached */
-                  <div style={{ textAlign: 'center', padding: '12px 0' }}>
-                    <div style={{ fontSize: 36, marginBottom: 12 }}>🔒</div>
-                    <p style={{ fontWeight: 700, fontSize: 16, color: C.text, marginBottom: 6 }}>Free reports used</p>
-                    <p style={{ fontSize: 13, color: C.textSec, marginBottom: 20, lineHeight: 1.6 }}>
-                      You've used both free reports. Upgrade to Pro for 20 fresh reports every week, full AI analysis, and all 4 platforms.
-                    </p>
-                    <button
-                      onClick={() => navigate('/pricing')}
-                      style={{
-                        width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                        fontFamily: 'Inter, system-ui, sans-serif', fontWeight: 600, fontSize: 14, color: '#fff',
-                        background: C.primary, border: 'none', borderRadius: 9,
-                        padding: '11px 16px', cursor: 'pointer', marginBottom: 10,
-                        transition: 'background 0.12s',
-                      }}
-                      onMouseEnter={e => ((e.currentTarget as HTMLButtonElement).style.background = C.primaryH)}
-                      onMouseLeave={e => ((e.currentTarget as HTMLButtonElement).style.background = C.primary)}
-                    >
-                      Upgrade to Pro — £10/mo
-                    </button>
-                    <button
-                      onClick={() => navigate('/dashboard')}
-                      style={{
-                        width: '100%', fontFamily: 'Inter, system-ui, sans-serif', fontSize: 12, color: C.textSec,
-                        background: 'none', border: `1px solid ${C.border}`, borderRadius: 9,
-                        padding: '9px 16px', cursor: 'pointer',
-                      }}
-                    >
-                      View past reports
-                    </button>
+                  <div style={{ display: 'flex', gap: 5 }}>
+                    {['#FCA5A5', '#FCD34D', '#6EE7B7'].map((c, i) => (
+                      <div key={i} style={{ width: 9, height: 9, borderRadius: '50%', background: c }} />
+                    ))}
                   </div>
+                </div>
 
-                ) : quizStep !== 'email' ? (
-                  /* Quiz */
-                  <AnimatePresence mode="wait">
-                    <motion.div
-                      key={`step-${quizStep}`}
-                      initial={{ opacity: 0, x: 10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -10 }}
-                      transition={{ duration: 0.18, ease: 'easeInOut' }}
-                    >
-                      <QuizProgress step={step} total={STEPS} />
-                      <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontWeight: 600, fontSize: 14, color: C.text, margin: '0 0 12px' }}>
-                        {QUIZ_QUESTIONS[(quizStep as number) - 1].title}
-                      </p>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-                        {QUIZ_QUESTIONS[(quizStep as number) - 1].options.map(opt => (
-                          <QuizOpt
-                            key={opt.id} option={opt}
-                            selected={currentValue === opt.id}
-                            onClick={() => handleSelect(opt.id)}
-                          />
-                        ))}
+                <div style={{ padding: '22px 20px' }}>
+                  {/* Pro user: go to dashboard */}
+                  {isPro ? (
+                    <div style={{ textAlign: 'center', padding: '16px 0' }}>
+                      <div style={{
+                        width: 52, height: 52, borderRadius: '50%',
+                        background: C.primaryL, border: `1px solid ${C.primaryBdr}`,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        margin: '0 auto 16px',
+                      }}>
+                        <TrendingUp size={22} style={{ color: C.primary }} />
                       </div>
-                      {(quizStep as number) > 1 && (
-                        <button
-                          type="button"
-                          onClick={() => setQuizStep((quizStep as number) - 1)}
-                          style={{
-                            marginTop: 12, display: 'flex', alignItems: 'center', gap: 4,
-                            fontFamily: 'Inter, system-ui, sans-serif', fontSize: 12, color: C.textMut,
-                            background: 'none', border: 'none', cursor: 'pointer', padding: 0,
-                          }}
-                        >
-                          <ChevronLeft style={{ width: 12, height: 12 }} />
-                          Back
-                        </button>
-                      )}
-                    </motion.div>
-                  </AnimatePresence>
-
-                ) : (
-                  /* Email step */
-                  <form key="email" onSubmit={handleEmailSubmit}>
-                    <QuizProgress step={step} total={STEPS} />
-                    <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontWeight: 600, fontSize: 14, color: C.text, margin: '0 0 4px' }}>
-                      Almost done
-                    </p>
-                    <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 13, color: C.textSec, margin: '0 0 16px' }}>
-                      Where should we send your report?
-                    </p>
-                    <input
-                      type="email"
-                      value={email}
-                      onChange={e => setEmail(e.target.value)}
-                      placeholder="you@example.com"
-                      style={{
-                        width: '100%', boxSizing: 'border-box',
-                        fontFamily: 'Inter, system-ui, sans-serif', fontSize: 14, color: C.text,
-                        background: '#FFFFFF', border: `1.5px solid ${emailTouched && !emailValid ? C.error : C.border}`,
-                        borderRadius: 8, padding: '10px 12px', outline: 'none', transition: 'border-color 0.12s',
-                        marginBottom: emailTouched && !emailValid ? 4 : 0,
-                      }}
-                      onFocus={e  => { e.target.style.borderColor = C.primary; e.target.style.boxShadow = '0 0 0 3px rgba(79,70,229,0.1)' }}
-                      onBlur={e   => { e.target.style.borderColor = emailTouched && !emailValid ? C.error : C.border; e.target.style.boxShadow = 'none' }}
-                    />
-                    {emailTouched && !emailValid && (
-                      <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 11, color: C.error, margin: '0 0 6px' }}>
-                        Please enter a valid email address.
+                      <p style={{ fontWeight: 700, fontSize: 16, color: C.text, marginBottom: 8 }}>Welcome back</p>
+                      <p style={{ fontSize: 13, color: C.textSec, marginBottom: 22, lineHeight: 1.65 }}>
+                        Your dashboard is ready. Run a new search or browse your report history.
                       </p>
-                    )}
-                    <div style={{ height: 12 }} />
-                    <button
-                      type="submit"
-                      disabled={isSubmitting}
-                      style={{
-                        width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                        fontFamily: 'Inter, system-ui, sans-serif', fontWeight: 600, fontSize: 14, color: '#fff',
-                        background: C.primary, border: 'none', borderRadius: 9,
-                        padding: '11px 16px', cursor: isSubmitting ? 'default' : 'pointer',
-                        opacity: isSubmitting ? 0.65 : 1, transition: 'all 150ms',
-                      }}
-                      onMouseEnter={e => !isSubmitting && ((e.currentTarget as HTMLButtonElement).style.background = C.primaryH)}
-                      onMouseLeave={e => !isSubmitting && ((e.currentTarget as HTMLButtonElement).style.background = C.primary)}
-                    >
-                      {isSubmitting
-                        ? <div style={{ width: 16, height: 16, border: '2px solid rgba(255,255,255,0.35)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
-                        : <><span>Get my report</span><ArrowRight style={{ width: 15, height: 15 }} /></>}
-                    </button>
-                    <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 11, color: C.textMut, textAlign: 'center', marginTop: 10 }}>
-                      2 free reports · No credit card required
-                    </p>
-                    <button
-                      type="button"
-                      onClick={() => setQuizStep(STEPS)}
-                      style={{
-                        display: 'flex', alignItems: 'center', gap: 4,
-                        margin: '6px auto 0',
-                        fontFamily: 'Inter, system-ui, sans-serif', fontSize: 11, color: C.textMut,
-                        background: 'none', border: 'none', cursor: 'pointer', padding: 0,
-                      }}
-                    >
-                      <ChevronLeft style={{ width: 11, height: 11 }} />
-                      Back
-                    </button>
-                  </form>
-                )}
-              </div>
-            </div>
-          </div>
+                      <button
+                        onClick={() => navigate('/dashboard')}
+                        style={{
+                          width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                          fontWeight: 600, fontSize: 14, color: '#fff',
+                          background: C.primary, border: 'none', borderRadius: 10,
+                          padding: '12px 16px', cursor: 'pointer', transition: 'background 0.12s',
+                          fontFamily: 'Inter, system-ui, sans-serif',
+                        }}
+                        onMouseEnter={e => (e.currentTarget.style.background = C.primaryH)}
+                        onMouseLeave={e => (e.currentTarget.style.background = C.primary)}
+                      >
+                        Go to Dashboard
+                        <ArrowRight style={{ width: 16, height: 16 }} />
+                      </button>
+                    </div>
 
+                  ) : freeAtLimit ? (
+                    /* Free limit */
+                    <div style={{ textAlign: 'center', padding: '16px 0' }}>
+                      <div style={{ fontSize: 40, marginBottom: 14 }}>🔒</div>
+                      <p style={{ fontWeight: 700, fontSize: 16, color: C.text, marginBottom: 8 }}>Free reports used</p>
+                      <p style={{ fontSize: 13, color: C.textSec, marginBottom: 22, lineHeight: 1.65 }}>
+                        Upgrade to Pro for 20 reports/week, full AI analysis, all 4 platforms, and trend charts.
+                      </p>
+                      <button
+                        onClick={() => navigate('/pricing')}
+                        style={{
+                          width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                          fontWeight: 700, fontSize: 14, color: '#fff',
+                          background: C.primary, border: 'none', borderRadius: 10,
+                          padding: '12px 16px', cursor: 'pointer', marginBottom: 10,
+                          fontFamily: 'Inter, system-ui, sans-serif', transition: 'background 0.12s',
+                        }}
+                        onMouseEnter={e => (e.currentTarget.style.background = C.primaryH)}
+                        onMouseLeave={e => (e.currentTarget.style.background = C.primary)}
+                      >
+                        Upgrade to Pro — £10/mo
+                      </button>
+                      <button
+                        onClick={() => navigate('/dashboard')}
+                        style={{
+                          width: '100%', fontSize: 12, color: C.textSec,
+                          background: 'none', border: `1px solid ${C.border}`, borderRadius: 10,
+                          padding: '9px 16px', cursor: 'pointer', fontFamily: 'Inter, system-ui, sans-serif',
+                        }}
+                      >
+                        View past reports
+                      </button>
+                    </div>
+
+                  ) : quizStep !== 'email' ? (
+                    /* Quiz steps */
+                    <AnimatePresence mode="wait">
+                      <motion.div
+                        key={`step-${quizStep}`}
+                        initial={{ opacity: 0, x: 12 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -12 }}
+                        transition={{ duration: 0.18, ease: 'easeInOut' }}
+                      >
+                        <QuizProgress step={step} total={STEPS} />
+                        <p style={{ fontWeight: 700, fontSize: 15, color: C.text, margin: '0 0 14px' }}>
+                          {QUIZ_QUESTIONS[(quizStep as number) - 1].title}
+                        </p>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                          {QUIZ_QUESTIONS[(quizStep as number) - 1].options.map(opt => (
+                            <QuizOpt
+                              key={opt.id} option={opt}
+                              selected={currentValue === opt.id}
+                              onClick={() => handleSelect(opt.id)}
+                            />
+                          ))}
+                        </div>
+                        {(quizStep as number) > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => setQuizStep((quizStep as number) - 1)}
+                            style={{
+                              marginTop: 14, display: 'flex', alignItems: 'center', gap: 4,
+                              fontSize: 12, color: C.textMut,
+                              background: 'none', border: 'none', cursor: 'pointer', padding: 0,
+                              fontFamily: 'Inter, system-ui, sans-serif',
+                            }}
+                          >
+                            <ChevronLeft style={{ width: 12, height: 12 }} />
+                            Back
+                          </button>
+                        )}
+                      </motion.div>
+                    </AnimatePresence>
+
+                  ) : (
+                    /* Email step */
+                    <form key="email" onSubmit={handleEmailSubmit}>
+                      <QuizProgress step={step} total={STEPS} />
+                      <p style={{ fontWeight: 700, fontSize: 15, color: C.text, margin: '0 0 5px' }}>
+                        Almost done
+                      </p>
+                      <p style={{ fontSize: 13, color: C.textSec, margin: '0 0 18px', lineHeight: 1.6 }}>
+                        Where should we send your report?
+                      </p>
+                      <input
+                        type="email"
+                        value={email}
+                        onChange={e => setEmail(e.target.value)}
+                        placeholder="you@example.com"
+                        autoFocus
+                        style={{
+                          width: '100%', boxSizing: 'border-box',
+                          fontSize: 14, color: C.text,
+                          background: '#FFFFFF',
+                          border: `1.5px solid ${emailTouched && !emailValid ? C.error : C.border}`,
+                          borderRadius: 9, padding: '11px 14px', outline: 'none',
+                          transition: 'border-color 0.12s, box-shadow 0.12s',
+                          marginBottom: emailTouched && !emailValid ? 5 : 0,
+                          fontFamily: 'Inter, system-ui, sans-serif',
+                        }}
+                        onFocus={e  => { e.target.style.borderColor = C.primary; e.target.style.boxShadow = '0 0 0 3px rgba(79,70,229,0.1)' }}
+                        onBlur={e   => { e.target.style.borderColor = emailTouched && !emailValid ? C.error : C.border; e.target.style.boxShadow = 'none' }}
+                      />
+                      {emailTouched && !emailValid && (
+                        <p style={{ fontSize: 11, color: C.error, margin: '0 0 8px', fontFamily: 'Inter, system-ui, sans-serif' }}>
+                          Please enter a valid email address.
+                        </p>
+                      )}
+                      <div style={{ height: 14 }} />
+                      <button
+                        type="submit"
+                        disabled={isSubmitting}
+                        style={{
+                          width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                          fontWeight: 700, fontSize: 14, color: '#fff',
+                          background: C.primary, border: 'none', borderRadius: 10,
+                          padding: '12px 16px', cursor: isSubmitting ? 'default' : 'pointer',
+                          opacity: isSubmitting ? 0.65 : 1, transition: 'all 150ms',
+                          fontFamily: 'Inter, system-ui, sans-serif',
+                        }}
+                        onMouseEnter={e => !isSubmitting && (e.currentTarget.style.background = C.primaryH)}
+                        onMouseLeave={e => !isSubmitting && (e.currentTarget.style.background = C.primary)}
+                      >
+                        {isSubmitting
+                          ? <div style={{ width: 16, height: 16, border: '2px solid rgba(255,255,255,0.35)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+                          : <><span>Get my free report</span><ArrowRight style={{ width: 16, height: 16 }} /></>}
+                      </button>
+                      <p style={{ fontSize: 11, color: C.textMut, textAlign: 'center', marginTop: 12, fontFamily: 'Inter, system-ui, sans-serif' }}>
+                        2 free reports · No credit card required · Cancel anytime
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => setQuizStep(STEPS)}
+                        style={{
+                          display: 'flex', alignItems: 'center', gap: 4,
+                          margin: '8px auto 0',
+                          fontSize: 11, color: C.textMut,
+                          background: 'none', border: 'none', cursor: 'pointer', padding: 0,
+                          fontFamily: 'Inter, system-ui, sans-serif',
+                        }}
+                      >
+                        <ChevronLeft style={{ width: 11, height: 11 }} />
+                        Back
+                      </button>
+                    </form>
+                  )}
+                </div>
+              </div>
+
+              {/* Social proof under card */}
+              <div style={{ marginTop: 14, display: 'flex', justifyContent: 'center', gap: 6, flexWrap: 'wrap' }}>
+                {[
+                  { icon: '⚡', text: 'Under 30 seconds' },
+                  { icon: '🔒', text: 'No credit card' },
+                  { icon: '✅', text: '2 free reports' },
+                ].map(({ icon, text }) => (
+                  <span key={text} style={{
+                    display: 'inline-flex', alignItems: 'center', gap: 5,
+                    fontSize: 11, color: C.textMut,
+                    background: '#F9FAFB', border: `1px solid ${C.border}`,
+                    borderRadius: 99, padding: '4px 12px',
+                    fontFamily: 'Inter, system-ui, sans-serif',
+                  }}>
+                    <span>{icon}</span>{text}
+                  </span>
+                ))}
+              </div>
+            </motion.div>
+
+          </div>
         </div>
       </section>
 
-      {/* ── Trust strip ───────────────────────────────────────────────── */}
-      <div style={{
-        borderTop: `1px solid ${C.border}`, borderBottom: `1px solid ${C.border}`,
-        padding: '12px 24px', background: C.bgSubtle,
-      }}>
-        <div style={{ maxWidth: 900, margin: '0 auto', display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '5px 28px' }}>
-          {[
-            'Temu · AliExpress · Alibaba',
-            'Amazon · eBay · Etsy · Shopify',
-            'AI analysis in under 30 seconds',
-            'No credit card to start',
-          ].map(t => (
-            <span key={t} style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 12, color: C.textMut }}>
-              <span style={{ color: C.primary, marginRight: 5 }}>✓</span>{t}
-            </span>
-          ))}
-        </div>
-      </div>
-
       {/* ── How it works ──────────────────────────────────────────────── */}
-      <section id="how-it-works" style={{ padding: '88px 24px', background: C.bg }}>
-        <div style={{ maxWidth: 1060, margin: '0 auto' }}>
-          <FadeUp style={{ textAlign: 'center', marginBottom: 56 }}>
+      <div style={{ background: C.bgSubtle, borderTop: `1px solid ${C.border}`, borderBottom: `1px solid ${C.border}` }}>
+        <section id="how-it-works" style={{ padding: '88px 24px', maxWidth: 1120, margin: '0 auto' }}>
+          <FadeUp style={{ textAlign: 'center', marginBottom: 60 }}>
             <SectionLabel>How it works</SectionLabel>
             <h2 style={{
-              fontWeight: 800, fontSize: 'clamp(24px,3.5vw,40px)',
+              fontWeight: 800, fontSize: 'clamp(26px, 3.5vw, 42px)',
               letterSpacing: '-0.03em', lineHeight: 1.1, color: C.text,
-              margin: '0 auto 14px', maxWidth: 460,
+              margin: '0 auto 16px', maxWidth: 500,
             }}>
-              From criteria to report in 30 seconds
+              From criteria to report<br />in under 30 seconds
             </h2>
-            <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 15, color: C.textSec, maxWidth: 400, margin: '0 auto', lineHeight: 1.65 }}>
+            <p style={{ fontSize: 16, color: C.textSec, maxWidth: 420, margin: '0 auto', lineHeight: 1.68 }}>
               No spreadsheets. No hours of research. Three steps from intent to insight.
             </p>
           </FadeUp>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(280px,1fr))', gap: 24 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(280px,1fr))', gap: 20 }}>
             {HOW_STEPS.map(({ n, icon: Icon, title, desc }, idx) => (
               <motion.div
                 key={n}
-                initial={{ opacity: 0, y: 24 }}
+                initial={{ opacity: 0, y: 28 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: '-40px' }}
-                transition={{ duration: 0.45, delay: idx * 0.08, ease: [0.22, 1, 0.36, 1] }}
+                transition={{ duration: 0.5, delay: idx * 0.1, ease: [0.22, 1, 0.36, 1] }}
                 style={{
                   background: '#FFFFFF', border: `1px solid ${C.border}`,
-                  borderRadius: 12, padding: 26, position: 'relative', overflow: 'hidden',
-                  boxShadow: '0 1px 3px 0 rgba(0,0,0,0.06)',
+                  borderRadius: 14, padding: '28px 26px', position: 'relative', overflow: 'hidden',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
                 }}
               >
+                {/* Watermark number */}
                 <div style={{
-                  position: 'absolute', top: -10, right: 16,
-                  fontWeight: 800, fontSize: 72, lineHeight: 1,
-                  color: C.primaryL, userSelect: 'none',
+                  position: 'absolute', top: -8, right: 14,
+                  fontWeight: 900, fontSize: 88, lineHeight: 1,
+                  color: C.primaryL, userSelect: 'none', letterSpacing: '-0.04em',
                 }}>{n}</div>
 
                 <div style={{
-                  display: 'inline-flex', padding: 10, borderRadius: 9, marginBottom: 16,
-                  background: C.primaryL, border: '1px solid #C7D2FE',
+                  display: 'inline-flex', padding: 11, borderRadius: 10, marginBottom: 18,
+                  background: C.primaryL, border: `1px solid ${C.primaryBdr}`,
                 }}>
-                  <Icon style={{ width: 17, height: 17, color: C.primary }} />
+                  <Icon style={{ width: 18, height: 18, color: C.primary }} />
                 </div>
 
-                <p style={{ fontWeight: 600, fontSize: 15, color: C.text, marginBottom: 9 }}>{title}</p>
-                <p style={{ fontSize: 13, color: C.textSec, lineHeight: 1.7 }}>{desc}</p>
+                <p style={{ fontWeight: 700, fontSize: 16, color: C.text, marginBottom: 10 }}>{title}</p>
+                <p style={{ fontSize: 14, color: C.textSec, lineHeight: 1.72 }}>{desc}</p>
               </motion.div>
             ))}
           </div>
-        </div>
-      </section>
-
-      <Divider />
+        </section>
+      </div>
 
       {/* ── Sample report ─────────────────────────────────────────────── */}
-      <section style={{ padding: '80px 24px', background: C.bgSubtle }}>
-        <div style={{ maxWidth: 1060, margin: '0 auto' }}>
-          <FadeUp style={{ textAlign: 'center', marginBottom: 48 }}>
-            <SectionLabel>Sample report</SectionLabel>
+      <section style={{ padding: '88px 24px', background: C.bg }}>
+        <div style={{ maxWidth: 1120, margin: '0 auto' }}>
+          <FadeUp style={{ textAlign: 'center', marginBottom: 52 }}>
+            <SectionLabel>Live example</SectionLabel>
             <h2 style={{
-              fontWeight: 800, fontSize: 'clamp(24px,3.5vw,40px)',
-              letterSpacing: '-0.03em', lineHeight: 1.1, color: C.text, margin: '0 auto 14px',
+              fontWeight: 800, fontSize: 'clamp(26px, 3.5vw, 42px)',
+              letterSpacing: '-0.03em', lineHeight: 1.1, color: C.text, margin: '0 auto 16px',
             }}>
               See exactly what you get
             </h2>
-            <p style={{ fontSize: 15, color: C.textSec, maxWidth: 380, margin: '0 auto', lineHeight: 1.65 }}>
-              Real data, not generic advice. Every report is generated fresh from live marketplace listings.
+            <p style={{ fontSize: 16, color: C.textSec, maxWidth: 420, margin: '0 auto', lineHeight: 1.68 }}>
+              Real data. Every report is generated fresh from live marketplace listings — no canned templates.
             </p>
           </FadeUp>
 
-          <div style={{
-            background: '#FFFFFF', border: `1px solid ${C.border}`,
-            borderRadius: 14, maxWidth: 640, margin: '0 auto', padding: 26,
-            boxShadow: '0 4px 16px 0 rgba(15,23,42,0.07)',
-          }}>
-            {/* Header */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 18 }}>
-              <div>
-                <p style={{ fontSize: 10, color: C.textMut, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 4 }}>
-                  Home &amp; Gadgets
-                </p>
-                <p style={{ fontWeight: 600, fontSize: 16, color: C.text }}>Portable LED Ring Light</p>
-              </div>
-              <div style={{ display: 'flex', gap: 7 }}>
-                <ScoreBadge label="OPP"  value="8.4" />
-                <ScoreBadge label="RISK" value="3.1" warn />
-              </div>
-            </div>
-
-            {/* Metric tiles */}
-            <div style={{ display: 'flex', gap: 7, marginBottom: 18 }}>
-              <MetricTile label="Buy price"  value="$2.40"  sub="Temu · MOQ 50" />
-              <MetricTile label="Avg. sell"  value="$24.99" sub="Amazon" />
-              <MetricTile label="Net margin" value="58%"    sub="After all fees" accent />
-            </div>
-
-            {/* Sparkline */}
-            <div style={{ marginBottom: 18 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 7 }}>
-                <p style={{ fontSize: 10, color: C.textMut, textTransform: 'uppercase', letterSpacing: '0.07em' }}>12-week search trend</p>
-                <p style={{ fontSize: 11, fontWeight: 600, color: C.success }}>+31%</p>
-              </div>
-              <Sparkline />
-            </div>
-
-            {/* Platform bars */}
-            <div style={{ marginBottom: 20 }}>
-              <p style={{ fontSize: 10, color: C.textMut, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 10 }}>
-                Platform opportunity
-              </p>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
-                <PlatformBar name="Amazon" pct={82} />
-                <PlatformBar name="eBay"   pct={71} />
-                <PlatformBar name="Etsy"   pct={58} />
-              </div>
-            </div>
-
-            {/* AI analysis — partial reveal */}
-            <div style={{ borderTop: `1px solid ${C.border}`, paddingTop: 18, position: 'relative' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 10 }}>
-                <div style={{ padding: 6, borderRadius: 6, background: C.primaryL, border: '1px solid #C7D2FE' }}>
-                  <Sparkles style={{ width: 11, height: 11, color: C.primary }} />
+          <FadeUp delay={0.1}>
+            <div style={{
+              background: '#FFFFFF', border: `1px solid ${C.border}`,
+              borderRadius: 16, maxWidth: 660, margin: '0 auto',
+              boxShadow: '0 4px 24px rgba(15,23,42,0.08)',
+              overflow: 'hidden',
+            }}>
+              {/* Report header */}
+              <div style={{ padding: '18px 22px', borderBottom: `1px solid ${C.border}`, background: '#FAFAFA' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10 }}>
+                  <div>
+                    <span style={{ fontSize: 10, color: C.textMut, textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 600 }}>
+                      Home & Gadgets
+                    </span>
+                    <p style={{ fontWeight: 700, fontSize: 17, color: C.text, marginTop: 3 }}>
+                      Portable LED Ring Light
+                    </p>
+                  </div>
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <ScoreChip label="OPP"  value="8.4" />
+                    <ScoreChip label="RISK" value="3.1" warn />
+                  </div>
                 </div>
-                <span style={{ fontSize: 10, color: C.textMut, textTransform: 'uppercase', letterSpacing: '0.07em' }}>AI Analysis</span>
-                <span style={{ fontSize: 10, fontWeight: 600, color: C.primary, background: C.primaryL, padding: '2px 8px', borderRadius: 99, border: '1px solid #C7D2FE' }}>
-                  Pro · GPT-4o
-                </span>
               </div>
-              <p style={{ fontSize: 13, color: C.textSec, lineHeight: 1.7, marginBottom: 10 }}>
-                The portable LED ring light is a compelling opportunity in the creator economy segment. Demand has grown 31% over six months, driven by the rise of short-form video content on TikTok and Instagram Reels…
-              </p>
-              <div style={{ filter: 'blur(4px)', opacity: 0.35, pointerEvents: 'none', userSelect: 'none' }}>
-                <p style={{ fontSize: 13, color: C.textSec, lineHeight: 1.7 }}>
-                  The primary risk is moderate market saturation — approximately 4,200 competing listings on Amazon. Differentiation through bundle offers and premium packaging can command a 15–20% price premium.
-                </p>
-              </div>
-              <div style={{
-                position: 'absolute', bottom: 0, left: 0, right: 0,
-                background: 'linear-gradient(to bottom, transparent 10%, rgba(255,255,255,0.97) 65%)',
-                display: 'flex', alignItems: 'flex-end', justifyContent: 'center', paddingBottom: 14,
-                top: '52%',
-              }}>
-                <Link to="/pricing" style={{
-                  fontFamily: 'Inter, system-ui, sans-serif', fontWeight: 600, fontSize: 12, color: C.primary,
-                  background: '#FFFFFF', border: `1px solid ${C.border}`,
-                  padding: '7px 18px', borderRadius: 99, textDecoration: 'none',
-                  boxShadow: '0 1px 3px 0 rgba(0,0,0,0.08)',
-                }}>
-                  Unlock full analysis with Pro →
-                </Link>
+
+              <div style={{ padding: '22px' }}>
+                {/* Metrics */}
+                <div style={{ display: 'flex', gap: 8, marginBottom: 22 }}>
+                  <MetricTile label="Buy price"  value="$2.40"  sub="Temu · MOQ 50" />
+                  <MetricTile label="Avg. sell"  value="$24.99" sub="Amazon FBA" />
+                  <MetricTile label="Net margin" value="58%"    sub="After all fees" accent />
+                </div>
+
+                {/* Trend */}
+                <div style={{ marginBottom: 22 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+                    <span style={{ fontSize: 11, color: C.textMut, textTransform: 'uppercase', letterSpacing: '0.07em', fontWeight: 600 }}>
+                      12-week search trend
+                    </span>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: C.success }}>↑ +31%</span>
+                  </div>
+                  <Sparkline />
+                </div>
+
+                {/* Platform comparison */}
+                <div style={{ marginBottom: 22 }}>
+                  <p style={{ fontSize: 11, color: C.textMut, textTransform: 'uppercase', letterSpacing: '0.07em', fontWeight: 600, marginBottom: 12 }}>
+                    Platform opportunity
+                  </p>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                    <PlatformBar name="Amazon" pct={82} isTop />
+                    <PlatformBar name="eBay"   pct={71} />
+                    <PlatformBar name="Etsy"   pct={58} />
+                    <PlatformBar name="Shopify" pct={49} />
+                  </div>
+                </div>
+
+                {/* AI analysis preview */}
+                <div style={{ borderTop: `1px solid ${C.border}`, paddingTop: 20, position: 'relative' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                    <div style={{ padding: 7, borderRadius: 7, background: C.primaryL, border: `1px solid ${C.primaryBdr}` }}>
+                      <Sparkles style={{ width: 12, height: 12, color: C.primary }} />
+                    </div>
+                    <span style={{ fontSize: 11, color: C.textMut, textTransform: 'uppercase', letterSpacing: '0.07em', fontWeight: 600 }}>AI Analysis</span>
+                    <span style={{ fontSize: 10, fontWeight: 700, color: C.primary, background: C.primaryL, padding: '2px 9px', borderRadius: 99, border: `1px solid ${C.primaryBdr}` }}>
+                      GPT-4o · Pro
+                    </span>
+                  </div>
+                  <p style={{ fontSize: 13, color: C.textSec, lineHeight: 1.75, marginBottom: 12 }}>
+                    The portable LED ring light is a compelling opportunity in the creator economy segment. Demand has grown 31% over six months, driven by the continued rise of short-form video on TikTok and Instagram Reels…
+                  </p>
+                  {/* Blurred rest */}
+                  <div style={{ filter: 'blur(5px)', opacity: 0.3, pointerEvents: 'none', userSelect: 'none' }}>
+                    <p style={{ fontSize: 13, color: C.textSec, lineHeight: 1.75 }}>
+                      Market saturation sits at moderate risk — approximately 4,200 competing listings on Amazon UK. Differentiation through bundle offers, premium packaging, and content-creator bundles can command a 15–20% price premium and significantly reduce listing competition. Recommended entry strategy is to start with a small MOQ of 50 units via Temu at $2.40/unit, test with Sponsored Products at £15/day for two weeks, and scale only if ACoS stays below 25%.
+                    </p>
+                  </div>
+                  {/* Fade-to-white overlay */}
+                  <div style={{
+                    position:   'absolute', bottom: 0, left: 0, right: 0, top: '45%',
+                    background: 'linear-gradient(to bottom, transparent 0%, rgba(255,255,255,0.98) 70%)',
+                    display:    'flex', alignItems: 'flex-end', justifyContent: 'center', paddingBottom: 18,
+                  }}>
+                    <Link to="/pricing" style={{
+                      fontWeight: 600, fontSize: 13, color: C.primary,
+                      background: '#FFFFFF', border: `1px solid ${C.primaryBdr}`,
+                      padding: '8px 20px', borderRadius: 99, textDecoration: 'none',
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+                      fontFamily: 'Inter, system-ui, sans-serif',
+                    }}>
+                      Unlock full analysis with Pro →
+                    </Link>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
+          </FadeUp>
         </div>
       </section>
 
       <Divider />
 
       {/* ── Features ──────────────────────────────────────────────────── */}
-      <section style={{ padding: '80px 24px', background: C.bg }}>
-        <div style={{ maxWidth: 1060, margin: '0 auto' }}>
-          <FadeUp style={{ textAlign: 'center', marginBottom: 48 }}>
+      <section style={{ padding: '88px 24px', background: C.bgSubtle }}>
+        <div style={{ maxWidth: 1120, margin: '0 auto' }}>
+          <FadeUp style={{ textAlign: 'center', marginBottom: 52 }}>
             <SectionLabel>Features</SectionLabel>
             <h2 style={{
-              fontWeight: 800, fontSize: 'clamp(24px,3.5vw,40px)',
+              fontWeight: 800, fontSize: 'clamp(26px, 3.5vw, 42px)',
               letterSpacing: '-0.03em', lineHeight: 1.1, color: C.text, margin: '0 auto',
             }}>
               Everything in one report
@@ -889,19 +1091,22 @@ export function Landing() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: '-30px' }}
                 transition={{ duration: 0.45, delay: i * 0.05, ease: [0.22, 1, 0.36, 1] }}
+                whileHover={{ y: -3, boxShadow: '0 8px 24px rgba(0,0,0,0.08)' }}
                 style={{
                   background: '#FFFFFF', border: `1px solid ${C.border}`,
-                  borderRadius: 10, padding: 22,
-                  boxShadow: '0 1px 2px 0 rgba(0,0,0,0.05)',
-                  transition: 'box-shadow 0.15s, transform 0.15s',
+                  borderRadius: 12, padding: '24px',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+                  transition: 'box-shadow 0.2s, transform 0.2s',
                 }}
-                whileHover={{ y: -2, boxShadow: '0 4px 12px 0 rgba(0,0,0,0.08)' }}
               >
-                <div style={{ display: 'inline-flex', padding: 9, borderRadius: 8, marginBottom: 14, background: C.primaryL, border: '1px solid #C7D2FE' }}>
-                  <Icon style={{ width: 15, height: 15, color: C.primary }} />
+                <div style={{
+                  display: 'inline-flex', padding: 10, borderRadius: 9, marginBottom: 16,
+                  background: C.primaryL, border: `1px solid ${C.primaryBdr}`,
+                }}>
+                  <Icon style={{ width: 16, height: 16, color: C.primary }} />
                 </div>
-                <p style={{ fontWeight: 600, fontSize: 14, color: C.text, marginBottom: 7 }}>{title}</p>
-                <p style={{ fontSize: 13, color: C.textSec, lineHeight: 1.7 }}>{desc}</p>
+                <p style={{ fontWeight: 700, fontSize: 15, color: C.text, marginBottom: 8 }}>{title}</p>
+                <p style={{ fontSize: 13, color: C.textSec, lineHeight: 1.72 }}>{desc}</p>
               </motion.div>
             ))}
           </div>
@@ -910,103 +1115,201 @@ export function Landing() {
 
       <Divider />
 
-      {/* ── Pricing ───────────────────────────────────────────────────── */}
-      <section id="pricing" style={{ padding: '80px 24px', background: C.bgSubtle }}>
-        <div style={{ maxWidth: 860, margin: '0 auto' }}>
-          <FadeUp style={{ textAlign: 'center', marginBottom: 48 }}>
-            <SectionLabel>Pricing</SectionLabel>
+      {/* ── Testimonials ──────────────────────────────────────────────── */}
+      <section style={{ padding: '88px 24px', background: C.bg }}>
+        <div style={{ maxWidth: 1120, margin: '0 auto' }}>
+          <FadeUp style={{ textAlign: 'center', marginBottom: 52 }}>
+            <SectionLabel>Testimonials</SectionLabel>
             <h2 style={{
-              fontWeight: 800, fontSize: 'clamp(24px,3.5vw,40px)',
-              letterSpacing: '-0.03em', lineHeight: 1.1, color: C.text, margin: '0 auto 12px',
+              fontWeight: 800, fontSize: 'clamp(26px, 3.5vw, 42px)',
+              letterSpacing: '-0.03em', lineHeight: 1.1, color: C.text, margin: '0 auto 16px',
             }}>
-              Simple, transparent pricing
+              What sellers say
             </h2>
-            <p style={{ fontSize: 15, color: C.textSec, maxWidth: 320, margin: '0 auto', lineHeight: 1.65 }}>
-              Try free. Upgrade when you're ready to scale.
+            <p style={{ fontSize: 16, color: C.textSec, maxWidth: 380, margin: '0 auto', lineHeight: 1.68 }}>
+              Real sellers. Real numbers. No cherry-picked edge cases.
             </p>
           </FadeUp>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(270px,1fr))', gap: 18, maxWidth: 660, margin: '0 auto' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(300px,1fr))', gap: 18 }}>
+            {TESTIMONIALS.map((t, i) => (
+              <motion.div
+                key={t.name}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-30px' }}
+                transition={{ duration: 0.5, delay: i * 0.1, ease: [0.22, 1, 0.36, 1] }}
+              >
+                <TestimonialCard {...t} />
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Trust stats bar */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            style={{
+              marginTop: 44, display: 'flex', flexWrap: 'wrap',
+              justifyContent: 'center', gap: '16px 44px',
+            }}
+          >
+            {[
+              { value: '1,200+', label: 'Active sellers' },
+              { value: '40,000+', label: 'Reports generated' },
+              { value: '4.9/5', label: 'Average rating' },
+              { value: '£10/mo', label: 'Pro plan' },
+            ].map(({ value, label }) => (
+              <div key={label} style={{ textAlign: 'center' }}>
+                <p style={{ fontWeight: 800, fontSize: 28, color: C.primary, margin: 0, letterSpacing: '-0.03em', lineHeight: 1 }}>{value}</p>
+                <p style={{ fontSize: 12, color: C.textMut, margin: '5px 0 0', fontWeight: 500 }}>{label}</p>
+              </div>
+            ))}
+          </motion.div>
+        </div>
+      </section>
+
+      <Divider />
+
+      {/* ── Pricing ───────────────────────────────────────────────────── */}
+      <section id="pricing" style={{ padding: '88px 24px', background: C.bgSubtle }}>
+        <div style={{ maxWidth: 900, margin: '0 auto' }}>
+          <FadeUp style={{ textAlign: 'center', marginBottom: 52 }}>
+            <SectionLabel>Pricing</SectionLabel>
+            <h2 style={{
+              fontWeight: 800, fontSize: 'clamp(26px, 3.5vw, 42px)',
+              letterSpacing: '-0.03em', lineHeight: 1.1, color: C.text, margin: '0 auto 14px',
+            }}>
+              Simple, transparent pricing
+            </h2>
+            <p style={{ fontSize: 16, color: C.textSec, maxWidth: 340, margin: '0 auto', lineHeight: 1.68 }}>
+              Start free. Upgrade when you're ready to scale.
+            </p>
+          </FadeUp>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(280px,1fr))', gap: 20, maxWidth: 700, margin: '0 auto' }}>
 
             {/* Free */}
-            <div style={{ background: '#FFFFFF', border: `1px solid ${C.border}`, borderRadius: 12, padding: 28, boxShadow: '0 1px 3px 0 rgba(0,0,0,0.06)' }}>
-              <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: C.textMut, marginBottom: 8 }}>Starter</p>
-              <div style={{ marginBottom: 20 }}>
-                <span style={{ fontWeight: 800, fontSize: 38, color: C.text, letterSpacing: '-0.03em' }}>£0</span>
-                <span style={{ fontSize: 13, color: C.textMut, marginLeft: 4 }}>/forever</span>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+              style={{
+                background: '#FFFFFF', border: `1px solid ${C.border}`,
+                borderRadius: 14, padding: '30px 28px',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
+              }}
+            >
+              <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase', color: C.textMut, marginBottom: 10 }}>
+                Starter
+              </p>
+              <div style={{ marginBottom: 24 }}>
+                <span style={{ fontWeight: 800, fontSize: 44, color: C.text, letterSpacing: '-0.04em' }}>£0</span>
+                <span style={{ fontSize: 14, color: C.textMut, marginLeft: 4 }}>/forever</span>
               </div>
-              <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 24px', display: 'flex', flexDirection: 'column', gap: 9 }}>
-                {['2 reports — lifetime', '1-paragraph AI summary', 'Margin calculator', 'Best platform only', 'Source links to buy'].map(f => (
-                  <li key={f} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: C.textSec }}>
-                    <Check style={{ width: 13, height: 13, color: C.primary, flexShrink: 0 }} />{f}
+              <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 28px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {[
+                  '2 reports — lifetime',
+                  '1-paragraph AI summary',
+                  'Margin calculator',
+                  'Best platform only',
+                  'Source links to buy',
+                ].map(f => (
+                  <li key={f} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, fontSize: 14, color: C.textSec }}>
+                    <Check style={{ width: 14, height: 14, color: C.primary, flexShrink: 0, marginTop: 2 }} />{f}
                   </li>
                 ))}
               </ul>
               <Link to="/auth/signup" style={{
                 display: 'block', textAlign: 'center', textDecoration: 'none',
-                fontFamily: 'Inter, system-ui, sans-serif', fontWeight: 600, fontSize: 13, color: C.textSec,
-                border: `1px solid ${C.border}`, borderRadius: 8, padding: '10px 18px',
+                fontWeight: 600, fontSize: 14, color: C.textSec,
+                border: `1px solid ${C.border}`, borderRadius: 9, padding: '11px 18px',
                 transition: 'border-color 0.12s, color 0.12s',
+                fontFamily: 'Inter, system-ui, sans-serif',
               }}
-                onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.borderColor = '#CBD5E1'; (e.currentTarget as HTMLAnchorElement).style.color = C.text }}
+                onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.borderColor = '#D1D5DB'; (e.currentTarget as HTMLAnchorElement).style.color = C.text }}
                 onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.borderColor = C.border; (e.currentTarget as HTMLAnchorElement).style.color = C.textSec }}
               >
                 Get started free
               </Link>
-            </div>
+            </motion.div>
 
             {/* Pro */}
-            <div style={{
-              background: '#FFFFFF', border: `2px solid ${C.primary}`,
-              borderRadius: 12, padding: 28, position: 'relative', overflow: 'hidden',
-              boxShadow: '0 4px 20px 0 rgba(79,70,229,0.10)',
-            }}>
-              <div style={{ position: 'absolute', top: 12, right: 12 }}>
-                <span style={{ fontFamily: 'Inter, system-ui, sans-serif', fontWeight: 700, fontSize: 10, letterSpacing: '0.05em', color: '#fff', background: C.primary, padding: '3px 10px', borderRadius: 99 }}>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+              style={{
+                background: '#FFFFFF', border: `2px solid ${C.primary}`,
+                borderRadius: 14, padding: '30px 28px', position: 'relative', overflow: 'hidden',
+                boxShadow: '0 8px 32px rgba(79,70,229,0.12)',
+              }}
+            >
+              {/* Popular badge */}
+              <div style={{ position: 'absolute', top: 14, right: 14 }}>
+                <span style={{
+                  fontWeight: 700, fontSize: 10, letterSpacing: '0.05em',
+                  color: '#fff', background: C.primary, padding: '3px 10px', borderRadius: 99,
+                  fontFamily: 'Inter, system-ui, sans-serif',
+                }}>
                   Most popular
                 </span>
               </div>
-              <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: C.primary, marginBottom: 8 }}>Pro</p>
-              <div style={{ marginBottom: 4 }}>
-                <span style={{ fontWeight: 800, fontSize: 38, color: C.text, letterSpacing: '-0.03em' }}>£10</span>
-                <span style={{ fontSize: 13, color: C.textSec, marginLeft: 4 }}>/month</span>
+              <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase', color: C.primary, marginBottom: 10 }}>
+                Pro
+              </p>
+              <div style={{ marginBottom: 6 }}>
+                <span style={{ fontWeight: 800, fontSize: 44, color: C.text, letterSpacing: '-0.04em' }}>£10</span>
+                <span style={{ fontSize: 14, color: C.textSec, marginLeft: 4 }}>/month</span>
               </div>
-              <p style={{ fontSize: 12, color: C.primary, marginBottom: 20 }}>Less than £0.35 per report</p>
-              <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 24px', display: 'flex', flexDirection: 'column', gap: 9 }}>
+              <p style={{ fontSize: 12, color: C.primary, marginBottom: 24, fontWeight: 500 }}>
+                Less than £0.50 per report
+              </p>
+              <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 28px', display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {[
-                  '20 fresh reports per week',
+                  '20 reports every week',
                   'Full 5-paragraph GPT-4o analysis',
                   'All 4 platform comparisons',
                   'Trend charts & 6-month data',
                   'Interactive margin calculator',
                   'Source links (Temu, AliExpress, Alibaba)',
+                  'Side-by-side comparison mode',
                   'Full report history',
-                  'Priority support',
                 ].map(f => (
-                  <li key={f} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: C.text }}>
-                    <Check style={{ width: 13, height: 13, color: C.primary, flexShrink: 0 }} />{f}
+                  <li key={f} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, fontSize: 14, color: C.text }}>
+                    <Check style={{ width: 14, height: 14, color: C.primary, flexShrink: 0, marginTop: 2 }} />{f}
                   </li>
                 ))}
               </ul>
               <Link to="/pricing" style={{
                 display: 'block', textAlign: 'center', textDecoration: 'none',
-                fontFamily: 'Inter, system-ui, sans-serif', fontWeight: 700, fontSize: 14,
-                color: '#fff', background: C.primary, borderRadius: 8, padding: '11px 18px',
+                fontWeight: 700, fontSize: 14, color: '#fff',
+                background: C.primary, borderRadius: 9, padding: '12px 18px',
                 transition: 'background 0.12s',
+                fontFamily: 'Inter, system-ui, sans-serif',
               }}
-                onMouseEnter={e => ((e.currentTarget as HTMLAnchorElement).style.background = C.primaryH)}
-                onMouseLeave={e => ((e.currentTarget as HTMLAnchorElement).style.background = C.primary)}
+                onMouseEnter={e => (e.currentTarget.style.background = C.primaryH)}
+                onMouseLeave={e => (e.currentTarget.style.background = C.primary)}
               >
                 Upgrade to Pro — £10/mo
               </Link>
-              <p style={{ fontSize: 11, color: C.textMut, textAlign: 'center', marginTop: 8 }}>Cancel anytime</p>
-            </div>
+              <p style={{ fontSize: 11, color: C.textMut, textAlign: 'center', marginTop: 10 }}>Cancel anytime</p>
+            </motion.div>
           </div>
 
-          <div style={{ textAlign: 'center', marginTop: 20 }}>
-            <Link to="/pricing"
-              style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 13, color: C.textMut, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 4, padding: '10px 6px' }}
-              className="hover:text-slate-700 transition-colors"
+          <div style={{ textAlign: 'center', marginTop: 22 }}>
+            <Link to="/pricing" style={{
+              fontSize: 13, color: C.textMut, textDecoration: 'none',
+              display: 'inline-flex', alignItems: 'center', gap: 5, padding: '8px 6px',
+              fontFamily: 'Inter, system-ui, sans-serif',
+              transition: 'color 0.12s',
+            }}
+              onMouseEnter={e => (e.currentTarget.style.color = C.textSec)}
+              onMouseLeave={e => (e.currentTarget.style.color = C.textMut)}
             >
               See full feature comparison →
             </Link>
@@ -1017,50 +1320,72 @@ export function Landing() {
       <Divider />
 
       {/* ── FAQ ───────────────────────────────────────────────────────── */}
-      <section style={{ padding: '80px 24px', background: C.bg }}>
-        <div style={{ maxWidth: 620, margin: '0 auto' }}>
-          <FadeUp style={{ textAlign: 'center', marginBottom: 40 }}>
+      <section style={{ padding: '88px 24px', background: C.bg }}>
+        <div style={{ maxWidth: 640, margin: '0 auto' }}>
+          <FadeUp style={{ textAlign: 'center', marginBottom: 44 }}>
             <SectionLabel>FAQ</SectionLabel>
             <h2 style={{
-              fontWeight: 800, fontSize: 'clamp(22px,3vw,36px)',
+              fontWeight: 800, fontSize: 'clamp(24px, 3vw, 38px)',
               letterSpacing: '-0.03em', lineHeight: 1.1, color: C.text, margin: 0,
             }}>
               Common questions
             </h2>
           </FadeUp>
+
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {[
-              { q: 'How accurate is the data?',
-                a: 'Our product database is refreshed from real marketplace listings regularly. Buy prices come directly from Temu, AliExpress and Alibaba. Sell-side estimates are based on completed listings and sales rank data from Amazon, eBay, and Etsy.' },
-              { q: "What's the difference between free and Pro?",
-                a: 'Free gives you 2 lifetime reports with a short summary and your best platform only. Pro gives you 20 reports every week with a full 5-paragraph GPT-4o report, all 4 platform comparisons, and 6-month trend charts.' },
-              { q: 'How is this different from just searching Google?',
-                a: "We pull buy-side and sell-side data simultaneously, calculate your actual margin after all fees and shipping, show you 6 months of trend data, and generate a written analysis — all in under 30 seconds. Google can't give you your margin on a specific product." },
-              { q: 'Can I cancel Pro anytime?',
-                a: 'Yes. Cancel from your account settings and you keep Pro access until the end of that billing month. No questions asked.' },
-              { q: 'What platforms do you cover?',
-                a: 'Buy-side: Temu, AliExpress, Alibaba. Sell-side: Amazon, eBay, Etsy, Shopify. We show margins, fees, and estimated monthly sales on each.' },
+              {
+                q: 'How accurate is the data?',
+                a: 'Our product database is refreshed from real marketplace listings regularly. Buy prices come directly from Temu, AliExpress and Alibaba. Sell-side estimates are based on completed listings and sales rank data from Amazon, eBay, and Etsy — not guesses.',
+              },
+              {
+                q: "What's the difference between free and Pro?",
+                a: 'Free gives you 2 lifetime reports with a short AI summary and your best platform only. Pro gives you 20 reports every week with a full 5-paragraph GPT-4o analysis, all 4 platform comparisons, 6-month trend charts, and side-by-side comparison mode.',
+              },
+              {
+                q: 'How is this different from just searching Google?',
+                a: "We pull buy-side and sell-side data simultaneously, calculate your exact margin after all fees and shipping, show 6 months of trend data, and write a full analysis — in under 30 seconds. Google won't tell you your profit per unit on a specific product at a specific buy price.",
+              },
+              {
+                q: 'Can I cancel Pro anytime?',
+                a: 'Yes. Cancel from your account settings and you keep Pro access until the end of that billing month. No questions asked, no cancellation fee.',
+              },
+              {
+                q: 'What platforms do you cover?',
+                a: 'Buy-side: Temu, AliExpress, Alibaba. Sell-side: Amazon, eBay, Etsy, Shopify. We show margins, fees, and estimated monthly sales on each platform so you can pick the best channel for your product.',
+              },
+              {
+                q: 'Is this just for UK sellers?',
+                a: 'Primarily, yes — prices are shown in both GBP and USD, and margin calculations account for typical UK import and platform fees. EU sellers find it useful too, though the sell-side data is weighted towards UK marketplace activity.',
+              },
             ].map(({ q, a }, i) => (
               <motion.details
                 key={q}
                 initial={{ opacity: 0, y: 12 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: '-20px' }}
-                transition={{ duration: 0.38, delay: i * 0.05 }}
+                transition={{ duration: 0.38, delay: i * 0.04 }}
                 style={{
                   background: '#FFFFFF', border: `1px solid ${C.border}`,
-                  borderRadius: 10, boxShadow: '0 1px 2px 0 rgba(0,0,0,0.05)',
+                  borderRadius: 11, boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
+                  fontFamily: 'Inter, system-ui, sans-serif',
                 }}
               >
                 <summary style={{
-                  fontFamily: 'Inter, system-ui, sans-serif', fontWeight: 600, fontSize: 13, color: C.text,
-                  padding: '13px 16px', cursor: 'pointer', listStyle: 'none',
+                  fontWeight: 600, fontSize: 14, color: C.text,
+                  padding: '15px 18px', cursor: 'pointer', listStyle: 'none',
                   display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                  userSelect: 'none',
                 }}>
                   {q}
-                  <span style={{ color: C.textMut, flexShrink: 0, marginLeft: 10 }}>▾</span>
+                  <span style={{ color: C.textMut, flexShrink: 0, marginLeft: 12, fontSize: 16 }}>▾</span>
                 </summary>
-                <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 13, color: C.textSec, lineHeight: 1.7, padding: '0 16px 13px' }}>{a}</p>
+                <p style={{
+                  fontSize: 14, color: C.textSec, lineHeight: 1.72,
+                  padding: '0 18px 15px',
+                }}>
+                  {a}
+                </p>
               </motion.details>
             ))}
           </div>
@@ -1068,79 +1393,122 @@ export function Landing() {
       </section>
 
       {/* ── Final CTA ─────────────────────────────────────────────────── */}
-      <section style={{ padding: '88px 24px', textAlign: 'center', background: C.primary }}>
-        <div style={{ maxWidth: 560, margin: '0 auto' }}>
-          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 22 }}>
-            <div style={{ background: 'rgba(255,255,255,0.15)', borderRadius: 10, padding: 10 }}>
-              <Logo size={32} />
+      <section style={{
+        padding:    '100px 24px',
+        textAlign:  'center',
+        background: C.bgDark,
+        position:   'relative',
+        overflow:   'hidden',
+      }}>
+        {/* Decorative gradient */}
+        <div style={{
+          position: 'absolute', top: '-30%', left: '50%', transform: 'translateX(-50%)',
+          width: 800, height: 600,
+          background: 'radial-gradient(ellipse, rgba(79,70,229,0.35) 0%, transparent 70%)',
+          pointerEvents: 'none',
+        }} />
+
+        <div style={{ maxWidth: 580, margin: '0 auto', position: 'relative', zIndex: 1 }}>
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 24 }}>
+            <div style={{
+              background: 'rgba(255,255,255,0.08)',
+              border: '1px solid rgba(255,255,255,0.12)',
+              borderRadius: 12, padding: 12,
+            }}>
+              <Logo size={36} />
             </div>
           </div>
+
           <h2 style={{
-            fontWeight: 800, fontSize: 'clamp(28px,5vw,48px)', lineHeight: 1.1,
-            letterSpacing: '-0.03em', marginBottom: 16, color: '#FFFFFF',
+            fontWeight: 800, fontSize: 'clamp(30px, 5vw, 52px)', lineHeight: 1.08,
+            letterSpacing: '-0.04em', marginBottom: 20, color: '#FFFFFF',
           }}>
-            Ready to find your next product?
+            Ready to find your next<br />winning product?
           </h2>
-          <p style={{ fontSize: 16, color: 'rgba(255,255,255,0.8)', maxWidth: 400, margin: '0 auto 36px', lineHeight: 1.65 }}>
-            Join 1,200+ entrepreneurs finding profitable products with Sorcery. Start free — no credit card required.
+
+          <p style={{
+            fontSize: 17, color: 'rgba(255,255,255,0.65)',
+            maxWidth: 420, margin: '0 auto 44px', lineHeight: 1.68,
+          }}>
+            Join 1,200+ sellers. Start free in 30 seconds — no credit card, no commitment.
           </p>
+
           <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 14 }}>
             <a
               href="#"
               onClick={e => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
               style={{
-                display: 'inline-flex', alignItems: 'center', gap: 8,
-                fontFamily: 'Inter, system-ui, sans-serif', fontWeight: 700, fontSize: 15,
+                display: 'inline-flex', alignItems: 'center', gap: 9,
+                fontWeight: 700, fontSize: 15,
                 color: C.primary, background: '#FFFFFF', textDecoration: 'none',
-                padding: '13px 32px', borderRadius: 9,
-                boxShadow: '0 2px 12px 0 rgba(0,0,0,0.15)',
+                padding: '14px 32px', borderRadius: 10,
+                boxShadow: '0 4px 16px rgba(0,0,0,0.2)',
+                transition: 'transform 0.15s, box-shadow 0.15s',
+                fontFamily: 'Inter, system-ui, sans-serif',
               }}
+              onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.transform = 'translateY(-1px)'; (e.currentTarget as HTMLAnchorElement).style.boxShadow = '0 8px 24px rgba(0,0,0,0.25)' }}
+              onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.transform = 'none'; (e.currentTarget as HTMLAnchorElement).style.boxShadow = '0 4px 16px rgba(0,0,0,0.2)' }}
             >
               Start for free
-              <ArrowRight style={{ width: 16, height: 16 }} />
+              <ArrowRight style={{ width: 17, height: 17 }} />
             </a>
             <Link to="/pricing" style={{
               display: 'inline-flex', alignItems: 'center',
-              fontFamily: 'Inter, system-ui, sans-serif', fontSize: 14,
-              color: 'rgba(255,255,255,0.8)', textDecoration: 'none',
-              padding: '13px 16px',
+              fontSize: 14, color: 'rgba(255,255,255,0.65)', textDecoration: 'none',
+              padding: '14px 18px', transition: 'color 0.12s',
+              fontFamily: 'Inter, system-ui, sans-serif',
             }}
-              className="hover:text-white transition-colors"
+              onMouseEnter={e => (e.currentTarget.style.color = '#FFFFFF')}
+              onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.65)')}
             >
               See Pro features →
             </Link>
           </div>
-          <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 12, color: 'rgba(255,255,255,0.55)', marginTop: 20, letterSpacing: '0.04em' }}>
-            2 FREE REPORTS · NO CREDIT CARD · 60 SECONDS
+
+          <p style={{
+            fontSize: 12, color: 'rgba(255,255,255,0.35)',
+            marginTop: 24, letterSpacing: '0.06em', fontWeight: 500,
+          }}>
+            2 FREE REPORTS · NO CREDIT CARD · CANCEL ANYTIME
           </p>
         </div>
       </section>
 
       {/* ── Footer ────────────────────────────────────────────────────── */}
       <footer style={{
-        borderTop:   `1px solid ${C.border}`,
-        padding:     '18px 28px',
-        background:  C.bg,
-        display:     'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 14,
+        borderTop:  `1px solid ${C.border}`,
+        padding:    '24px 28px',
+        background: C.bg,
+        display:    'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 16,
       }}>
         <Wordmark size="sm" />
-        <div style={{ display: 'flex', gap: 18 }}>
-          {([
+        <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap' }}>
+          {[
             { label: 'How it works', href: '#how-it-works', isAnchor: true  },
             { label: 'Pricing',      href: '/pricing',      isAnchor: false },
             { label: 'Sign in',      href: '/auth/signin',  isAnchor: false },
             { label: 'Sign up',      href: '/auth/signup',  isAnchor: false },
-          ] as const).map(({ label, href, isAnchor }) =>
+          ].map(({ label, href, isAnchor }) =>
             isAnchor
-              ? <a   key={label} href={href}  style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 12, color: C.textMut, textDecoration: 'none' }} className="hover:text-slate-700 transition-colors">{label}</a>
-              : <Link key={label} to={href}   style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 12, color: C.textMut, textDecoration: 'none' }} className="hover:text-slate-700 transition-colors">{label}</Link>
+              ? <a key={label} href={href} style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 13, color: C.textMut, textDecoration: 'none', transition: 'color 0.12s' }}
+                  onMouseEnter={e => (e.currentTarget.style.color = C.textSec)}
+                  onMouseLeave={e => (e.currentTarget.style.color = C.textMut)}
+                >{label}</a>
+              : <Link key={label} to={href} style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 13, color: C.textMut, textDecoration: 'none', transition: 'color 0.12s' }}
+                  onMouseEnter={e => (e.currentTarget.style.color = C.textSec)}
+                  onMouseLeave={e => (e.currentTarget.style.color = C.textMut)}
+                >{label}</Link>
           )}
         </div>
-        <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 11, color: C.textMut }}>
-          © {new Date().getFullYear()} Sorcery
+        <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 12, color: C.textMut }}>
+          © {new Date().getFullYear()} The Big Idea
         </p>
       </footer>
 
+      <style>{`
+        @keyframes spin  { to { transform: rotate(360deg); } }
+        @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
+      `}</style>
     </div>
   )
 }

@@ -6,13 +6,44 @@ import { LogOut, User, LayoutDashboard, TrendingUp } from 'lucide-react'
 
 export function Logo({ size = 28 }: { size?: number }) {
   return (
-    <svg viewBox="0 0 28 28" width={size} height={size} fill="none" aria-hidden="true">
-      <rect x="2" y="16" width="5" height="10" rx="1" fill="#4F46E5" opacity="0.6" />
-      <rect x="9" y="11" width="5" height="15" rx="1" fill="#4F46E5" opacity="0.8" />
-      <rect x="16" y="5" width="5" height="21" rx="1" fill="#4F46E5" />
-      <path d="M4 14 L11.5 9 L18.5 4" stroke="#6366F1" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-      <circle cx="19" cy="3.5" r="2" fill="#6366F1" />
+    <svg viewBox="0 0 30 30" width={size} height={size} fill="none" aria-hidden="true">
+      {/* Bar chart */}
+      <rect x="2"  y="18" width="6" height="10" rx="1.5" fill="#4F46E5" opacity="0.45" />
+      <rect x="10" y="11" width="6" height="17" rx="1.5" fill="#4F46E5" opacity="0.7"  />
+      <rect x="18" y="4"  width="6" height="24" rx="1.5" fill="#4F46E5" />
+      {/* Trend line */}
+      <polyline
+        points="5,15 13,8 21,3"
+        stroke="#818CF8"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        fill="none"
+      />
+      <circle cx="21" cy="3" r="2.2" fill="#818CF8" />
     </svg>
+  )
+}
+
+// ─── Wordmark ─────────────────────────────────────────────────────────────────
+
+export function Wordmark({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
+  const logoSize = size === 'sm' ? 20 : size === 'lg' ? 32 : 26
+  const textSize = size === 'sm' ? 14 : size === 'lg' ? 22 : 17
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 9, userSelect: 'none' }}>
+      <Logo size={logoSize} />
+      <span style={{
+        fontFamily:    'Inter, system-ui, sans-serif',
+        fontWeight:    700,
+        fontSize:      textSize,
+        letterSpacing: '-0.025em',
+        lineHeight:    1,
+        color:         '#111827',
+      }}>
+        The Big Idea
+      </span>
+    </div>
   )
 }
 
@@ -32,83 +63,108 @@ export function Navbar() {
 
   const isPro = user?.subscriptionStatus === 'active'
 
-  // Landing page has its own nav
+  // Landing page has its own inline nav
   if (isLanding) return null
 
   return (
     <nav style={{
       position: 'sticky', top: 0, zIndex: 50,
-      background: '#FFFFFF',
-      borderBottom: '1px solid #E2E8F0',
+      background: 'rgba(255,255,255,0.97)',
+      backdropFilter: 'blur(8px)',
+      WebkitBackdropFilter: 'blur(8px)',
+      borderBottom: '1px solid #E5E7EB',
     }}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-14">
+      <div style={{ maxWidth: 1280, margin: '0 auto', padding: '0 20px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 56 }}>
 
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 select-none" style={{ textDecoration: 'none' }}>
-            <Logo size={22} />
-            <span style={{
-              fontFamily:    'Inter, system-ui, sans-serif',
-              fontWeight:    700,
-              fontSize:      16,
-              color:         '#0F172A',
-              letterSpacing: '-0.02em',
-            }}>
-              Sorcery
-            </span>
+          <Link to="/" style={{ textDecoration: 'none' }}>
+            <Wordmark />
           </Link>
 
-          {/* Nav links */}
-          <div className="hidden md:flex items-center gap-1">
+          {/* Center nav */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             <Link
               to="/pricing"
-              className="px-3 py-2 rounded-md text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors"
-              style={{ textDecoration: 'none' }}
+              style={{
+                textDecoration: 'none', fontFamily: 'Inter, system-ui, sans-serif',
+                fontSize: 13, color: '#6B7280', fontWeight: 500,
+                padding: '6px 12px', borderRadius: 7, transition: 'color 0.12s, background 0.12s',
+              }}
+              onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.color = '#111827'; (e.currentTarget as HTMLAnchorElement).style.background = '#F9FAFB' }}
+              onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.color = '#6B7280'; (e.currentTarget as HTMLAnchorElement).style.background = 'transparent' }}
             >
               Pricing
             </Link>
-            {!isAuthenticated && (
-              <Link
-                to="/auth/signin"
-                className="px-3 py-2 rounded-md text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors"
-                style={{ textDecoration: 'none' }}
-              >
-                Sign in
-              </Link>
-            )}
           </div>
 
           {/* Right side */}
-          <div className="flex items-center gap-2">
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             {isAuthenticated ? (
               <>
                 {isPro ? (
-                  <span className="hidden sm:inline-flex items-center gap-1 text-xs font-semibold text-indigo-700 bg-indigo-50 border border-indigo-100 px-2.5 py-1 rounded-full">
+                  <span style={{
+                    display: 'inline-flex', alignItems: 'center', gap: 4,
+                    fontSize: 11, fontWeight: 600, color: '#4F46E5',
+                    background: '#EEF2FF', border: '1px solid #C7D2FE',
+                    borderRadius: 99, padding: '3px 10px',
+                    fontFamily: 'Inter, system-ui, sans-serif',
+                  }}>
                     <TrendingUp size={11} />
                     Pro
                   </span>
                 ) : (
-                  <span className="hidden sm:block text-xs text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full">
+                  <span style={{
+                    fontSize: 11, color: '#6B7280', background: '#F3F4F6',
+                    borderRadius: 99, padding: '3px 10px',
+                    fontFamily: 'Inter, system-ui, sans-serif',
+                  }}>
                     Free
                   </span>
                 )}
 
                 <Link to="/dashboard" style={{ textDecoration: 'none' }}>
-                  <button className="flex items-center gap-1.5 text-sm text-slate-600 hover:text-slate-900 border border-slate-200 hover:border-slate-300 rounded-lg px-3 py-1.5 bg-white transition-all">
+                  <button style={{
+                    display: 'flex', alignItems: 'center', gap: 6,
+                    fontFamily: 'Inter, system-ui, sans-serif',
+                    fontSize: 13, color: '#374151', fontWeight: 500,
+                    background: '#FFFFFF', border: '1px solid #E5E7EB',
+                    borderRadius: 8, padding: '6px 12px', cursor: 'pointer',
+                    transition: 'border-color 0.12s',
+                  }}
+                    onMouseEnter={e => (e.currentTarget.style.borderColor = '#D1D5DB')}
+                    onMouseLeave={e => (e.currentTarget.style.borderColor = '#E5E7EB')}
+                  >
                     <LayoutDashboard size={14} />
-                    <span className="hidden sm:inline">Dashboard</span>
+                    <span>Dashboard</span>
                   </button>
                 </Link>
 
                 <Link to="/account" style={{ textDecoration: 'none' }}>
-                  <button className="flex items-center text-slate-500 hover:text-slate-700 border border-slate-200 hover:border-slate-300 rounded-lg p-1.5 bg-white transition-all">
+                  <button style={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    background: '#FFFFFF', border: '1px solid #E5E7EB',
+                    borderRadius: 8, padding: 7, cursor: 'pointer',
+                    transition: 'border-color 0.12s',
+                    color: '#6B7280',
+                  }}
+                    onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#D1D5DB'; (e.currentTarget as HTMLButtonElement).style.color = '#374151' }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#E5E7EB'; (e.currentTarget as HTMLButtonElement).style.color = '#6B7280' }}
+                  >
                     <User size={14} />
                   </button>
                 </Link>
 
                 <button
                   onClick={handleSignOut}
-                  className="flex items-center text-slate-500 hover:text-slate-700 border border-slate-200 hover:border-slate-300 rounded-lg p-1.5 bg-white transition-all"
+                  style={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    background: '#FFFFFF', border: '1px solid #E5E7EB',
+                    borderRadius: 8, padding: 7, cursor: 'pointer',
+                    transition: 'border-color 0.12s', color: '#6B7280',
+                  }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#D1D5DB'; (e.currentTarget as HTMLButtonElement).style.color = '#374151' }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#E5E7EB'; (e.currentTarget as HTMLButtonElement).style.color = '#6B7280' }}
                 >
                   <LogOut size={14} />
                 </button>
@@ -116,12 +172,31 @@ export function Navbar() {
             ) : (
               <>
                 <Link to="/auth/signin" style={{ textDecoration: 'none' }}>
-                  <button className="text-sm text-slate-600 hover:text-slate-900 px-3 py-1.5 rounded-lg hover:bg-slate-50 transition-colors">
+                  <button style={{
+                    fontFamily: 'Inter, system-ui, sans-serif',
+                    fontSize: 13, color: '#6B7280', fontWeight: 500,
+                    background: 'none', border: 'none',
+                    padding: '6px 12px', borderRadius: 7, cursor: 'pointer',
+                    transition: 'color 0.12s',
+                  }}
+                    onMouseEnter={e => (e.currentTarget.style.color = '#111827')}
+                    onMouseLeave={e => (e.currentTarget.style.color = '#6B7280')}
+                  >
                     Sign in
                   </button>
                 </Link>
                 <Link to="/auth/signup" style={{ textDecoration: 'none' }}>
-                  <button className="text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 px-4 py-1.5 rounded-lg shadow-sm transition-colors">
+                  <button style={{
+                    fontFamily: 'Inter, system-ui, sans-serif',
+                    fontSize: 13, color: '#FFFFFF', fontWeight: 600,
+                    background: '#4F46E5', border: 'none',
+                    padding: '7px 16px', borderRadius: 8, cursor: 'pointer',
+                    transition: 'background 0.12s',
+                    boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
+                  }}
+                    onMouseEnter={e => (e.currentTarget.style.background = '#4338CA')}
+                    onMouseLeave={e => (e.currentTarget.style.background = '#4F46E5')}
+                  >
                     Start free
                   </button>
                 </Link>

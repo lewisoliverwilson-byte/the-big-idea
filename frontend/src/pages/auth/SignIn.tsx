@@ -138,7 +138,7 @@ export function SignIn() {
 
   const stageSubtitle = stage === 'reset-confirm'
     ? `Code sent to ${resetEmail}`
-    : 'Sign in to your Sorcery account'
+    : 'Sign in to your account'
 
   return (
     <div style={{
@@ -162,7 +162,7 @@ export function SignIn() {
               letterSpacing: '-0.02em',
               color:         '#0F172A',
             }}>
-              Sorcery
+              The Big Idea
             </span>
           </Link>
 

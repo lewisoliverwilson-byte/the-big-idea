@@ -53,7 +53,7 @@ function TopNav({ user, isPro, onSignOut }: { user: any; isPro: boolean; onSignO
       <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none' }}>
         <Logo size={22} />
         <span style={{ fontFamily: 'Inter, system-ui, sans-serif', fontWeight: 700, fontSize: 15, letterSpacing: '-0.02em', color: C.text }}>
-          Sorcery
+          The Big Idea
         </span>
       </Link>
 

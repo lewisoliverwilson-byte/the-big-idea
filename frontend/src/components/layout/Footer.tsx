@@ -21,7 +21,7 @@ export function Footer() {
               color:         '#0F172A',
               letterSpacing: '-0.02em',
             }}>
-              Sorcery
+              The Big Idea
             </span>
           </div>
 
@@ -43,7 +43,7 @@ export function Footer() {
           </div>
 
           <p style={{ fontSize: 12, color: '#94A3B8' }}>
-            © {new Date().getFullYear()} Sorcery. All rights reserved.
+            © {new Date().getFullYear()} The Big Idea. All rights reserved.
           </p>
         </div>
       </div>

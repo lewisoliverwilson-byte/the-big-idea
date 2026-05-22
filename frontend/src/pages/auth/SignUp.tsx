@@ -122,7 +122,7 @@ export function SignUp() {
           <Link to="/" style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
             <Logo size={36} />
             <span style={{ fontFamily: 'Inter, system-ui, sans-serif', fontWeight: 700, fontSize: 20, letterSpacing: '-0.02em', color: '#0F172A' }}>
-              Sorcery
+              The Big Idea
             </span>
           </Link>
 
