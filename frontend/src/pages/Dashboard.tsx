@@ -15,7 +15,7 @@ import type { CSSProperties } from 'react'
 
 // ─── Design tokens ────────────────────────────────────────────────────────────
 const C = {
-  bg:      '#04080A',
+  bg:      '#070511',
   border:  'rgba(139,92,246,0.15)',
   borderG: 'rgba(139,92,246,0.40)',
   purple:  '#8B5CF6',

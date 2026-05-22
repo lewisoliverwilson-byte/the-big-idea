@@ -443,7 +443,7 @@ export function Landing() {
   const emailValid = email.includes('@') && email.includes('.') && email.length > 5
 
   return (
-    <div style={{ background: '#04080F', minHeight: '100vh', fontFamily: 'Outfit,sans-serif', color: C.text, position: 'relative', overflow: 'hidden' }}>
+    <div style={{ background: C.bg, minHeight: '100vh', fontFamily: 'Outfit,sans-serif', color: C.text, position: 'relative', overflow: 'hidden' }}>
 
       {/* ── Castle background photo ───────────────────────────────────── */}
       <CastleBackground />
@@ -1157,13 +1157,19 @@ export function Landing() {
         {/* ── FAQ ────────────────────────────────────────────────────── */}
         <section style={{ padding: '80px 24px' }}>
           <div style={{ maxWidth: 640, margin: '0 auto' }}>
-            <h2 style={{
-              fontFamily:    '"Barlow Condensed","Arial Narrow",sans-serif', fontWeight: 700,
-              textTransform: 'uppercase', fontSize: 'clamp(28px,4vw,46px)',
-              letterSpacing: '-0.01em', color: C.text, textAlign: 'center', marginBottom: 48,
-            }}>
-              Common Questions
-            </h2>
+            <div style={{ textAlign: 'center', marginBottom: 48 }}>
+              <p style={{ fontFamily: '"DM Mono",monospace', fontSize: 10, letterSpacing: '0.14em', color: C.textMuted, marginBottom: 14 }}>
+                THE GRIMOIRE
+              </p>
+              <h2 style={{
+                fontFamily:    '"Barlow Condensed","Arial Narrow",sans-serif', fontWeight: 700,
+                textTransform: 'uppercase', fontSize: 'clamp(28px,4vw,46px)',
+                letterSpacing: '-0.01em', lineHeight: 0.97, margin: 0,
+              }}>
+                <span style={{ color: C.text }}>Common</span>{' '}
+                <span style={GTEXT}>Questions</span>
+              </h2>
+            </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {[
                 { q: 'How accurate is the data?',
