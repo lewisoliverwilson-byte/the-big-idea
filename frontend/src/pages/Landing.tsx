@@ -142,9 +142,8 @@ function QuizProgress({ step, total }: { step: number; total: number }) {
   const pct = Math.round((step / (total + 1)) * 100)
   return (
     <div style={{ marginBottom: 20 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, fontSize: 11, color: C.textMut, fontFamily: 'Inter, system-ui, sans-serif' }}>
+      <div style={{ marginBottom: 8, fontSize: 11, color: C.textMut, fontFamily: 'Inter, system-ui, sans-serif' }}>
         <span>Step {step} of {total}</span>
-        <span style={{ color: pct >= 80 ? C.success : C.textMut }}>{pct}% complete</span>
       </div>
       <div style={{ height: 3, borderRadius: 99, background: '#F3F4F6', overflow: 'hidden' }}>
         <motion.div
