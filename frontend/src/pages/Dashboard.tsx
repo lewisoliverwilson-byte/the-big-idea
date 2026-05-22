@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { signOut } from 'aws-amplify/auth'
 import { useAuthStore } from '../store/authStore'
 import { getMyReports, submitSearch, deleteAllReports } from '../services/api'
 import { useReportStore } from '../store/reportStore'
 import { SearchForm } from '../components/search/SearchForm'
 import { PaywallModal } from '../components/ui/PaywallModal'
 import { UpgradeBanner } from '../components/ui/UpgradeBanner'
-import { ScoreBadge } from '../components/ui/Badge'
 import { formatDate, USD_TO_GBP } from '../utils/formatters'
 import { getQuizFromStorage, clearQuizFromStorage } from './Landing'
 import { SearchParams, SellPlatform } from '../types'
@@ -15,32 +15,39 @@ import type { CSSProperties } from 'react'
 
 // ─── Design tokens ────────────────────────────────────────────────────────────
 const C = {
-  bg:      '#070511',
+  bg:      '#04080A',
   border:  'rgba(139,92,246,0.15)',
+  borderG: 'rgba(139,92,246,0.40)',
   purple:  '#8B5CF6',
   purpleB: '#A78BFA',
   cyan:    '#22D3EE',
+  gold:    '#F59E0B',
   text:    '#F0EEFF',
   textDim: '#9B8ECF',
   textMut: '#5A4F7A',
+  green:   '#34D399',
+  amber:   '#FBBF24',
+  red:     '#F87171',
 }
 const GRAD = 'linear-gradient(135deg, #C084FC 0%, #818CF8 50%, #22D3EE 100%)'
 const GBTN = 'linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%)'
-
+const GTEXT: CSSProperties = {
+  background: GRAD, WebkitBackgroundClip: 'text',
+  WebkitTextFillColor: 'transparent', backgroundClip: 'text',
+}
 const GLASS: CSSProperties = {
-  background:           'rgba(14,10,28,0.80)',
-  backdropFilter:       'blur(20px)',
-  WebkitBackdropFilter: 'blur(20px)',
-  border:               `1px solid ${C.border}`,
-  borderRadius:         20,
-  boxShadow:            '0 0 0 1px rgba(139,92,246,0.06), 0 16px 32px rgba(0,0,0,0.5)',
+  background: 'rgba(10,6,22,0.82)',
+  backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
+  border: `1px solid ${C.border}`,
+  borderRadius: 16,
+  boxShadow: '0 0 0 1px rgba(139,92,246,0.06), 0 16px 40px rgba(0,0,0,0.55)',
 }
 
 // ─── Deterministic starfield ───────────────────────────────────────────────────
-const STARS = Array.from({ length: 30 }, (_, i) => {
+const STARS = Array.from({ length: 28 }, (_, i) => {
   const g = 137.508
   return {
-    left:  `${((i * g)        % 100).toFixed(1)}%`,
+    left:  `${((i * g) % 100).toFixed(1)}%`,
     top:   `${((i * g * 0.61) % 100).toFixed(1)}%`,
     size:  [1, 1, 1.5][i % 3],
     delay: `${((i * 0.37) % 4.5).toFixed(2)}s`,
@@ -48,89 +55,282 @@ const STARS = Array.from({ length: 30 }, (_, i) => {
   }
 })
 
-// ─── Weekly quota bar ─────────────────────────────────────────────────────────
-function WeeklyQuotaBar({ used, limit, resetAt }: { used: number; limit: number; resetAt?: string }) {
-  const remaining = Math.max(0, limit - used)
-  const pct       = Math.min(100, Math.round((used / limit) * 100))
-  const resetDate = resetAt ? new Date(resetAt) : null
-  const daysUntilReset = resetDate
+// ─── Logo mark (SVG brand mark) ───────────────────────────────────────────────
+function LogoMark({ size = 28 }: { size?: number }) {
+  return (
+    <svg viewBox="0 0 100 100" width={size} height={size} aria-hidden="true">
+      <path d="M 29,86 A 42,42 0 1,1 71,86" fill="none" stroke="#DDD6FE" strokeWidth="2.5" strokeLinecap="round"/>
+      <path d="M 33,79 A 34,34 0 1,1 67,79" fill="none" stroke="#DDD6FE" strokeWidth="1" strokeLinecap="round" opacity="0.28"/>
+      <path d="M 16,50 C 20,28 80,28 84,50 C 80,72 20,72 16,50 Z" fill="none" stroke="#DDD6FE" strokeWidth="2"/>
+      <polygon points="50,39 58,50 50,61 42,50" fill="#7C3AED"/>
+      <circle cx="50" cy="50" r="3.5" fill="#DDD6FE"/>
+    </svg>
+  )
+}
+
+// ─── Photo background ─────────────────────────────────────────────────────────
+function DashboardBackground() {
+  return (
+    <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none', overflow: 'hidden' }}>
+      <img
+        src="/assets/castle-forest.png"
+        alt=""
+        style={{
+          position: 'absolute', inset: 0,
+          width: '100%', height: '100%',
+          objectFit: 'cover', objectPosition: 'center 30%',
+          filter: 'brightness(0.22) saturate(0.7)',
+        }}
+      />
+      {/* Deep overlay */}
+      <div style={{
+        position: 'absolute', inset: 0,
+        background: 'linear-gradient(180deg, rgba(4,8,10,0.72) 0%, rgba(4,8,10,0.45) 50%, rgba(4,8,10,0.80) 100%)',
+      }}/>
+      {/* Radial purple glow — top center */}
+      <div style={{
+        position: 'absolute', top: '-5%', left: '50%', transform: 'translateX(-50%)',
+        width: 700, height: 450,
+        background: 'radial-gradient(ellipse, rgba(124,58,237,0.12) 0%, transparent 70%)',
+        borderRadius: '50%',
+      }}/>
+    </div>
+  )
+}
+
+// ─── Top navigation bar ────────────────────────────────────────────────────────
+function TopNav({
+  user, isPro, onSignOut,
+}: {
+  user: any; isPro: boolean; onSignOut: () => void
+}) {
+  return (
+    <nav style={{
+      position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
+      height: 58,
+      background: 'rgba(4,8,10,0.88)',
+      backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
+      borderBottom: `1px solid ${C.border}`,
+      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      padding: '0 24px',
+    }}>
+      {/* Left — logo + wordmark */}
+      <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
+        <LogoMark size={26} />
+        <span style={{
+          fontFamily: '"Cinzel Decorative", "Cinzel", serif',
+          fontWeight: 700, fontSize: 16, letterSpacing: '0.06em', color: '#DDD6FE',
+        }}>
+          Sorcery
+        </span>
+      </Link>
+
+      {/* Right — tier + user + sign out */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        {isPro && (
+          <span style={{
+            display: 'inline-flex', alignItems: 'center', gap: 6,
+            background: GBTN,
+            borderRadius: 99, padding: '4px 12px',
+            fontSize: 11, fontWeight: 700, color: '#fff',
+            boxShadow: '0 0 12px rgba(124,58,237,0.3)',
+          }}>
+            ✦ Sorcerer
+          </span>
+        )}
+        {user?.fullName && (
+          <span style={{ fontSize: 13, color: C.textDim, maxWidth: 160, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            {user.fullName}
+          </span>
+        )}
+        <button
+          onClick={onSignOut}
+          style={{
+            fontSize: 12, color: C.textMut,
+            background: 'none', border: `1px solid ${C.border}`,
+            borderRadius: 8, padding: '5px 12px', cursor: 'pointer',
+            transition: 'color 0.15s, border-color 0.15s',
+          }}
+          onMouseEnter={e => {
+            (e.currentTarget as HTMLButtonElement).style.color = C.text
+            ;(e.currentTarget as HTMLButtonElement).style.borderColor = C.borderG
+          }}
+          onMouseLeave={e => {
+            (e.currentTarget as HTMLButtonElement).style.color = C.textMut
+            ;(e.currentTarget as HTMLButtonElement).style.borderColor = C.border
+          }}
+        >
+          Sign out
+        </button>
+      </div>
+    </nav>
+  )
+}
+
+// ─── Quota bar ────────────────────────────────────────────────────────────────
+function QuotaBar({ used, limit, resetAt }: { used: number; limit: number; resetAt?: string }) {
+  const remaining    = Math.max(0, limit - used)
+  const pct          = Math.min(100, Math.round((used / limit) * 100))
+  const resetDate    = resetAt ? new Date(resetAt) : null
+  const daysLeft     = resetDate
     ? Math.max(0, Math.ceil((resetDate.getTime() + 7 * 86400000 - Date.now()) / 86400000))
     : 7
 
-  const barColor = remaining === 0 ? '#F87171' : remaining <= 3 ? '#FBBF24' : '#34D399'
+  const barColor = remaining === 0 ? C.red : remaining <= 4 ? C.amber : C.green
 
   return (
-    <div style={{ ...GLASS, padding: '16px 20px' }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ fontSize: 14 }}>✦</span>
-          <span style={{ fontSize: 13, fontWeight: 600, color: C.text }}>Weekly spells</span>
-        </div>
-        <span style={{ fontSize: 11, color: C.textDim }}>
-          Resets in {daysUntilReset} day{daysUntilReset !== 1 ? 's' : ''}
+    <div style={{ ...GLASS, padding: '14px 18px', marginBottom: 16 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+        <span style={{ fontSize: 11, fontWeight: 600, color: C.textDim, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+          Weekly Spells
+        </span>
+        <span style={{ fontSize: 11, color: C.textMut }}>
+          Resets in {daysLeft}d
         </span>
       </div>
-      <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 8 }}>
-        <span style={{ fontSize: 28, fontWeight: 700, color: C.text, lineHeight: 1 }}>{remaining}</span>
-        <span style={{ fontSize: 12, color: C.textDim }}>/ {limit} remaining</span>
+      <div style={{ display: 'flex', alignItems: 'flex-end', gap: 6, marginBottom: 8 }}>
+        <span style={{ fontSize: 30, fontWeight: 700, lineHeight: 1, color: C.text }}>{remaining}</span>
+        <span style={{ fontSize: 12, color: C.textMut, paddingBottom: 4 }}>/ {limit} remaining</span>
       </div>
-      <div style={{ height: 4, background: 'rgba(139,92,246,0.12)', borderRadius: 2, overflow: 'hidden' }}>
-        <div style={{ height: '100%', borderRadius: 2, background: barColor, width: `${pct}%`, transition: 'width 0.5s' }} />
+      <div style={{ height: 3, background: 'rgba(139,92,246,0.10)', borderRadius: 99, overflow: 'hidden' }}>
+        <div style={{ height: '100%', width: `${pct}%`, background: barColor, borderRadius: 99, transition: 'width 0.6s' }} />
       </div>
     </div>
   )
 }
 
-// ─── Tier badge ───────────────────────────────────────────────────────────────
-function TierBadge({ tier }: { tier: 'free' | 'pro' }) {
-  if (tier === 'pro') {
-    return (
-      <span style={{
-        display:    'inline-flex',
-        alignItems: 'center',
-        gap:        4,
-        background: GRAD,
-        borderRadius: 99,
-        padding:    '2px 10px',
-        fontSize:   10,
-        fontWeight: 700,
-        color:      '#fff',
-      }}>
-        ✦ Pro
-      </span>
-    )
-  }
+// ─── Stat card ────────────────────────────────────────────────────────────────
+function StatCard({ label, value, accent = false }: { label: string; value: string | number; accent?: boolean }) {
   return (
-    <span style={{
-      display:    'inline-flex',
-      alignItems: 'center',
-      background: 'rgba(90,79,122,0.25)',
-      border:     '1px solid rgba(139,92,246,0.2)',
-      borderRadius: 99,
-      padding:    '2px 10px',
-      fontSize:   10,
-      fontWeight: 600,
-      color:      C.textDim,
+    <div style={{
+      ...GLASS, padding: '14px 18px',
+      display: 'flex', flexDirection: 'column', gap: 4,
+      borderRadius: 12,
     }}>
-      Free
-    </span>
+      <span style={{ fontSize: 10, letterSpacing: '0.08em', textTransform: 'uppercase', color: C.textMut }}>
+        {label}
+      </span>
+      <span style={accent ? { ...GTEXT, fontSize: 22, fontWeight: 700, lineHeight: 1 } : { fontSize: 22, fontWeight: 700, lineHeight: 1, color: C.text }}>
+        {value}
+      </span>
+    </div>
+  )
+}
+
+// ─── Report row ────────────────────────────────────────────────────────────────
+function oppColor(score: number) {
+  if (score >= 7.5) return C.green
+  if (score >= 5)   return C.amber
+  return C.red
+}
+function riskColor(score: number) {
+  if (score <= 3)   return C.green
+  if (score <= 6)   return C.amber
+  return C.red
+}
+
+function ReportRow({ report }: { report: any }) {
+  const oColor = oppColor(report.opportunityScore)
+  const rColor = riskColor(report.riskScore)
+
+  return (
+    <div style={{ borderBottom: `1px solid ${C.border}` }}>
+      <Link
+        to={`/report/${report.id}`}
+        style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 14, padding: '14px 24px', transition: 'background 0.15s' }}
+        onMouseEnter={e => (e.currentTarget.style.background = 'rgba(139,92,246,0.06)')}
+        onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+      >
+        {/* Opportunity score indicator */}
+        <div style={{
+          width: 4, height: 36, borderRadius: 99, flexShrink: 0,
+          background: oColor,
+          boxShadow: `0 0 6px ${oColor}60`,
+        }} />
+
+        {/* Product info */}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 3 }}>
+            <span style={{ fontSize: 13, fontWeight: 600, color: C.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {report.productName}
+            </span>
+            {report.tier === 'pro' && (
+              <span style={{
+                fontSize: 9, fontWeight: 700, color: '#C4B5FD',
+                background: 'rgba(139,92,246,0.15)', border: '1px solid rgba(139,92,246,0.25)',
+                borderRadius: 99, padding: '1px 7px', flexShrink: 0,
+              }}>PRO</span>
+            )}
+          </div>
+          <span style={{ fontSize: 11, color: C.textMut }}>
+            {report.category} · {formatDate(report.createdAt)}
+          </span>
+        </div>
+
+        {/* Scores */}
+        <div style={{ display: 'flex', gap: 10, flexShrink: 0 }}>
+          <div style={{ textAlign: 'center', minWidth: 34 }}>
+            <div style={{ fontSize: 15, fontWeight: 700, color: oColor, lineHeight: 1 }}>
+              {report.opportunityScore.toFixed(1)}
+            </div>
+            <div style={{ fontSize: 9, color: C.textMut, marginTop: 2 }}>OPP</div>
+          </div>
+          <div style={{ textAlign: 'center', minWidth: 34 }}>
+            <div style={{ fontSize: 15, fontWeight: 700, color: rColor, lineHeight: 1 }}>
+              {report.riskScore.toFixed(1)}
+            </div>
+            <div style={{ fontSize: 9, color: C.textMut, marginTop: 2 }}>RISK</div>
+          </div>
+          <div style={{ color: C.textMut, fontSize: 18, lineHeight: 1, alignSelf: 'center', marginLeft: 4 }}>›</div>
+        </div>
+      </Link>
+    </div>
+  )
+}
+
+// ─── Empty grimoire state ─────────────────────────────────────────────────────
+function EmptyGrimoire() {
+  return (
+    <div style={{ textAlign: 'center', padding: '56px 24px' }}>
+      {/* Arcane orb illustration */}
+      <div style={{
+        width: 64, height: 64, borderRadius: '50%',
+        background: 'radial-gradient(circle at 40% 35%, rgba(167,139,250,0.3) 0%, rgba(124,58,237,0.12) 50%, transparent 70%)',
+        border: `1px solid ${C.border}`,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        margin: '0 auto 20px',
+        boxShadow: '0 0 20px rgba(124,58,237,0.12)',
+      }}>
+        <svg viewBox="0 0 100 100" width={32} height={32} style={{ opacity: 0.55 }}>
+          <path d="M 29,86 A 42,42 0 1,1 71,86" fill="none" stroke="#DDD6FE" strokeWidth="2.5" strokeLinecap="round"/>
+          <path d="M 16,50 C 20,28 80,28 84,50 C 80,72 20,72 16,50 Z" fill="none" stroke="#DDD6FE" strokeWidth="2"/>
+          <polygon points="50,39 58,50 50,61 42,50" fill="#7C3AED"/>
+          <circle cx="50" cy="50" r="3.5" fill="#DDD6FE"/>
+        </svg>
+      </div>
+      <p style={{ fontSize: 15, fontWeight: 600, color: C.text, marginBottom: 6 }}>
+        Your grimoire is empty
+      </p>
+      <p style={{ fontSize: 13, color: C.textDim, lineHeight: 1.6, maxWidth: 260, margin: '0 auto' }}>
+        Cast your first spell using the form on the left. Your discoveries will appear here.
+      </p>
+    </div>
   )
 }
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
 export function Dashboard() {
-  const { user }      = useAuthStore()
-  const navigate      = useNavigate()
-  const queryClient   = useQueryClient()
+  const { user }       = useAuthStore()
+  const navigate       = useNavigate()
+  const queryClient    = useQueryClient()
   const { setCurrentReportId, setIsGenerating } = useReportStore()
-  const [showPaywall, setShowPaywall] = useState(false)
+  const [showPaywall, setShowPaywall]   = useState(false)
+  const [confirmClear, setConfirmClear] = useState(false)
 
   const { data: reports, isLoading: reportsLoading } = useQuery({
     queryKey: ['my-reports'],
     queryFn:  getMyReports,
   })
-
-  const [confirmClear, setConfirmClear] = useState(false)
 
   const clearHistoryMutation = useMutation({
     mutationFn: deleteAllReports,
@@ -140,11 +340,13 @@ export function Dashboard() {
     },
   })
 
-  const isPro          = user?.subscriptionStatus === 'active'
+  const isPro           = user?.subscriptionStatus === 'active'
   const freeReportsLeft = Math.max(0, 2 - (user?.reportsUsedFree || 0))
-  const proUsed        = user?.proReportsUsedThisWeek || 0
-  const proLeft        = Math.max(0, 20 - proUsed)
-  const isAtLimit      = isPro ? proLeft === 0 : freeReportsLeft === 0
+  const proUsed         = user?.proReportsUsedThisWeek || 0
+  const proLeft         = Math.max(0, 20 - proUsed)
+  const isAtLimit       = isPro ? proLeft === 0 : freeReportsLeft === 0
+
+  const firstName = user?.fullName ? user.fullName.split(' ')[0] : null
 
   // Auto-run search from quiz answers stored in localStorage
   const autoSearchMutation = useMutation({
@@ -172,65 +374,59 @@ export function Dashboard() {
       setShowPaywall(true)
       return
     }
-
     const budgetUsd = quiz.budgetGbp / USD_TO_GBP
     const params: SearchParams = {
       budgetUsd,
-      currency:        'GBP',
-      unitSize:        quiz.unitSize,
-      category:        quiz.category !== 'No preference' ? quiz.category : undefined,
-      targetPlatforms: quiz.platform !== 'any' ? [quiz.platform as SellPlatform] : undefined,
-      trendingOnly:    quiz.goal === 'trending',
+      currency:         'GBP',
+      unitSize:         quiz.unitSize,
+      category:         quiz.category !== 'No preference' ? quiz.category : undefined,
+      targetPlatforms:  quiz.platform !== 'any' ? [quiz.platform as SellPlatform] : undefined,
+      trendingOnly:     quiz.goal === 'trending',
       minMarginPercent: quiz.goal === 'margin' ? 35 : quiz.goal === 'safe' ? 20 : 15,
     }
-
     autoSearchMutation.mutate(params)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  const handleSignOut = async () => {
+    try { await signOut({ global: false }) } catch { /* ignore */ }
+    navigate('/')
+  }
+
   return (
     <div style={{ minHeight: '100vh', background: C.bg, position: 'relative', overflow: 'hidden' }}>
+
+      {/* Background */}
+      <DashboardBackground />
 
       {/* Starfield */}
       <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0 }}>
         {STARS.map((s, i) => (
           <div key={i} className="animate-twinkle" style={{
-            position:          'absolute',
-            left:              s.left,
-            top:               s.top,
-            width:             s.size,
-            height:            s.size,
-            borderRadius:      '50%',
-            background:        i % 3 === 0 ? C.purpleB : i % 3 === 1 ? C.cyan : '#fff',
-            animationDelay:    s.delay,
-            animationDuration: s.dur,
+            position: 'absolute', left: s.left, top: s.top,
+            width: s.size, height: s.size, borderRadius: '50%',
+            background: i % 3 === 0 ? C.purpleB : i % 3 === 1 ? C.cyan : '#fff',
+            animationDelay: s.delay, animationDuration: s.dur,
           }} />
         ))}
       </div>
 
-      {/* Ambient orb */}
-      <div className="animate-float-orb" style={{
-        position:      'fixed',
-        top:           0,
-        left:          '50%',
-        transform:     'translateX(-50%)',
-        width:         600,
-        height:        400,
-        background:    'radial-gradient(ellipse, rgba(124,58,237,0.1) 0%, transparent 70%)',
-        borderRadius:  '50%',
-        pointerEvents: 'none',
-        zIndex:        0,
-      }} />
+      {/* Top nav */}
+      <TopNav user={user} isPro={isPro} onSignOut={handleSignOut} />
 
-      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '40px 24px', position: 'relative', zIndex: 1 }}>
+      {/* Page content */}
+      <div style={{ maxWidth: 1280, margin: '0 auto', padding: '78px 24px 48px', position: 'relative', zIndex: 1 }}>
 
-        {/* Header */}
-        <div style={{ marginBottom: 32, display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16 }}>
+        {/* ── Welcome row ── */}
+        <div style={{ marginBottom: 28, display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
           <div>
-            <h1 style={{ fontSize: 26, fontWeight: 700, color: C.text, marginBottom: 4 }}>
-              {user?.fullName
-                ? `Welcome back, ${user.fullName.split(' ')[0]} ✦`
-                : 'Your Grimoire'}
+            <h1 style={{
+              fontFamily: '"Barlow Condensed","Arial Narrow",sans-serif',
+              fontSize: 'clamp(22px, 3vw, 32px)', fontWeight: 700, textTransform: 'uppercase',
+              letterSpacing: '-0.01em', color: C.text, lineHeight: 1, marginBottom: 6,
+            }}>
+              {firstName ? `Welcome back, ${firstName}` : 'Your Grimoire'}
+              <span style={{ color: C.purpleB }}> ✦</span>
             </h1>
             <p style={{ fontSize: 13, color: C.textDim }}>
               {isPro
@@ -238,37 +434,39 @@ export function Dashboard() {
                 : `Apprentice plan · ${freeReportsLeft} free spell${freeReportsLeft !== 1 ? 's' : ''} remaining`}
             </p>
           </div>
-          {isPro && (
-            <span style={{
-              display:    'inline-flex',
-              alignItems: 'center',
-              gap:        8,
-              background: GRAD,
-              borderRadius: 99,
-              padding:    '8px 20px',
-              fontSize:   13,
-              fontWeight: 700,
-              color:      '#fff',
-              boxShadow:  '0 0 16px rgba(124,58,237,0.3)',
-            }}>
-              ✦ Sorcerer Member
-            </span>
-          )}
+
+          {/* Stat chips */}
+          <div style={{ display: 'flex', gap: 10 }}>
+            <StatCard
+              label={isPro ? 'Spells left' : 'Free spells left'}
+              value={isPro ? proLeft : freeReportsLeft}
+              accent
+            />
+            <StatCard
+              label="Reports"
+              value={reports?.length ?? '—'}
+            />
+          </div>
         </div>
 
-        {/* Auto-search loading banner */}
+        {/* ── Auto-search loading banner ── */}
         {autoSearchMutation.isPending && (
-          <div style={{ ...GLASS, padding: '16px 20px', marginBottom: 24, display: 'flex', alignItems: 'center', gap: 16 }}>
-            <div className="h-7 w-7 border-2 border-t-transparent rounded-full animate-spin flex-shrink-0"
-                 style={{ borderColor: 'rgba(139,92,246,0.3)', borderTopColor: '#8B5CF6' }} />
+          <div style={{ ...GLASS, padding: '16px 20px', marginBottom: 24, display: 'flex', alignItems: 'center', gap: 16, borderRadius: 12 }}>
+            <div style={{
+              width: 32, height: 32, border: '2px solid rgba(139,92,246,0.25)',
+              borderTopColor: C.purple, borderRadius: '50%',
+              flexShrink: 0, animation: 'spin 0.9s linear infinite',
+            }} />
             <div>
               <p style={{ fontSize: 14, fontWeight: 600, color: C.text }}>Summoning your best opportunity…</p>
-              <p style={{ fontSize: 12, color: C.textDim, marginTop: 2 }}>Scanning 1,000+ products to match your criteria. This takes ~20 seconds.</p>
+              <p style={{ fontSize: 12, color: C.textDim, marginTop: 2 }}>
+                Scanning 1,000+ products. This takes about 20 seconds.
+              </p>
             </div>
           </div>
         )}
 
-        {/* Free limit banner */}
+        {/* ── Limit banner ── */}
         {!isPro && freeReportsLeft === 0 && !autoSearchMutation.isPending && (
           <div style={{ marginBottom: 24 }}>
             <UpgradeBanner
@@ -280,240 +478,182 @@ export function Dashboard() {
           </div>
         )}
 
-        {/* Last free spell nudge */}
+        {/* ── Last free spell nudge ── */}
         {!isPro && freeReportsLeft > 0 && freeReportsLeft <= 1 && (
-          <div style={{ ...GLASS, padding: '12px 20px', marginBottom: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
+          <div style={{ ...GLASS, padding: '12px 20px', marginBottom: 24, borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
             <p style={{ fontSize: 13, color: C.text }}>
               <span style={{ fontWeight: 700, color: C.purpleB }}>Last free spell.</span>{' '}
-              <span style={{ color: C.textDim }}>Upgrade to Sorcerer to keep discovering.</span>
+              <span style={{ color: C.textDim }}>Upgrade to keep discovering.</span>
             </p>
-            <Link
-              to="/pricing"
-              style={{
-                flexShrink:     0,
-                background:     GBTN,
-                border:         '1px solid rgba(139,92,246,0.4)',
-                borderRadius:   99,
-                padding:        '8px 18px',
-                color:          '#fff',
-                fontSize:       12,
-                fontWeight:     700,
-                textDecoration: 'none',
-              }}
-            >
-              Go Pro
-            </Link>
+            <Link to="/pricing" style={{
+              flexShrink: 0, background: GBTN, border: '1px solid rgba(139,92,246,0.4)',
+              borderRadius: 99, padding: '8px 18px', color: '#fff',
+              fontSize: 12, fontWeight: 700, textDecoration: 'none',
+            }}>Go Pro</Link>
           </div>
         )}
 
-        {/* Main grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 24 }}>
+        {/* ── Main two-column grid ── */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 360px), 1fr))', gap: 24, alignItems: 'start' }}>
 
-          {/* Left: Search + quota */}
-          <div style={{ maxWidth: 420 }}>
-
-            {/* Weekly quota (Pro only) */}
+          {/* ── LEFT: Cast a Spell ── */}
+          <div>
+            {/* Quota (Pro only) */}
             {isPro && (
-              <div style={{ marginBottom: 16 }}>
-                <WeeklyQuotaBar
-                  used={proUsed}
-                  limit={20}
-                  resetAt={user?.proWeekResetAt}
-                />
-              </div>
+              <QuotaBar used={proUsed} limit={20} resetAt={user?.proWeekResetAt} />
             )}
 
-            {/* Search form */}
-            <div style={{ ...GLASS, padding: '20px 24px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16, paddingBottom: 12, borderBottom: `1px solid ${C.border}` }}>
-                <span style={{ fontSize: 16 }}>🔮</span>
-                <h2 style={{ fontSize: 15, fontWeight: 600, color: C.text }}>Configure your spell</h2>
+            {/* Search card */}
+            <div style={{ ...GLASS, overflow: 'hidden', borderRadius: 16 }}>
+              {/* Card header */}
+              <div style={{
+                padding: '14px 20px',
+                borderBottom: `1px solid ${C.border}`,
+                display: 'flex', alignItems: 'center', gap: 10,
+                background: 'rgba(124,58,237,0.04)',
+              }}>
+                <svg viewBox="0 0 100 100" width={18} height={18} aria-hidden="true" style={{ opacity: 0.75 }}>
+                  <path d="M 29,86 A 42,42 0 1,1 71,86" fill="none" stroke="#DDD6FE" strokeWidth="2.5" strokeLinecap="round"/>
+                  <path d="M 16,50 C 20,28 80,28 84,50 C 80,72 20,72 16,50 Z" fill="none" stroke="#DDD6FE" strokeWidth="2"/>
+                  <polygon points="50,39 58,50 50,61 42,50" fill="#7C3AED"/>
+                  <circle cx="50" cy="50" r="3.5" fill="#DDD6FE"/>
+                </svg>
+                <span style={{
+                  fontFamily: '"DM Mono",monospace', fontSize: 10,
+                  letterSpacing: '0.12em', textTransform: 'uppercase', color: C.textDim,
+                }}>
+                  Configure Your Spell
+                </span>
               </div>
-              <SearchForm onPaywallHit={() => setShowPaywall(true)} />
+              <div style={{ padding: '16px 20px' }}>
+                <SearchForm onPaywallHit={() => setShowPaywall(true)} />
+              </div>
             </div>
 
-            {/* Inline upgrade nudge (free only, still has spells) */}
+            {/* Upgrade nudge (free, still has spells) */}
             {!isPro && freeReportsLeft > 0 && (
               <div style={{ marginTop: 16 }}>
                 <UpgradeBanner
                   variant="inline"
                   title="Want 20 ideas a week?"
-                  description="Sorcerer upgrades your analysis from 1 paragraph to 5 — plus all 4 platform comparisons."
+                  description="Sorcerer upgrades to full 5-paragraph GPT-4o analysis plus all 4 platforms."
                 />
               </div>
             )}
           </div>
 
-          {/* Right: Past reports */}
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ ...GLASS, overflow: 'hidden' }}>
-              <div style={{ padding: '16px 24px 12px', borderBottom: `1px solid ${C.border}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <span style={{ fontSize: 16 }}>📜</span>
-                  <h2 style={{ fontSize: 15, fontWeight: 600, color: C.text }}>My Reports</h2>
-                  {reports && reports.length > 0 && (
-                    <span style={{ fontSize: 11, color: C.textMut }}>
-                      {reports.length} report{reports.length !== 1 ? 's' : ''}
-                    </span>
-                  )}
-                </div>
-
-                {/* Clear history — Sorcerer only */}
-                {isPro && reports && reports.length > 0 && (
-                  confirmClear ? (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <span style={{ fontSize: 11, color: C.textDim }}>Clear all?</span>
-                      <button
-                        onClick={() => clearHistoryMutation.mutate()}
-                        disabled={clearHistoryMutation.isPending}
-                        style={{
-                          fontSize: 11, fontWeight: 700, color: '#EF4444',
-                          background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)',
-                          borderRadius: 99, padding: '3px 10px', cursor: 'pointer',
-                        }}
-                      >
-                        {clearHistoryMutation.isPending ? '…' : 'Yes, clear'}
-                      </button>
-                      <button
-                        onClick={() => setConfirmClear(false)}
-                        style={{
-                          fontSize: 11, color: C.textMut,
-                          background: 'none', border: 'none', cursor: 'pointer', padding: '3px 6px',
-                        }}
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  ) : (
-                    <button
-                      onClick={() => setConfirmClear(true)}
-                      style={{
-                        fontSize: 11, color: C.textMut,
-                        background: 'none', border: `1px solid ${C.border}`,
-                        borderRadius: 99, padding: '3px 10px', cursor: 'pointer',
-                        transition: 'color 0.15s, border-color 0.15s',
-                      }}
-                      onMouseEnter={e => {
-                        e.currentTarget.style.color = '#EF4444'
-                        e.currentTarget.style.borderColor = 'rgba(239,68,68,0.35)'
-                      }}
-                      onMouseLeave={e => {
-                        e.currentTarget.style.color = C.textMut
-                        e.currentTarget.style.borderColor = C.border
-                      }}
-                    >
-                      Clear history
-                    </button>
-                  )
+          {/* ── RIGHT: The Grimoire ── */}
+          <div style={{ ...GLASS, overflow: 'hidden' }}>
+            {/* Header */}
+            <div style={{
+              padding: '14px 24px 12px',
+              borderBottom: `1px solid ${C.border}`,
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12,
+              background: 'rgba(124,58,237,0.04)',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <span style={{
+                  fontFamily: '"DM Mono",monospace', fontSize: 10,
+                  letterSpacing: '0.12em', textTransform: 'uppercase', color: C.textDim,
+                }}>
+                  The Grimoire
+                </span>
+                {reports && reports.length > 0 && (
+                  <span style={{
+                    fontSize: 10, color: C.textMut,
+                    background: 'rgba(139,92,246,0.08)', border: `1px solid ${C.border}`,
+                    borderRadius: 99, padding: '2px 8px',
+                  }}>
+                    {reports.length}
+                  </span>
                 )}
               </div>
 
-              {reportsLoading ? (
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px 24px' }}>
-                  <div className="h-6 w-6 border-2 border-t-transparent rounded-full animate-spin"
-                       style={{ borderColor: 'rgba(139,92,246,0.3)', borderTopColor: '#8B5CF6' }} />
-                </div>
-              ) : !reports || reports.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '64px 24px' }}>
-                  <div style={{
-                    width:          48,
-                    height:         48,
-                    borderRadius:   '50%',
-                    background:     'rgba(139,92,246,0.1)',
-                    display:        'flex',
-                    alignItems:     'center',
-                    justifyContent: 'center',
-                    margin:         '0 auto 16px',
-                    fontSize:       20,
-                  }}>
-                    📜
-                  </div>
-                  <p style={{ fontSize: 14, fontWeight: 600, color: C.text }}>No reports yet</p>
-                  <p style={{ fontSize: 12, color: C.textDim, marginTop: 4 }}>
-                    Cast your first spell using the form on the left
-                  </p>
-                </div>
-              ) : (
-                <div>
-                  {reports.map((report) => (
-                    <div
-                      key={report.id}
+              {/* Clear history (Sorcerer only) */}
+              {isPro && reports && reports.length > 0 && (
+                confirmClear ? (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ fontSize: 11, color: C.textDim }}>Clear all?</span>
+                    <button
+                      onClick={() => clearHistoryMutation.mutate()}
+                      disabled={clearHistoryMutation.isPending}
                       style={{
-                        display:        'flex',
-                        alignItems:     'center',
-                        justifyContent: 'space-between',
-                        padding:        '14px 24px',
-                        borderBottom:   `1px solid ${C.border}`,
-                        transition:     'background 0.15s',
+                        fontSize: 11, fontWeight: 700, color: C.red,
+                        background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)',
+                        borderRadius: 99, padding: '3px 10px', cursor: 'pointer',
                       }}
-                      onMouseEnter={e => (e.currentTarget.style.background = 'rgba(139,92,246,0.06)')}
-                      onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
                     >
-                      {/* Clickable text area */}
-                      <Link
-                        to={`/report/${report.id}`}
-                        style={{ textDecoration: 'none', flex: 1, minWidth: 0, display: 'block' }}
-                      >
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2 }}>
-                          <p style={{ fontSize: 13, fontWeight: 600, color: C.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                            {report.productName}
-                          </p>
-                          <TierBadge tier={report.tier} />
-                        </div>
-                        <p style={{ fontSize: 11, color: C.textDim }}>
-                          {report.category} · {formatDate(report.createdAt)}
-                        </p>
-                      </Link>
-
-                      {/* Scores + open */}
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginLeft: 16, flexShrink: 0 }}>
-                        <ScoreBadge score={report.opportunityScore} label="Opp." />
-                        <ScoreBadge score={report.riskScore}        label="Risk" />
-                        <Link
-                          to={`/report/${report.id}`}
-                          style={{ color: C.textMut, fontSize: 18, textDecoration: 'none', lineHeight: 1 }}
-                          title="Open report"
-                        >
-                          ›
-                        </Link>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                      {clearHistoryMutation.isPending ? '…' : 'Yes, clear'}
+                    </button>
+                    <button
+                      onClick={() => setConfirmClear(false)}
+                      style={{ fontSize: 11, color: C.textMut, background: 'none', border: 'none', cursor: 'pointer' }}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => setConfirmClear(true)}
+                    style={{
+                      fontSize: 11, color: C.textMut,
+                      background: 'none', border: `1px solid ${C.border}`,
+                      borderRadius: 99, padding: '3px 10px', cursor: 'pointer',
+                      transition: 'color 0.15s, border-color 0.15s',
+                    }}
+                    onMouseEnter={e => {
+                      (e.currentTarget as HTMLButtonElement).style.color = C.red
+                      ;(e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(239,68,68,0.3)'
+                    }}
+                    onMouseLeave={e => {
+                      (e.currentTarget as HTMLButtonElement).style.color = C.textMut
+                      ;(e.currentTarget as HTMLButtonElement).style.borderColor = C.border
+                    }}
+                  >
+                    Clear history
+                  </button>
+                )
               )}
             </div>
 
-            {/* Bottom upgrade nudge */}
-            {!isPro && reports && reports.length >= 1 && (
-              <div style={{ marginTop: 16, ...GLASS, padding: '20px 24px', textAlign: 'center' }}>
-                <p style={{ fontSize: 13, color: C.textDim, marginBottom: 12 }}>
-                  Free reports show <span style={{ color: C.text, fontWeight: 600 }}>1 platform</span> and a{' '}
-                  <span style={{ color: C.text, fontWeight: 600 }}>brief summary</span>.{' '}
-                  Sorcerer unlocks the full oracle.
-                </p>
-                <Link
-                  to="/pricing"
-                  style={{
-                    display:        'inline-flex',
-                    alignItems:     'center',
-                    gap:            8,
-                    background:     GBTN,
-                    border:         '1px solid rgba(139,92,246,0.4)',
-                    borderRadius:   99,
-                    padding:        '10px 24px',
-                    color:          '#fff',
-                    fontSize:       13,
-                    fontWeight:     700,
-                    textDecoration: 'none',
-                    boxShadow:      '0 0 16px rgba(124,58,237,0.25)',
-                  }}
-                >
-                  ✦ Upgrade to Sorcerer — £10/mo
-                </Link>
+            {/* Body */}
+            {reportsLoading ? (
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px 24px' }}>
+                <div className="h-6 w-6 border-2 border-t-transparent rounded-full animate-spin"
+                     style={{ borderColor: 'rgba(139,92,246,0.3)', borderTopColor: C.purple }} />
+              </div>
+            ) : !reports || reports.length === 0 ? (
+              <EmptyGrimoire />
+            ) : (
+              <div>
+                {reports.map((report) => (
+                  <ReportRow key={report.id} report={report} />
+                ))}
               </div>
             )}
           </div>
         </div>
+
+        {/* ── Bottom upgrade nudge ── */}
+        {!isPro && reports && reports.length >= 1 && (
+          <div style={{ marginTop: 24, ...GLASS, padding: '20px 28px', borderRadius: 14, textAlign: 'center' }}>
+            <p style={{ fontSize: 13, color: C.textDim, marginBottom: 14, lineHeight: 1.6 }}>
+              Free reports show <span style={{ color: C.text, fontWeight: 600 }}>1 platform</span> and a{' '}
+              <span style={{ color: C.text, fontWeight: 600 }}>brief summary</span>.{' '}
+              Sorcerer unlocks the full oracle.
+            </p>
+            <Link to="/pricing" style={{
+              display: 'inline-flex', alignItems: 'center', gap: 8,
+              background: GBTN, border: '1px solid rgba(139,92,246,0.4)',
+              borderRadius: 99, padding: '10px 28px', color: '#fff',
+              fontSize: 13, fontWeight: 700, textDecoration: 'none',
+              boxShadow: '0 0 18px rgba(124,58,237,0.25)',
+            }}>
+              ✦ Upgrade to Sorcerer — £10/mo
+            </Link>
+          </div>
+        )}
+
       </div>
 
       {showPaywall && <PaywallModal onClose={() => setShowPaywall(false)} />}

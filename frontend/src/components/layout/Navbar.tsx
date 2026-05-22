@@ -5,7 +5,6 @@ import type { CSSProperties } from 'react'
 
 // ─── Design tokens ────────────────────────────────────────────────────────────
 
-const GRAD = 'linear-gradient(135deg, #C084FC 0%, #818CF8 50%, #22D3EE 100%)'
 
 const NAV_GLASS: CSSProperties = {
   background:           'rgba(7,5,17,0.75)',
@@ -18,26 +17,13 @@ const NAV_GLASS: CSSProperties = {
 
 function SIcon({ size = 28 }: { size?: number }) {
   return (
-    <div style={{
-      width:          size,
-      height:         size,
-      background:     GRAD,
-      borderRadius:   Math.round(size * 0.28),
-      display:        'flex',
-      alignItems:     'center',
-      justifyContent: 'center',
-      fontFamily:     '"Barlow Condensed","Arial Narrow",sans-serif',
-      fontWeight:     700,
-      fontSize:       Math.round(size * 0.62),
-      color:          '#fff',
-      letterSpacing:  '-0.02em',
-      lineHeight:     1,
-      userSelect:     'none',
-      flexShrink:     0,
-      boxShadow:      '0 0 12px rgba(139,92,246,0.35)',
-    }}>
-      S
-    </div>
+    <svg viewBox="0 0 100 100" width={size} height={size} aria-hidden="true" style={{ flexShrink: 0 }}>
+      <path d="M 29,86 A 42,42 0 1,1 71,86" fill="none" stroke="#DDD6FE" strokeWidth="2.5" strokeLinecap="round"/>
+      <path d="M 33,79 A 34,34 0 1,1 67,79" fill="none" stroke="#DDD6FE" strokeWidth="1" strokeLinecap="round" opacity="0.28"/>
+      <path d="M 16,50 C 20,28 80,28 84,50 C 80,72 20,72 16,50 Z" fill="none" stroke="#DDD6FE" strokeWidth="2"/>
+      <polygon points="50,39 58,50 50,61 42,50" fill="#7C3AED"/>
+      <circle cx="50" cy="50" r="3.5" fill="#DDD6FE"/>
+    </svg>
   )
 }
 
@@ -70,14 +56,14 @@ export function Navbar() {
           <Link to="/" className="flex items-center gap-2.5 select-none" style={{ textDecoration: 'none' }}>
             <SIcon size={28} />
             <span style={{
-              fontFamily:    '"Barlow Condensed","Arial Narrow",sans-serif',
+              fontFamily:    '"Cinzel Decorative", "Cinzel", serif',
               fontWeight:    700,
-              fontSize:      19,
-              color:         '#F0EEFF',
-              letterSpacing: '-0.01em',
+              fontSize:      17,
+              color:         '#DDD6FE',
+              letterSpacing: '0.06em',
               lineHeight:    1,
             }}>
-              Sourcery
+              Sorcery
             </span>
           </Link>
 

@@ -58,7 +58,7 @@ function downloadReportCsv(report: Report) {
 
   const rows: string[][] = [
     // ── Overview
-    ['SOURCERY REPORT', '', ''],
+    ['SORCERY REPORT', '', ''],
     ['Generated', formatDate(report.createdAt), ''],
     ['Tier', report.tier === 'pro' ? 'Sorcerer (Pro)' : 'Free', ''],
     ['', '', ''],

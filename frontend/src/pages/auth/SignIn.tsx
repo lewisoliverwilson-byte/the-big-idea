@@ -44,15 +44,8 @@ const C = {
   textMut: '#5A4F7A',
 }
 
-const GRAD = 'linear-gradient(135deg, #C084FC 0%, #818CF8 50%, #22D3EE 100%)'
 const GBTN = 'linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%)'
 
-const GTEXT: CSSProperties = {
-  background:           GRAD,
-  WebkitBackgroundClip: 'text',
-  WebkitTextFillColor:  'transparent',
-  backgroundClip:       'text',
-}
 
 const GLASS: CSSProperties = {
   background:           'rgba(14,10,28,0.80)',
@@ -117,28 +110,17 @@ const STARS = Array.from({ length: 30 }, (_, i) => {
   }
 })
 
-// ─── Logo icon ────────────────────────────────────────────────────────────────
+// ─── Logo mark ────────────────────────────────────────────────────────────────
 
 function SIcon() {
   return (
-    <div style={{
-      width:          44,
-      height:         44,
-      background:     GRAD,
-      borderRadius:   12,
-      display:        'inline-flex',
-      alignItems:     'center',
-      justifyContent: 'center',
-      fontFamily:     '"Barlow Condensed","Arial Narrow",sans-serif',
-      fontWeight:     700,
-      fontSize:       26,
-      color:          '#fff',
-      letterSpacing:  '-0.02em',
-      lineHeight:     1,
-      boxShadow:      '0 0 20px rgba(139,92,246,0.4)',
-    }}>
-      S
-    </div>
+    <svg viewBox="0 0 100 100" width={44} height={44} role="img" aria-label="Sorcery">
+      <path d="M 29,86 A 42,42 0 1,1 71,86" fill="none" stroke="#DDD6FE" strokeWidth="2.5" strokeLinecap="round"/>
+      <path d="M 33,79 A 34,34 0 1,1 67,79" fill="none" stroke="#DDD6FE" strokeWidth="1" strokeLinecap="round" opacity="0.28"/>
+      <path d="M 16,50 C 20,28 80,28 84,50 C 80,72 20,72 16,50 Z" fill="none" stroke="#DDD6FE" strokeWidth="2"/>
+      <polygon points="50,39 58,50 50,61 42,50" fill="#7C3AED"/>
+      <circle cx="50" cy="50" r="3.5" fill="#DDD6FE"/>
+    </svg>
   )
 }
 
@@ -223,10 +205,19 @@ export function SignIn() {
 
   const stageSubtitle = stage === 'reset-confirm'
     ? `Incantation sent to ${resetEmail}`
-    : 'Enter the portal to your Sourcery account'
+    : 'Enter the portal to your Sorcery account'
 
   return (
     <div style={{ minHeight: '100vh', background: C.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px 16px', position: 'relative', overflow: 'hidden' }}>
+      {/* Castle background */}
+      <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none' }}>
+        <img src="/assets/castle-forest.png" alt="" style={{
+          width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 30%',
+          filter: 'brightness(0.18) saturate(0.6)',
+        }}/>
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(7,5,17,0.6) 0%, rgba(7,5,17,0.4) 50%, rgba(7,5,17,0.7) 100%)' }}/>
+        <div style={{ position: 'absolute', top: '10%', left: '50%', transform: 'translateX(-50%)', width: 500, height: 300, background: 'radial-gradient(ellipse, rgba(124,58,237,0.14) 0%, transparent 70%)', borderRadius: '50%' }}/>
+      </div>
 
       {/* Starfield */}
       <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0 }}>
@@ -266,13 +257,13 @@ export function SignIn() {
           <Link to="/" style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: 12, textDecoration: 'none' }}>
             <SIcon />
             <span style={{
-              fontFamily:    '"Barlow Condensed","Arial Narrow",sans-serif',
+              fontFamily:    '"Cinzel Decorative", "Cinzel", serif',
               fontWeight:    700,
-              fontSize:      22,
-              letterSpacing: '-0.01em',
-              ...GTEXT,
+              fontSize:      20,
+              letterSpacing: '0.06em',
+              color:         '#DDD6FE',
             }}>
-              Sourcery
+              Sorcery
             </span>
           </Link>
 

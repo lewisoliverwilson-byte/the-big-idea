@@ -48,45 +48,38 @@ const STARS = Array.from({ length: 60 }, (_, i) => {
 
 // ─── Brand ────────────────────────────────────────────────────────────────────
 export function Logo({ size = 32, className = '' }: { size?: number; className?: string }) {
-  const r = Math.round(size * 0.22)
   return (
     <div
-      aria-label="Sourcery"
+      aria-label="Sorcery"
       className={`inline-flex items-center justify-center select-none flex-shrink-0 ${className}`}
-      style={{
-        width: size, height: size,
-        background: C.surface,
-        borderRadius: r,
-        border: `1px solid ${C.borderGlow}`,
-        boxShadow: `0 0 10px rgba(139,92,246,0.2)`,
-      }}
+      style={{ width: size, height: size }}
     >
-      <span style={{
-        ...GTEXT,
-        fontFamily:    '"Barlow Condensed","Arial Narrow",sans-serif',
-        fontWeight:    700,
-        fontSize:      Math.round(size * 0.58),
-        letterSpacing: '-0.02em',
-        lineHeight:    1,
-      }}>
-        S
-      </span>
+      <svg viewBox="0 0 100 100" width={size} height={size} role="img" aria-hidden="true">
+        <path d="M 29,86 A 42,42 0 1,1 71,86" fill="none" stroke="#DDD6FE" strokeWidth="2.5" strokeLinecap="round"/>
+        <path d="M 33,79 A 34,34 0 1,1 67,79" fill="none" stroke="#DDD6FE" strokeWidth="1" strokeLinecap="round" opacity="0.28"/>
+        <path d="M 16,50 C 20,28 80,28 84,50 C 80,72 20,72 16,50 Z" fill="none" stroke="#DDD6FE" strokeWidth="2"/>
+        <polygon points="50,39 58,50 50,61 42,50" fill="#7C3AED"/>
+        <circle cx="50" cy="50" r="3.5" fill="#DDD6FE"/>
+      </svg>
     </div>
   )
 }
 
 function Wordmark({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
-  const iconSize = size === 'sm' ? 24 : size === 'lg' ? 40 : 30
-  const fontSize = size === 'sm' ? 17 : size === 'lg' ? 26 : 20
+  const iconSize = size === 'sm' ? 22 : size === 'lg' ? 40 : 28
+  const fontSize = size === 'sm' ? 15 : size === 'lg' ? 24 : 18
   return (
     <div className="flex items-center gap-2.5 select-none">
       <Logo size={iconSize} />
       <span style={{
-        fontFamily:    '"Barlow Condensed","Arial Narrow",sans-serif',
-        fontWeight:    700, fontSize, letterSpacing: '-0.01em', lineHeight: 1,
-        color: C.text,
+        fontFamily:    '"Cinzel Decorative", "Cinzel", serif',
+        fontWeight:    700,
+        fontSize,
+        letterSpacing: '0.06em',
+        lineHeight:    1,
+        color:         '#DDD6FE',
       }}>
-        Sourcery
+        Sorcery
       </span>
     </div>
   )
@@ -343,285 +336,53 @@ const GLASS: CSSProperties = {
   boxShadow:      '0 0 0 1px rgba(139,92,246,0.06), 0 24px 48px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.04)',
 }
 
-// ─── Forest atmosphere ───────────────────────────────────────────────────────
+// ─── Castle photo background ─────────────────────────────────────────────────
 
-function CastleSVG() {
-  return (
-    <svg viewBox="0 0 500 300" style={{ width: '100%', height: '100%', display: 'block' }}>
-      <defs>
-        <radialGradient id="cMoon" cx="50%" cy="40%" r="50%">
-          <stop offset="0%" stopColor="#8AAAD0" stopOpacity="0.06"/>
-          <stop offset="100%" stopColor="#050810" stopOpacity="0"/>
-        </radialGradient>
-      </defs>
-      {/* Moon halo behind castle */}
-      <ellipse cx="250" cy="130" rx="210" ry="120" fill="url(#cMoon)"/>
-      {/* Ground strip */}
-      <rect x="0"   y="266" width="500"  height="34" fill="#060A09"/>
-      {/* Outer curtain walls */}
-      <rect x="0"   y="228" width="88"   height="72" fill="#090C18"/>
-      <rect x="412" y="228" width="88"   height="72" fill="#090C18"/>
-      {/* Left outer wall battlements */}
-      <rect x="0"  y="220" width="11" height="8" fill="#090C18"/>
-      <rect x="15" y="220" width="11" height="8" fill="#090C18"/>
-      <rect x="30" y="220" width="11" height="8" fill="#090C18"/>
-      <rect x="45" y="220" width="11" height="8" fill="#090C18"/>
-      <rect x="60" y="220" width="11" height="8" fill="#090C18"/>
-      <rect x="75" y="220" width="11" height="8" fill="#090C18"/>
-      {/* Right outer wall battlements */}
-      <rect x="414" y="220" width="11" height="8" fill="#090C18"/>
-      <rect x="429" y="220" width="11" height="8" fill="#090C18"/>
-      <rect x="444" y="220" width="11" height="8" fill="#090C18"/>
-      <rect x="459" y="220" width="11" height="8" fill="#090C18"/>
-      <rect x="474" y="220" width="11" height="8" fill="#090C18"/>
-      <rect x="488" y="220" width="11" height="8" fill="#090C18"/>
-      {/* Left tower */}
-      <rect x="88"  y="165" width="72" height="135" fill="#0B0E1C"/>
-      <rect x="88"  y="156" width="12" height="9"   fill="#0B0E1C"/>
-      <rect x="104" y="156" width="12" height="9"   fill="#0B0E1C"/>
-      <rect x="120" y="156" width="12" height="9"   fill="#0B0E1C"/>
-      <rect x="136" y="156" width="12" height="9"   fill="#0B0E1C"/>
-      <rect x="148" y="156" width="12" height="9"   fill="#0B0E1C"/>
-      {/* Right tower */}
-      <rect x="340" y="165" width="72" height="135" fill="#0B0E1C"/>
-      <rect x="340" y="156" width="12" height="9"   fill="#0B0E1C"/>
-      <rect x="356" y="156" width="12" height="9"   fill="#0B0E1C"/>
-      <rect x="372" y="156" width="12" height="9"   fill="#0B0E1C"/>
-      <rect x="388" y="156" width="12" height="9"   fill="#0B0E1C"/>
-      <rect x="400" y="156" width="12" height="9"   fill="#0B0E1C"/>
-      {/* Connecting curtain walls */}
-      <rect x="160" y="210" width="55" height="90" fill="#090B17"/>
-      <rect x="285" y="210" width="55" height="90" fill="#090B17"/>
-      {/* Main keep */}
-      <rect x="178" y="88" width="144" height="212" fill="#0C0F1F"/>
-      <rect x="178" y="77" width="13"  height="11"  fill="#0C0F1F"/>
-      <rect x="195" y="77" width="13"  height="11"  fill="#0C0F1F"/>
-      <rect x="212" y="77" width="13"  height="11"  fill="#0C0F1F"/>
-      <rect x="229" y="77" width="13"  height="11"  fill="#0C0F1F"/>
-      <rect x="246" y="77" width="13"  height="11"  fill="#0C0F1F"/>
-      <rect x="263" y="77" width="13"  height="11"  fill="#0C0F1F"/>
-      <rect x="280" y="77" width="13"  height="11"  fill="#0C0F1F"/>
-      <rect x="297" y="77" width="13"  height="11"  fill="#0C0F1F"/>
-      <rect x="309" y="77" width="13"  height="11"  fill="#0C0F1F"/>
-      {/* Gate arch */}
-      <path d="M224,300 L224,248 Q250,223 276,248 L276,300 Z" fill="#04050E"/>
-      {/* Portcullis */}
-      <line x1="224" y1="252" x2="276" y2="252" stroke="#07080F" strokeWidth="1.5" opacity="0.5"/>
-      <line x1="224" y1="264" x2="276" y2="264" stroke="#07080F" strokeWidth="1.5" opacity="0.5"/>
-      <line x1="237" y1="248" x2="237" y2="300" stroke="#07080F" strokeWidth="1.5" opacity="0.5"/>
-      <line x1="250" y1="248" x2="250" y2="300" stroke="#07080F" strokeWidth="1.5" opacity="0.5"/>
-      <line x1="263" y1="248" x2="263" y2="300" stroke="#07080F" strokeWidth="1.5" opacity="0.5"/>
-      {/* Keep windows — faint amber glow */}
-      <rect x="208" y="118" width="14" height="20" fill="rgba(200,120,20,0.11)" rx="2" ry="4"/>
-      <rect x="278" y="118" width="14" height="20" fill="rgba(200,120,20,0.07)" rx="2" ry="4"/>
-      <rect x="243" y="113" width="14" height="22" fill="rgba(200,120,20,0.09)" rx="2" ry="5"/>
-      <rect x="208" y="166" width="14" height="20" fill="rgba(200,120,20,0.08)" rx="2" ry="4"/>
-      <rect x="278" y="166" width="14" height="20" fill="rgba(200,120,20,0.06)" rx="2" ry="4"/>
-      <rect x="243" y="166" width="14" height="20" fill="rgba(200,120,20,0.07)" rx="2" ry="4"/>
-      {/* Tower windows */}
-      <rect x="116" y="192" width="10" height="16" fill="rgba(200,120,20,0.07)" rx="1" ry="3"/>
-      <rect x="374" y="192" width="10" height="16" fill="rgba(200,120,20,0.07)" rx="1" ry="3"/>
-      {/* Flagpole + banner */}
-      <line x1="250" y1="77" x2="250" y2="42" stroke="#14162C" strokeWidth="2.5" opacity="0.8"/>
-      <path d="M250,42 L270,51 L250,60 Z" fill="#1A1C38" opacity="0.6"/>
-      <line x1="140" y1="156" x2="140" y2="132" stroke="#12142A" strokeWidth="2" opacity="0.7"/>
-      <path d="M140,132 L154,138 L140,144 Z" fill="#161830" opacity="0.55"/>
-    </svg>
-  )
-}
-
-function ForestTrees() {
-  return (
-    <svg viewBox="0 0 350 900" preserveAspectRatio="xMinYMax meet"
-      style={{ width: '100%', height: '100%', display: 'block' }}>
-      {/* ── Far background pines ── */}
-      <g opacity="0.22" fill="#020303">
-        <polygon points="312,900 288,640 336,640"/>
-        <polygon points="312,728 293,558 331,558"/>
-        <polygon points="312,608 298,476 326,476"/>
-        <rect x="305" y="860" width="14" height="40"/>
-        <polygon points="268,900 248,700 288,700"/>
-        <polygon points="268,780 252,618 284,618"/>
-        <rect x="261" y="865" width="14" height="35"/>
-      </g>
-      {/* ── Mid-ground pine ── */}
-      <g opacity="0.45" fill="#020304">
-        <polygon points="198,900 168,588 228,588"/>
-        <polygon points="198,662 172,444 224,444"/>
-        <polygon points="198,508 176,328 220,328"/>
-        <polygon points="198,380 180,240 216,240"/>
-        <rect x="190" y="844" width="16" height="56"/>
-      </g>
-      {/* ── Mid-foreground tall pine ── */}
-      <g opacity="0.68" fill="#010303">
-        <polygon points="120,900 88,545 152,545"/>
-        <polygon points="120,636 96,400 144,400"/>
-        <polygon points="120,474 100,298 140,298"/>
-        <polygon points="120,344 104,202 136,202"/>
-        <polygon points="120,232 108,112 132,112"/>
-        <rect x="112" y="834" width="16" height="66"/>
-      </g>
-      {/* ── Foreground large oak (front-left, bleeds off edge) ── */}
-      <g opacity="0.94" fill="#010202">
-        {/* Trunk */}
-        <path d="M 0,900 C 0,860 4,800 8,750 C 12,700 22,680 20,640 C 18,610 10,590 12,560 C 14,530 26,510 24,480 L 50,480 C 48,510 58,530 56,560 C 54,590 44,610 46,640 C 44,680 54,700 58,750 C 62,800 58,860 58,900 Z"/>
-        {/* Big branch right */}
-        <path d="M 40,595 C 72,572 118,546 162,528 C 192,516 224,520 246,510"
-              stroke="#010202" strokeWidth="28" fill="none" strokeLinecap="round"/>
-        {/* Sub-branch from main right */}
-        <path d="M 162,528 C 184,508 206,480 216,450 C 224,425 220,400 210,385"
-              stroke="#010202" strokeWidth="16" fill="none" strokeLinecap="round"/>
-        {/* Branch far right */}
-        <path d="M 246,510 C 272,490 294,462 288,432"
-              stroke="#010202" strokeWidth="12" fill="none" strokeLinecap="round"/>
-        {/* Central upward */}
-        <path d="M 34,545 C 38,512 44,472 40,432 C 36,400 28,382 34,352 C 40,326 52,306 48,278"
-              stroke="#010202" strokeWidth="22" fill="none" strokeLinecap="round"/>
-        {/* Branch left */}
-        <path d="M 26,565 C 0,538 -22,510 -34,470 C -44,436 -40,408 -28,388"
-              stroke="#010202" strokeWidth="20" fill="none" strokeLinecap="round"/>
-        {/* Canopy */}
-        <circle cx="42"  cy="228" r="132"/>
-        <circle cx="-48" cy="308" r="96"/>
-        <circle cx="168" cy="278" r="102"/>
-        <circle cx="52"  cy="148" r="102"/>
-        <circle cx="-18" cy="228" r="86"/>
-        <circle cx="174" cy="210" r="86"/>
-        <circle cx="252" cy="308" r="82"/>
-        <circle cx="102" cy="168" r="88"/>
-        <circle cx="-28" cy="168" r="72"/>
-        <circle cx="238" cy="260" r="72"/>
-        <circle cx="290" cy="368" r="66"/>
-        {/* Hanging branches */}
-        <path d="M -68,328 C -90,354 -95,384 -80,400" stroke="#010202" strokeWidth="6" fill="none" strokeLinecap="round" opacity="0.9"/>
-        <path d="M 172,280 C 197,306 202,336 190,352" stroke="#010202" strokeWidth="6" fill="none" strokeLinecap="round" opacity="0.9"/>
-        <path d="M 294,378 C 315,398 320,428 308,440" stroke="#010202" strokeWidth="5" fill="none" strokeLinecap="round" opacity="0.8"/>
-      </g>
-    </svg>
-  )
-}
-
-const VINE_LEAVES: { cx: number; cy: number; rx: number; ry: number; r: number }[] = [
-  { cx:35, cy:730, rx:22, ry:10, r:-35 },
-  { cx:8,  cy:690, rx:18, ry:8,  r:20  },
-  { cx:42, cy:642, rx:25, ry:11, r:-50 },
-  { cx:12, cy:598, rx:19, ry:9,  r:15  },
-  { cx:48, cy:542, rx:24, ry:11, r:-40 },
-  { cx:18, cy:498, rx:20, ry:9,  r:30  },
-  { cx:44, cy:442, rx:23, ry:10, r:-55 },
-  { cx:15, cy:396, rx:18, ry:8,  r:25  },
-  { cx:52, cy:342, rx:26, ry:12, r:-45 },
-  { cx:22, cy:296, rx:21, ry:10, r:20  },
-  { cx:55, cy:246, rx:24, ry:11, r:-35 },
-  { cx:20, cy:202, rx:18, ry:8,  r:40  },
-  { cx:60, cy:156, rx:22, ry:10, r:-60 },
-  { cx:30, cy:112, rx:20, ry:9,  r:15  },
-  { cx:65, cy:62,  rx:23, ry:11, r:-40 },
-]
-
-function VineSVG() {
-  return (
-    <svg viewBox="0 0 150 900" preserveAspectRatio="xMinYMin meet"
-      style={{ width: '100%', height: '100%', display: 'block' }}>
-      {/* Main stem */}
-      <path d="M 20,900 C 46,842 6,792 36,732 C 60,678 10,636 42,576 C 66,528 18,486 48,426 C 72,378 22,336 54,276 C 76,232 28,190 60,142 C 80,110 42,70 68,28"
-        stroke="#0E2410" strokeWidth="3.5" fill="none" opacity="0.76"/>
-      <path d="M 5,858 C 28,808 0,758 26,704 C 48,656 8,614 33,556 C 53,512 14,470 40,414"
-        stroke="#0A1C0B" strokeWidth="2" fill="none" opacity="0.48"/>
-      <path d="M 62,900 C 82,854 58,814 78,764 C 96,718 68,678 88,626 C 104,584 80,544 100,492"
-        stroke="#0B1E0C" strokeWidth="2" fill="none" opacity="0.4"/>
-      {/* Leaves */}
-      {VINE_LEAVES.map(({ cx, cy, rx, ry, r }, i) => (
-        <ellipse key={i} cx={cx} cy={cy} rx={rx} ry={ry}
-          fill={`hsl(${118 + (i % 4) * 4},${30 + (i % 3) * 7}%,${6 + (i % 4) * 1.5}%)`}
-          opacity={0.62 + (i % 4) * 0.08}
-          transform={`rotate(${r},${cx},${cy})`}
-        />
-      ))}
-      {/* Tendrils */}
-      {[730, 642, 542, 442, 342, 246, 156].map((y, i) => (
-        <path key={i}
-          d={`M${35 + i * 2},${y} C${55 + i * 3},${y + 14} ${60 + i * 3},${y + 28} ${48 + i * 2},${y + 40}`}
-          stroke="#0D220E" strokeWidth="1.5" fill="none" opacity="0.36"/>
-      ))}
-    </svg>
-  )
-}
-
-function VineLeft() {
-  return (
-    <div className="hidden lg:block" style={{
-      position: 'fixed', left: 0, top: 0,
-      height: '100vh', width: 'clamp(80px,9vw,145px)',
-      pointerEvents: 'none', zIndex: 0, opacity: 0.82,
-    }}>
-      <VineSVG />
-    </div>
-  )
-}
-
-function VineRight() {
-  return (
-    <div className="hidden lg:block" style={{
-      position: 'fixed', right: 0, top: 0,
-      height: '100vh', width: 'clamp(80px,9vw,145px)',
-      pointerEvents: 'none', zIndex: 0, opacity: 0.82,
-      transform: 'scaleX(-1)',
-    }}>
-      <VineSVG />
-    </div>
-  )
-}
-
-function ForestBackground() {
+function CastleBackground() {
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none', overflow: 'hidden' }}>
-      {/* Sky-to-forest floor gradient */}
+      <img
+        src="/assets/castle-hero.png"
+        alt=""
+        style={{
+          position: 'absolute', inset: 0,
+          width: '100%', height: '100%',
+          objectFit: 'cover', objectPosition: 'center 45%',
+          filter: 'brightness(0.42) saturate(0.85)',
+        }}
+      />
+      {/* Gradient overlay — more opaque top/bottom for nav + scroll readability */}
       <div style={{
         position: 'absolute', inset: 0,
-        background: 'linear-gradient(180deg, #04080F 0%, #050910 18%, #05090D 40%, #050908 65%, #040706 100%)',
+        background: 'linear-gradient(180deg, rgba(7,3,15,0.52) 0%, rgba(7,3,15,0.12) 30%, rgba(7,3,15,0.18) 65%, rgba(7,3,15,0.82) 100%)',
       }}/>
-      {/* Moon glow (pale, behind castle) */}
+      {/* Left vignette — wizard breathing room */}
       <div style={{
-        position: 'absolute', left: '50%', top: '4%',
-        transform: 'translateX(-50%)',
-        width: '60%', height: '48%',
-        background: 'radial-gradient(ellipse at 50% 30%, rgba(148,178,232,0.05) 0%, rgba(90,120,180,0.02) 40%, transparent 70%)',
+        position: 'absolute', inset: 0,
+        background: 'radial-gradient(ellipse 55% 100% at 0% 100%, rgba(7,3,15,0.65) 0%, transparent 70%)',
       }}/>
-      {/* Castle (centred, upper portion) */}
-      <div style={{
-        position: 'absolute', left: '50%', top: '16%',
-        transform: 'translateX(-50%)',
-        width: 'min(360px, 27vw)', opacity: 0.58,
-        filter: 'blur(0.4px)',
-      }}>
-        <CastleSVG />
-      </div>
-      {/* Trees — left */}
-      <div style={{
-        position: 'absolute', left: 0, bottom: 0,
-        width: 'min(340px, 25vw)', height: '80vh',
-      }}>
-        <ForestTrees />
-      </div>
-      {/* Trees — right (mirrored) */}
-      <div style={{
-        position: 'absolute', right: 0, bottom: 0,
-        width: 'min(340px, 25vw)', height: '80vh',
-        transform: 'scaleX(-1)',
-      }}>
-        <ForestTrees />
-      </div>
-      {/* Ground mist */}
-      <div style={{
-        position: 'absolute', bottom: 0, left: 0, right: 0, height: '30%',
-        background: 'linear-gradient(to top, rgba(4,8,6,0.78) 0%, rgba(4,8,6,0.28) 50%, transparent 100%)',
-      }}/>
-      {/* Mid-height atmospheric haze */}
-      <div style={{
-        position: 'absolute', left: 0, right: 0, top: '45%', height: '22%',
-        background: 'radial-gradient(ellipse 85% 55% at 50% 50%, rgba(16,30,24,0.14) 0%, transparent 100%)',
-      }}/>
+    </div>
+  )
+}
+
+// ─── Wizard character (left hero, xl+ only) ──────────────────────────────────
+function WizardFigure() {
+  return (
+    <div className="hidden xl:block" style={{
+      position: 'absolute', bottom: 0, left: 0,
+      width: 'clamp(200px, 18vw, 300px)',
+      pointerEvents: 'none', zIndex: 2,
+    }}>
+      <img
+        src="/assets/wizard.png"
+        alt=""
+        style={{
+          width: '100%', display: 'block',
+          mixBlendMode: 'multiply',
+          opacity: 0.88,
+          filter: 'brightness(0.80) saturate(0.75)',
+        }}
+      />
     </div>
   )
 }
@@ -706,12 +467,8 @@ export function Landing() {
   return (
     <div style={{ background: '#04080F', minHeight: '100vh', fontFamily: 'Outfit,sans-serif', color: C.text, position: 'relative', overflow: 'hidden' }}>
 
-      {/* ── Forest background (castle + trees + atmosphere) ──────────── */}
-      <ForestBackground />
-
-      {/* ── Vine decorations ─────────────────────────────────────────── */}
-      <VineLeft />
-      <VineRight />
+      {/* ── Castle background photo ───────────────────────────────────── */}
+      <CastleBackground />
 
       {/* ── Global star field ──────────────────────────────────────────── */}
       <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none', overflow: 'hidden' }}>
@@ -816,10 +573,14 @@ export function Landing() {
           minHeight:     '100vh',
           display:       'flex',
           alignItems:    'center',
+          position:      'relative',
         }}>
+          {/* Wizard figure — bottom-left, xl screens only */}
+          <WizardFigure />
+
           <div
             className="flex flex-col lg:flex-row items-center"
-            style={{ maxWidth: 1160, width: '100%', margin: '0 auto', gap: 48 }}
+            style={{ maxWidth: 1160, width: '100%', margin: '0 auto', gap: 48, position: 'relative', zIndex: 3 }}
           >
 
             {/* ── Left: text column ── */}
@@ -1499,7 +1260,7 @@ export function Landing() {
               <span style={GTEXT}>Your Magic?</span>
             </h2>
             <p style={{ fontFamily: 'Outfit,sans-serif', fontSize: 16, color: C.textDim, maxWidth: 420, margin: '0 auto 40px', lineHeight: 1.7 }}>
-              Join 1,200+ entrepreneurs finding profitable products with Sourcery. Start free — no credit card, no ritual sacrifice required.
+              Join 1,200+ entrepreneurs finding profitable products with Sorcery. Start free — no credit card, no ritual sacrifice required.
             </p>
             <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 16 }}>
               <a
@@ -1551,7 +1312,7 @@ export function Landing() {
             )}
           </div>
           <p style={{ fontFamily: '"DM Mono",monospace', fontSize: 10, color: C.textMuted, letterSpacing: '0.06em' }}>
-            © {new Date().getFullYear()} SOURCERY
+            © {new Date().getFullYear()} SORCERY
           </p>
         </footer>
 
