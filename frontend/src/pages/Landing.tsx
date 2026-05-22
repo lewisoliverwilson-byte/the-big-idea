@@ -541,29 +541,38 @@ export function Landing() {
         alignItems:    'center',
         position:      'relative',
         overflow:      'hidden',
-        background:    '#FFFFFF',
+        background:    'linear-gradient(155deg, #F5F3FF 0%, #FAFAFA 45%, #FFF7ED 100%)',
       }}>
-        {/* Subtle gradient orb behind quiz card */}
+        {/* Large purple orb top-right */}
         <div style={{
           position:      'absolute',
-          top:           '-10%',
-          right:         '-5%',
-          width:          700,
-          height:         700,
+          top:           '-15%',
+          right:         '-8%',
+          width:          780,
+          height:         780,
           borderRadius:   '50%',
-          background:     'radial-gradient(circle, rgba(99,102,241,0.07) 0%, transparent 70%)',
+          background:     'radial-gradient(circle, rgba(99,102,241,0.18) 0%, rgba(139,92,246,0.06) 50%, transparent 70%)',
           pointerEvents:  'none',
           zIndex:         0,
         }} />
+        {/* Pink orb bottom-left */}
         <div style={{
           position:      'absolute',
-          bottom:        '-5%',
-          left:          '-5%',
-          width:          500,
-          height:         500,
+          bottom:        '-10%',
+          left:          '-8%',
+          width:          560,
+          height:         560,
           borderRadius:   '50%',
-          background:     'radial-gradient(circle, rgba(139,92,246,0.04) 0%, transparent 70%)',
+          background:     'radial-gradient(circle, rgba(236,72,153,0.1) 0%, rgba(139,92,246,0.05) 50%, transparent 70%)',
           pointerEvents:  'none',
+          zIndex:         0,
+        }} />
+        {/* Faint grid overlay */}
+        <div style={{
+          position:     'absolute', inset: 0,
+          backgroundImage: 'linear-gradient(rgba(99,102,241,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(99,102,241,0.04) 1px, transparent 1px)',
+          backgroundSize: '60px 60px',
+          pointerEvents: 'none',
           zIndex:         0,
         }} />
 
@@ -589,7 +598,7 @@ export function Landing() {
               }}>
                 Find products that<br />
                 <span style={{
-                  background:           'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)',
+                  background:           'linear-gradient(135deg, #6366F1 0%, #8B5CF6 45%, #EC4899 100%)',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor:  'transparent',
                   backgroundClip:       'text',
@@ -606,16 +615,19 @@ export function Landing() {
               </p>
 
               {/* Stats row */}
-              <div className="flex flex-wrap justify-center lg:justify-start" style={{ gap: '10px 36px', marginBottom: 36 }}>
+              <div className="flex flex-wrap justify-center lg:justify-start" style={{ gap: 10, marginBottom: 36 }}>
                 {[
-                  { v: '30s',    l: 'Report time'        },
-                  { v: '20/wk',  l: 'Pro reports'        },
-                  { v: '4',      l: 'Sell platforms'      },
-                  { v: '£0',     l: 'To try it'           },
-                ].map(({ v, l }) => (
-                  <div key={l}>
-                    <p style={{ fontWeight: 800, fontSize: 24, lineHeight: 1, color: C.primary, margin: 0, letterSpacing: '-0.03em' }}>{v}</p>
-                    <p style={{ fontSize: 11, color: C.textMut, margin: '4px 0 0' }}>{l}</p>
+                  { v: '30s',   l: 'Results',      grad: 'linear-gradient(135deg,#6366F1,#8B5CF6)' },
+                  { v: '80%',   l: 'Max margin',   grad: 'linear-gradient(135deg,#8B5CF6,#EC4899)' },
+                  { v: '4',     l: 'Platforms',    grad: 'linear-gradient(135deg,#EC4899,#F97316)' },
+                  { v: '£0',    l: 'To start',     grad: 'linear-gradient(135deg,#059669,#10B981)' },
+                ].map(({ v, l, grad }) => (
+                  <div key={l} style={{
+                    background: grad, borderRadius: 10, padding: '10px 18px', textAlign: 'center',
+                    boxShadow: '0 2px 12px rgba(0,0,0,0.1)',
+                  }}>
+                    <p style={{ fontWeight: 800, fontSize: 22, lineHeight: 1, color: '#fff', margin: 0, letterSpacing: '-0.03em' }}>{v}</p>
+                    <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)', margin: '4px 0 0', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{l}</p>
                   </div>
                 ))}
               </div>
@@ -654,16 +666,16 @@ export function Landing() {
             >
               <div style={{
                 background:   '#FFFFFF',
-                border:       `1px solid ${C.border}`,
+                border:       `1px solid rgba(99,102,241,0.2)`,
                 borderRadius: 18,
-                boxShadow:    '0 8px 40px 0 rgba(15,23,42,0.1), 0 1px 3px 0 rgba(15,23,42,0.06)',
+                boxShadow:    '0 0 0 4px rgba(99,102,241,0.06), 0 24px 60px 0 rgba(99,102,241,0.18), 0 4px 12px 0 rgba(15,23,42,0.06)',
               }}>
                 {/* Card chrome */}
                 <div style={{
                   display:      'flex', alignItems: 'center', justifyContent: 'space-between',
                   padding:      '12px 20px',
-                  borderBottom: `1px solid ${C.border}`,
-                  background:   '#FAFAFA',
+                  borderBottom: `1px solid rgba(99,102,241,0.12)`,
+                  background:   'linear-gradient(135deg, #EEF2FF 0%, #F5F3FF 100%)',
                   borderRadius: '18px 18px 0 0',
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -887,7 +899,7 @@ export function Landing() {
       </section>
 
       {/* ── How it works ──────────────────────────────────────────────── */}
-      <div style={{ background: C.bgSubtle, borderTop: `1px solid ${C.border}`, borderBottom: `1px solid ${C.border}` }}>
+      <div style={{ background: 'linear-gradient(180deg, #F5F3FF 0%, #F9FAFB 100%)', borderTop: `1px solid rgba(99,102,241,0.12)`, borderBottom: `1px solid ${C.border}` }}>
         <section id="how-it-works" style={{ padding: '88px 24px', maxWidth: 1120, margin: '0 auto' }}>
           <FadeUp style={{ textAlign: 'center', marginBottom: 60 }}>
             <SectionLabel>How it works</SectionLabel>
@@ -904,7 +916,13 @@ export function Landing() {
           </FadeUp>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(280px,1fr))', gap: 20 }}>
-            {HOW_STEPS.map(({ n, icon: Icon, title, desc }, idx) => (
+            {HOW_STEPS.map(({ n, icon: Icon, title, desc }, idx) => {
+              const stepGrad = idx === 0
+                ? 'linear-gradient(135deg,#6366F1,#8B5CF6)'
+                : idx === 1
+                  ? 'linear-gradient(135deg,#8B5CF6,#EC4899)'
+                  : 'linear-gradient(135deg,#EC4899,#F97316)'
+              return (
               <motion.div
                 key={n}
                 initial={{ opacity: 0, y: 28 }}
@@ -915,8 +933,11 @@ export function Landing() {
                   background: '#FFFFFF', border: `1px solid ${C.border}`,
                   borderRadius: 14, padding: '28px 26px', position: 'relative', overflow: 'hidden',
                   boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+                  borderTop: 'none',
                 }}
               >
+                {/* Coloured top bar */}
+                <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 4, background: stepGrad, borderRadius: '14px 14px 0 0' }} />
                 {/* Watermark number */}
                 <div style={{
                   position: 'absolute', top: -8, right: 14,
@@ -934,7 +955,7 @@ export function Landing() {
                 <p style={{ fontWeight: 700, fontSize: 16, color: C.text, marginBottom: 10 }}>{title}</p>
                 <p style={{ fontSize: 14, color: C.textSec, lineHeight: 1.72 }}>{desc}</p>
               </motion.div>
-            ))}
+            )})}
           </div>
         </section>
       </div>
@@ -1058,7 +1079,7 @@ export function Landing() {
       <Divider />
 
       {/* ── Features ──────────────────────────────────────────────────── */}
-      <section style={{ padding: '88px 24px', background: C.bgSubtle }}>
+      <section style={{ padding: '88px 24px', background: 'linear-gradient(180deg, #FAFAFA 0%, #F5F3FF 100%)' }}>
         <div style={{ maxWidth: 1120, margin: '0 auto' }}>
           <FadeUp style={{ textAlign: 'center', marginBottom: 52 }}>
             <SectionLabel>Features</SectionLabel>
@@ -1070,14 +1091,23 @@ export function Landing() {
             </h2>
           </FadeUp>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(290px,1fr))', gap: 14 }}>
-            {FEATURES.map(({ icon: Icon, title, desc }, i) => (
+            {FEATURES.map(({ icon: Icon, title, desc }, i) => {
+              const iconGrads = [
+                'linear-gradient(135deg,#6366F1,#8B5CF6)',
+                'linear-gradient(135deg,#8B5CF6,#A855F7)',
+                'linear-gradient(135deg,#EC4899,#F97316)',
+                'linear-gradient(135deg,#059669,#10B981)',
+                'linear-gradient(135deg,#0EA5E9,#6366F1)',
+                'linear-gradient(135deg,#F59E0B,#EF4444)',
+              ]
+              return (
               <motion.div
                 key={title}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: '-30px' }}
                 transition={{ duration: 0.45, delay: i * 0.05, ease: [0.22, 1, 0.36, 1] }}
-                whileHover={{ y: -3, boxShadow: '0 8px 24px rgba(0,0,0,0.08)' }}
+                whileHover={{ y: -3, boxShadow: '0 12px 32px rgba(99,102,241,0.12)' }}
                 style={{
                   background: '#FFFFFF', border: `1px solid ${C.border}`,
                   borderRadius: 12, padding: '24px',
@@ -1087,14 +1117,15 @@ export function Landing() {
               >
                 <div style={{
                   display: 'inline-flex', padding: 10, borderRadius: 9, marginBottom: 16,
-                  background: C.primaryL, border: `1px solid ${C.primaryBdr}`,
+                  background: iconGrads[i],
+                  boxShadow: `0 4px 12px rgba(99,102,241,0.25)`,
                 }}>
-                  <Icon style={{ width: 16, height: 16, color: C.primary }} />
+                  <Icon style={{ width: 16, height: 16, color: '#fff' }} />
                 </div>
                 <p style={{ fontWeight: 700, fontSize: 15, color: C.text, marginBottom: 8 }}>{title}</p>
                 <p style={{ fontSize: 13, color: C.textSec, lineHeight: 1.72 }}>{desc}</p>
               </motion.div>
-            ))}
+            )})}
           </div>
         </div>
       </section>
@@ -1359,15 +1390,22 @@ export function Landing() {
       <section style={{
         padding:    '100px 24px',
         textAlign:  'center',
-        background: C.bgDark,
+        background: 'linear-gradient(135deg, #1E1B4B 0%, #312E81 30%, #4C1D95 60%, #6D28D9 100%)',
         position:   'relative',
         overflow:   'hidden',
       }}>
-        {/* Decorative gradient */}
+        {/* Bright radial highlight */}
         <div style={{
-          position: 'absolute', top: '-30%', left: '50%', transform: 'translateX(-50%)',
-          width: 800, height: 600,
-          background: 'radial-gradient(ellipse, rgba(79,70,229,0.35) 0%, transparent 70%)',
+          position: 'absolute', top: '-20%', left: '50%', transform: 'translateX(-50%)',
+          width: 900, height: 700,
+          background: 'radial-gradient(ellipse, rgba(139,92,246,0.5) 0%, rgba(236,72,153,0.2) 40%, transparent 70%)',
+          pointerEvents: 'none',
+        }} />
+        {/* Bottom pink accent */}
+        <div style={{
+          position: 'absolute', bottom: '-10%', right: '-5%',
+          width: 500, height: 500,
+          background: 'radial-gradient(circle, rgba(236,72,153,0.25) 0%, transparent 65%)',
           pointerEvents: 'none',
         }} />
 
