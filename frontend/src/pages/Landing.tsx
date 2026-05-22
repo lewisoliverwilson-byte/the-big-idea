@@ -1,10 +1,15 @@
 import { useState, useEffect, useCallback } from 'react'
+import type { ReactNode } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import type { CSSProperties } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import {
   ArrowRight, ChevronLeft, Check,
   TrendingUp, BarChart2, DollarSign, ShieldCheck, Zap, Globe, Sparkles,
+  Leaf, Briefcase, Package, Layers, Package2, Building2, Home, Gamepad2,
+  Shuffle, ShoppingBag, Palette, HelpCircle, Flame,
 } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 import { useAuthStore } from '../store/authStore'
 import type { QuizAnswers } from '../types'
 
@@ -88,52 +93,52 @@ function Wordmark({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
 // ─── Quiz data ────────────────────────────────────────────────────────────────
 const STEPS = 5
 
-interface QuizOption { id: string; emoji: string; label: string; sublabel: string }
+interface QuizOption { id: string; icon: LucideIcon; label: string; sublabel: string }
 
 const QUIZ_QUESTIONS: { step: number; title: string; options: QuizOption[] }[] = [
   {
     step: 1, title: "What's your starting budget?",
     options: [
-      { id: '175',  emoji: '🌱', label: '£100 – £250',   sublabel: 'Just getting started' },
-      { id: '375',  emoji: '📈', label: '£250 – £500',   sublabel: 'Ready to invest' },
-      { id: '1000', emoji: '💼', label: '£500 – £1,500', sublabel: 'Serious about this' },
-      { id: '2000', emoji: '🚀', label: '£1,500+',       sublabel: 'All in' },
+      { id: '175',  icon: Leaf,       label: '£100 – £250',   sublabel: 'Just getting started' },
+      { id: '375',  icon: TrendingUp, label: '£250 – £500',   sublabel: 'Ready to invest' },
+      { id: '1000', icon: Briefcase,  label: '£500 – £1,500', sublabel: 'Serious about this' },
+      { id: '2000', icon: Zap,        label: '£1,500+',       sublabel: 'All in' },
     ],
   },
   {
     step: 2, title: 'How much storage do you have?',
     options: [
-      { id: 'small',  emoji: '📦', label: 'Small',    sublabel: 'Bag or jiffy bag' },
-      { id: 'medium', emoji: '🗂️', label: 'Medium',   sublabel: 'Shoebox size' },
-      { id: 'large',  emoji: '📫', label: 'Large',    sublabel: 'Takes up a shelf' },
-      { id: 'xlarge', emoji: '🏭', label: 'Any size', sublabel: "I'll use a fulfilment centre" },
+      { id: 'small',  icon: Package,   label: 'Small',    sublabel: 'Bag or jiffy bag' },
+      { id: 'medium', icon: Layers,    label: 'Medium',   sublabel: 'Shoebox size' },
+      { id: 'large',  icon: Package2,  label: 'Large',    sublabel: 'Takes up a shelf' },
+      { id: 'xlarge', icon: Building2, label: 'Any size', sublabel: "I'll use a fulfilment centre" },
     ],
   },
   {
     step: 3, title: 'What products interest you?',
     options: [
-      { id: 'Home & Garden',   emoji: '🏠', label: 'Home & Gadgets',  sublabel: 'Practical everyday items' },
-      { id: 'Beauty & Health', emoji: '✨', label: 'Beauty & Health', sublabel: 'Skincare, wellness, grooming' },
-      { id: 'Toys & Games',    emoji: '🎮', label: 'Toys & Hobbies',  sublabel: 'Games, collectibles, fun' },
-      { id: 'No preference',   emoji: '🎲', label: 'Surprise me',     sublabel: 'Best opportunity wins' },
+      { id: 'Home & Garden',   icon: Home,      label: 'Home & Gadgets',  sublabel: 'Practical everyday items' },
+      { id: 'Beauty & Health', icon: Sparkles,  label: 'Beauty & Health', sublabel: 'Skincare, wellness, grooming' },
+      { id: 'Toys & Games',    icon: Gamepad2,  label: 'Toys & Hobbies',  sublabel: 'Games, collectibles, fun' },
+      { id: 'No preference',   icon: Shuffle,   label: 'Surprise me',     sublabel: 'Best opportunity wins' },
     ],
   },
   {
     step: 4, title: 'Where do you want to sell?',
     options: [
-      { id: 'amazon', emoji: '📦', label: 'Amazon',       sublabel: 'Biggest marketplace' },
-      { id: 'ebay',   emoji: '🛒', label: 'eBay',         sublabel: 'Great for unique items' },
-      { id: 'etsy',   emoji: '🎨', label: 'Etsy',         sublabel: 'Niche & creative products' },
-      { id: 'any',    emoji: '🤷', label: "I'm not sure", sublabel: 'Show me the best option' },
+      { id: 'amazon', icon: Package,     label: 'Amazon',       sublabel: 'Biggest marketplace' },
+      { id: 'ebay',   icon: ShoppingBag, label: 'eBay',         sublabel: 'Great for unique items' },
+      { id: 'etsy',   icon: Palette,     label: 'Etsy',         sublabel: 'Niche & creative products' },
+      { id: 'any',    icon: HelpCircle,  label: "I'm not sure", sublabel: 'Show me the best option' },
     ],
   },
   {
     step: 5, title: "What's your main goal?",
     options: [
-      { id: 'volume',   emoji: '⚡', label: 'Quick wins',        sublabel: 'Fast-selling, high volume' },
-      { id: 'margin',   emoji: '💰', label: 'Big margins',       sublabel: 'Fewer sales, higher profit' },
-      { id: 'trending', emoji: '🔥', label: 'Trending products', sublabel: 'Only upward-momentum items' },
-      { id: 'safe',     emoji: '🛡️', label: 'Low risk',          sublabel: 'Safe, proven products' },
+      { id: 'volume',   icon: Zap,         label: 'Quick wins',        sublabel: 'Fast-selling, high volume' },
+      { id: 'margin',   icon: DollarSign,  label: 'Big margins',       sublabel: 'Fewer sales, higher profit' },
+      { id: 'trending', icon: Flame,       label: 'Trending products', sublabel: 'Only upward-momentum items' },
+      { id: 'safe',     icon: ShieldCheck, label: 'Low risk',          sublabel: 'Safe, proven products' },
     ],
   },
 ]
@@ -159,6 +164,25 @@ function MagicDivider() {
       <span style={{ color: C.purple, fontSize: 10, opacity: 0.7 }}>✦</span>
       <div style={{ flex: 1, height: 1, background: `linear-gradient(to left, transparent, ${C.border}, transparent)` }} />
     </div>
+  )
+}
+
+// ─── Motion helpers ───────────────────────────────────────────────────────────
+
+function FadeUp({ children, delay = 0, className, style }: {
+  children: ReactNode; delay?: number; className?: string; style?: CSSProperties
+}) {
+  return (
+    <motion.div
+      className={className}
+      style={style}
+      initial={{ opacity: 0, y: 22 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-56px' }}
+      transition={{ duration: 0.55, delay, ease: [0.22, 1, 0.36, 1] }}
+    >
+      {children}
+    </motion.div>
   )
 }
 
@@ -199,7 +223,7 @@ function QuizOpt({ option, selected, onClick }: {
         boxShadow: selected ? '0 0 12px rgba(139,92,246,0.15)' : 'none',
       }}
     >
-      <span style={{ fontSize: 16, lineHeight: 1, flexShrink: 0 }}>{option.emoji}</span>
+      <option.icon style={{ width: 15, height: 15, flexShrink: 0, color: selected ? C.purpleBright : C.textMuted }} />
       <div style={{ flex: 1, minWidth: 0 }}>
         <p style={{
           fontFamily: 'Outfit,sans-serif', fontWeight: 600, fontSize: 13,
@@ -697,38 +721,46 @@ export function Landing() {
 
                   ) : quizStep !== 'email' ? (
                     /* ── Normal quiz questions ── */
-                    <div key={`step-${quizStep}`} className="animate-fadeIn">
-                      <QuizProgress step={step} total={STEPS} />
-                      <p style={{
-                        fontFamily: 'Outfit,sans-serif', fontWeight: 600, fontSize: 15,
-                        color: C.text, margin: '0 0 14px',
-                      }}>
-                        {QUIZ_QUESTIONS[(quizStep as number) - 1].title}
-                      </p>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                        {QUIZ_QUESTIONS[(quizStep as number) - 1].options.map(opt => (
-                          <QuizOpt
-                            key={opt.id} option={opt}
-                            selected={currentValue === opt.id}
-                            onClick={() => handleSelect(opt.id)}
-                          />
-                        ))}
-                      </div>
-                      {(quizStep as number) > 1 && (
-                        <button
-                          type="button"
-                          onClick={() => setQuizStep((quizStep as number) - 1)}
-                          style={{
-                            marginTop: 14, display: 'flex', alignItems: 'center', gap: 4,
-                            fontFamily: 'Outfit,sans-serif', fontSize: 12, color: C.textMuted,
-                            background: 'none', border: 'none', cursor: 'pointer', padding: 0,
-                          }}
-                        >
-                          <ChevronLeft style={{ width: 13, height: 13 }} />
-                          Back
-                        </button>
-                      )}
-                    </div>
+                    <AnimatePresence mode="wait">
+                      <motion.div
+                        key={`step-${quizStep}`}
+                        initial={{ opacity: 0, x: 12 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -12 }}
+                        transition={{ duration: 0.2, ease: 'easeInOut' }}
+                      >
+                        <QuizProgress step={step} total={STEPS} />
+                        <p style={{
+                          fontFamily: 'Outfit,sans-serif', fontWeight: 600, fontSize: 15,
+                          color: C.text, margin: '0 0 14px',
+                        }}>
+                          {QUIZ_QUESTIONS[(quizStep as number) - 1].title}
+                        </p>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                          {QUIZ_QUESTIONS[(quizStep as number) - 1].options.map(opt => (
+                            <QuizOpt
+                              key={opt.id} option={opt}
+                              selected={currentValue === opt.id}
+                              onClick={() => handleSelect(opt.id)}
+                            />
+                          ))}
+                        </div>
+                        {(quizStep as number) > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => setQuizStep((quizStep as number) - 1)}
+                            style={{
+                              marginTop: 14, display: 'flex', alignItems: 'center', gap: 4,
+                              fontFamily: 'Outfit,sans-serif', fontSize: 12, color: C.textMuted,
+                              background: 'none', border: 'none', cursor: 'pointer', padding: 0,
+                            }}
+                          >
+                            <ChevronLeft style={{ width: 13, height: 13 }} />
+                            Back
+                          </button>
+                        )}
+                      </motion.div>
+                    </AnimatePresence>
                   ) : (
                     <form key="email" onSubmit={handleEmailSubmit} className="animate-fadeIn">
                       <QuizProgress step={step} total={STEPS} />
@@ -826,7 +858,7 @@ export function Landing() {
         {/* ── How it works ───────────────────────────────────────────── */}
         <section id="how-it-works" style={{ padding: '96px 24px' }}>
           <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-            <div style={{ textAlign: 'center', marginBottom: 64 }}>
+            <FadeUp style={{ textAlign: 'center', marginBottom: 64 }}>
               <p style={{ fontFamily: '"DM Mono",monospace', fontSize: 10, letterSpacing: '0.14em', color: C.textMuted, marginBottom: 14 }}>
                 THE PROCESS
               </p>
@@ -842,11 +874,19 @@ export function Landing() {
               <p style={{ fontFamily: 'Outfit,sans-serif', fontSize: 15, color: C.textDim, maxWidth: 420, margin: '0 auto', lineHeight: 1.7 }}>
                 No spreadsheets. No hours of research. Three steps from intent to fortune.
               </p>
-            </div>
+            </FadeUp>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(280px,1fr))', gap: 32 }}>
               {HOW_STEPS.map(({ n, icon: Icon, title, desc }, idx) => (
-                <div key={n} style={{ ...GLASS, padding: 28, position: 'relative', overflow: 'hidden' }}>
+                <motion.div
+                  key={n}
+                  initial={{ opacity: 0, y: 28 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: '-40px' }}
+                  transition={{ duration: 0.5, delay: idx * 0.10, ease: [0.22, 1, 0.36, 1] }}
+                  whileHover={{ y: -4, transition: { duration: 0.18 } }}
+                  style={{ ...GLASS, padding: 28, position: 'relative', overflow: 'hidden' }}
+                >
                   {/* Decorative number */}
                   <div style={{
                     position: 'absolute', top: -16, right: 20,
@@ -876,7 +916,7 @@ export function Landing() {
                       →
                     </div>
                   )}
-                </div>
+                </motion.div>
               ))}
             </div>
           </div>
@@ -887,7 +927,7 @@ export function Landing() {
         {/* ── Sample report ──────────────────────────────────────────── */}
         <section style={{ padding: '80px 24px' }}>
           <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-            <div style={{ textAlign: 'center', marginBottom: 56 }}>
+            <FadeUp style={{ textAlign: 'center', marginBottom: 56 }}>
               <p style={{ fontFamily: '"DM Mono",monospace', fontSize: 10, letterSpacing: '0.14em', color: C.textMuted, marginBottom: 14 }}>
                 THE ORACLE
               </p>
@@ -902,7 +942,7 @@ export function Landing() {
               <p style={{ fontFamily: 'Outfit,sans-serif', fontSize: 15, color: C.textDim, maxWidth: 400, margin: '0 auto', lineHeight: 1.7 }}>
                 Real data, not generic advice. Every report is conjured fresh from live marketplace listings.
               </p>
-            </div>
+            </FadeUp>
 
             <div style={{ ...GLASS, maxWidth: 680, margin: '0 auto', padding: 28,
               boxShadow: '0 0 0 1px rgba(139,92,246,0.10), 0 30px 60px rgba(0,0,0,0.7), 0 0 80px rgba(124,58,237,0.06)',
@@ -999,7 +1039,7 @@ export function Landing() {
         {/* ── Features ───────────────────────────────────────────────── */}
         <section style={{ padding: '80px 24px' }}>
           <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-            <div style={{ textAlign: 'center', marginBottom: 56 }}>
+            <FadeUp style={{ textAlign: 'center', marginBottom: 56 }}>
               <p style={{ fontFamily: '"DM Mono",monospace', fontSize: 10, letterSpacing: '0.14em', color: C.textMuted, marginBottom: 14 }}>
                 THE ARSENAL
               </p>
@@ -1011,13 +1051,18 @@ export function Landing() {
                 <span style={GTEXT}>Everything</span>{' '}
                 <span style={{ color: C.text }}>in One Report</span>
               </h2>
-            </div>
+            </FadeUp>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(300px,1fr))', gap: 14 }}>
-              {FEATURES.map(({ icon: Icon, title, desc }) => (
-                <div key={title} style={{
-                  ...GLASS, padding: 24,
-                  transition: 'border-color 250ms, box-shadow 250ms',
-                }}>
+              {FEATURES.map(({ icon: Icon, title, desc }, i) => (
+                <motion.div
+                  key={title}
+                  initial={{ opacity: 0, y: 24 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: '-36px' }}
+                  transition={{ duration: 0.5, delay: i * 0.06, ease: [0.22, 1, 0.36, 1] }}
+                  whileHover={{ y: -4, transition: { duration: 0.16 } }}
+                  style={{ ...GLASS, padding: 24 }}
+                >
                   <div style={{
                     display: 'inline-flex', padding: 10, borderRadius: 10, marginBottom: 16,
                     background: 'rgba(139,92,246,0.07)', border: `1px solid ${C.border}`,
@@ -1026,7 +1071,7 @@ export function Landing() {
                   </div>
                   <p style={{ fontFamily: 'Outfit,sans-serif', fontWeight: 600, fontSize: 14, color: C.text, marginBottom: 8 }}>{title}</p>
                   <p style={{ fontFamily: 'Outfit,sans-serif', fontSize: 13, color: C.textDim, lineHeight: 1.72 }}>{desc}</p>
-                </div>
+                </motion.div>
               ))}
             </div>
           </div>
@@ -1037,7 +1082,7 @@ export function Landing() {
         {/* ── Pricing ────────────────────────────────────────────────── */}
         <section id="pricing" style={{ padding: '80px 24px' }}>
           <div style={{ maxWidth: 900, margin: '0 auto' }}>
-            <div style={{ textAlign: 'center', marginBottom: 56 }}>
+            <FadeUp style={{ textAlign: 'center', marginBottom: 56 }}>
               <p style={{ fontFamily: '"DM Mono",monospace', fontSize: 10, letterSpacing: '0.14em', color: C.textMuted, marginBottom: 14 }}>
                 PRICING
               </p>
@@ -1052,7 +1097,7 @@ export function Landing() {
               <p style={{ fontFamily: 'Outfit,sans-serif', fontSize: 15, color: C.textDim, maxWidth: 340, margin: '0 auto', lineHeight: 1.7 }}>
                 Two free ideas to prove the value. Then £10 a month for everything.
               </p>
-            </div>
+            </FadeUp>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(280px,1fr))', gap: 20, maxWidth: 700, margin: '0 auto' }}>
 
@@ -1066,7 +1111,7 @@ export function Landing() {
                   <span style={{ fontFamily: 'Outfit,sans-serif', fontSize: 14, color: C.textMuted, marginLeft: 4 }}>/forever</span>
                 </div>
                 <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 28px', display: 'flex', flexDirection: 'column', gap: 10 }}>
-                  {['2 free ideas (lifetime)', '1-paragraph AI summary', 'Margin calculator', 'Best platform only'].map(f => (
+                  {['2 ideas — lifetime', '1-paragraph AI summary', 'Margin calculator', 'Best platform only', 'Source links to buy'].map(f => (
                     <li key={f} style={{ display: 'flex', alignItems: 'center', gap: 8, fontFamily: 'Outfit,sans-serif', fontSize: 13, color: C.textDim }}>
                       <Check style={{ width: 14, height: 14, color: C.purple, flexShrink: 0 }} />{f}
                     </li>
@@ -1124,7 +1169,9 @@ export function Landing() {
                     'All 4 platform comparisons',
                     'Trend charts & 6-month data',
                     'Interactive margin calculator',
+                    'Source links (Temu, AliExpress, Alibaba)',
                     'Full report history',
+                    'Priority support',
                   ].map(f => (
                     <li key={f} style={{ display: 'flex', alignItems: 'center', gap: 8, fontFamily: 'Outfit,sans-serif', fontSize: 13, color: C.text }}>
                       <Check style={{ width: 14, height: 14, color: C.purpleBright, flexShrink: 0 }} />{f}
@@ -1159,7 +1206,7 @@ export function Landing() {
         {/* ── FAQ ────────────────────────────────────────────────────── */}
         <section style={{ padding: '80px 24px' }}>
           <div style={{ maxWidth: 640, margin: '0 auto' }}>
-            <div style={{ textAlign: 'center', marginBottom: 48 }}>
+            <FadeUp style={{ textAlign: 'center', marginBottom: 48 }}>
               <p style={{ fontFamily: '"DM Mono",monospace', fontSize: 10, letterSpacing: '0.14em', color: C.textMuted, marginBottom: 14 }}>
                 THE GRIMOIRE
               </p>
@@ -1171,7 +1218,7 @@ export function Landing() {
                 <span style={{ color: C.text }}>Common</span>{' '}
                 <span style={GTEXT}>Questions</span>
               </h2>
-            </div>
+            </FadeUp>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {[
                 { q: 'How accurate is the data?',
@@ -1184,8 +1231,16 @@ export function Landing() {
                   a: 'Yes. Cancel from your account settings and you keep Pro access until the end of that billing month. No questions asked.' },
                 { q: 'What platforms do you cover?',
                   a: 'Buy-side: Temu, AliExpress, Alibaba. Sell-side: Amazon, eBay, Etsy, Shopify. We show margins, fees, and estimated monthly sales on each.' },
-              ].map(({ q, a }) => (
-                <details key={q} className="group" style={{ ...GLASS, borderRadius: 10 }}>
+              ].map(({ q, a }, i) => (
+                <motion.details
+                  key={q}
+                  className="group"
+                  initial={{ opacity: 0, y: 16 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: '-24px' }}
+                  transition={{ duration: 0.4, delay: i * 0.06, ease: [0.22, 1, 0.36, 1] }}
+                  style={{ ...GLASS, borderRadius: 10 }}
+                >
                   <summary style={{
                     fontFamily: 'Outfit,sans-serif', fontWeight: 600, fontSize: 13, color: C.text,
                     padding: '14px 18px', cursor: 'pointer', listStyle: 'none',
@@ -1195,7 +1250,7 @@ export function Landing() {
                     <span style={{ color: C.textMuted, flexShrink: 0, marginLeft: 12 }} className="group-open:rotate-180 transition-transform">▾</span>
                   </summary>
                   <p style={{ fontFamily: 'Outfit,sans-serif', fontSize: 13, color: C.textDim, lineHeight: 1.72, padding: '0 18px 14px' }}>{a}</p>
-                </details>
+                </motion.details>
               ))}
             </div>
           </div>

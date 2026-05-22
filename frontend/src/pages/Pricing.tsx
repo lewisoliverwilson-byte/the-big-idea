@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { useMutation } from '@tanstack/react-query'
-import { CheckCircle, X } from 'lucide-react'
+import { CheckCircle, X, Brain, LayoutGrid, RefreshCw } from 'lucide-react'
 import { createCheckoutSession } from '../services/api'
 import { useAuthStore } from '../store/authStore'
 import type { CSSProperties } from 'react'
@@ -41,29 +41,29 @@ const GLASS: CSSProperties = {
 // ─── Plan data ────────────────────────────────────────────────────────────────
 
 const FREE_FEATURES = [
-  '2 spell casts — lifetime',
-  '1-paragraph oracle analysis',
-  'Margin divination',
-  'Best platform revealed',
-  'Source links to procure product',
+  '2 ideas — lifetime',
+  '1-paragraph AI summary',
+  'Margin calculator',
+  'Best platform only',
+  'Source links to buy',
 ]
 
 const FREE_LIMITS = [
-  'Full 5-paragraph analysis',
-  'All 4 platform visions',
-  'Trend charts & data scrolls',
-  '20 spells per week',
+  'Full 5-paragraph GPT-4o analysis',
+  'All 4 platform comparisons',
+  'Trend charts & 6-month data',
+  '20 ideas per week',
 ]
 
 const PRO_FEATURES = [
-  '20 spells every week',
-  'Full 5-paragraph oracle (GPT-4o)',
+  '20 fresh ideas per week',
+  'Full 5-paragraph GPT-4o analysis',
   'All 4 platform comparisons',
   'Trend charts & 6-month data',
   'Interactive margin calculator',
   'Source links (Temu, AliExpress, Alibaba)',
-  'Full grimoire history',
-  'Priority conjuring',
+  'Full report history',
+  'Priority support',
 ]
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -379,23 +379,28 @@ export function Pricing() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {[
               {
-                icon: '🧠',
-                title: '5× deeper oracle',
+                Icon: Brain,
+                title: '5× deeper analysis',
                 desc: 'Pro uses GPT-4o and writes 5 full paragraphs — target market, competitor landscape, strategy, and trend outlook.',
               },
               {
-                icon: '📊',
-                title: 'All 4 visions',
+                Icon: LayoutGrid,
+                title: 'All 4 platforms',
                 desc: 'Free shows only the best platform. Pro reveals every margin, fee, and sales estimate across Amazon, eBay, Etsy, and Shopify.',
               },
               {
-                icon: '📅',
-                title: '20 spells per week',
-                desc: 'Free gives 2 spells, ever. Pro resets every 7 days so you always have fresh ammunition.',
+                Icon: RefreshCw,
+                title: '20 ideas per week',
+                desc: 'Free gives 2 ideas, ever. Pro resets every 7 days so you always have fresh ammunition.',
               },
-            ].map(({ icon, title, desc }) => (
+            ].map(({ Icon, title, desc }) => (
               <div key={title} style={{ ...GLASS, padding: 24 }}>
-                <div style={{ fontSize: 32, marginBottom: 14 }}>{icon}</div>
+                <div style={{
+                  display: 'inline-flex', padding: 10, borderRadius: 10, marginBottom: 14,
+                  background: 'rgba(139,92,246,0.08)', border: `1px solid ${C.border}`,
+                }}>
+                  <Icon size={18} style={{ color: C.purpleB }} />
+                </div>
                 <h3 style={{ fontSize: 15, fontWeight: 700, color: C.text, marginBottom: 8 }}>{title}</h3>
                 <p style={{ fontSize: 13, color: C.textDim, lineHeight: 1.6 }}>{desc}</p>
               </div>
