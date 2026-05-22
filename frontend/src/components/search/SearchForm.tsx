@@ -132,8 +132,8 @@ export function SearchForm({ onPaywallHit }: SearchFormProps) {
             type="number" min={10} max={100000} placeholder="200"
             style={inputStyle}
             onFocus={e => Object.assign(e.currentTarget.style, focusStyle)}
-            onBlur={e => { e.currentTarget.style.borderColor = '#CBD5E1'; e.currentTarget.style.boxShadow = 'none' }}
             {...register('budgetGbp', { valueAsNumber: true })}
+            onBlur={e => { e.currentTarget.style.borderColor = '#CBD5E1'; e.currentTarget.style.boxShadow = 'none' }}
           />
           {errors.budgetGbp && <p style={{ color: '#DC2626', fontSize: 11, marginTop: 3 }}>{errors.budgetGbp.message}</p>}
         </div>
@@ -142,8 +142,8 @@ export function SearchForm({ onPaywallHit }: SearchFormProps) {
           <select
             style={{ ...inputStyle, width: 76 }}
             onFocus={e => Object.assign(e.currentTarget.style, focusStyle)}
-            onBlur={e => { e.currentTarget.style.borderColor = '#CBD5E1'; e.currentTarget.style.boxShadow = 'none' }}
             {...register('currency')}
+            onBlur={e => { e.currentTarget.style.borderColor = '#CBD5E1'; e.currentTarget.style.boxShadow = 'none' }}
           >
             <option value="GBP">GBP</option>
             <option value="USD">USD</option>
@@ -157,8 +157,8 @@ export function SearchForm({ onPaywallHit }: SearchFormProps) {
         <select
           style={inputStyle}
           onFocus={e => Object.assign(e.currentTarget.style, focusStyle)}
-          onBlur={e => { e.currentTarget.style.borderColor = '#CBD5E1'; e.currentTarget.style.boxShadow = 'none' }}
           {...register('unitSize')}
+          onBlur={e => { e.currentTarget.style.borderColor = '#CBD5E1'; e.currentTarget.style.boxShadow = 'none' }}
         >
           <option value="small">Small — envelope size</option>
           <option value="medium">Medium — shoebox</option>
@@ -173,8 +173,8 @@ export function SearchForm({ onPaywallHit }: SearchFormProps) {
         <select
           style={inputStyle}
           onFocus={e => Object.assign(e.currentTarget.style, focusStyle)}
-          onBlur={e => { e.currentTarget.style.borderColor = '#CBD5E1'; e.currentTarget.style.boxShadow = 'none' }}
           {...register('category')}
+          onBlur={e => { e.currentTarget.style.borderColor = '#CBD5E1'; e.currentTarget.style.boxShadow = 'none' }}
         >
           {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
         </select>
@@ -248,8 +248,8 @@ export function SearchForm({ onPaywallHit }: SearchFormProps) {
           type="text" placeholder="e.g. fragile, batteries"
           style={inputStyle}
           onFocus={e => Object.assign(e.currentTarget.style, focusStyle)}
-          onBlur={e => { e.currentTarget.style.borderColor = '#CBD5E1'; e.currentTarget.style.boxShadow = 'none' }}
           {...register('keywordsToAvoid')}
+          onBlur={e => { e.currentTarget.style.borderColor = '#CBD5E1'; e.currentTarget.style.boxShadow = 'none' }}
         />
       </div>
 

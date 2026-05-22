@@ -208,8 +208,8 @@ export function SignIn() {
                   placeholder="you@example.com"
                   style={inputStyle}
                   onFocus={e => { e.currentTarget.style.borderColor = '#6366F1'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(99,102,241,0.12)' }}
-                  onBlur={e  => { e.currentTarget.style.borderColor = '#CBD5E1'; e.currentTarget.style.boxShadow = 'none' }}
                   {...register('email')}
+                  onBlur={e  => { e.currentTarget.style.borderColor = '#CBD5E1'; e.currentTarget.style.boxShadow = 'none' }}
                 />
                 {errors.email && <p style={{ color: '#DC2626', fontSize: 12, marginTop: 4, fontFamily: 'Inter, system-ui, sans-serif' }}>{errors.email.message}</p>}
               </div>
@@ -230,8 +230,8 @@ export function SignIn() {
                   placeholder="Your password"
                   style={inputStyle}
                   onFocus={e => { e.currentTarget.style.borderColor = '#6366F1'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(99,102,241,0.12)' }}
-                  onBlur={e  => { e.currentTarget.style.borderColor = '#CBD5E1'; e.currentTarget.style.boxShadow = 'none' }}
                   {...register('password')}
+                  onBlur={e  => { e.currentTarget.style.borderColor = '#CBD5E1'; e.currentTarget.style.boxShadow = 'none' }}
                 />
                 {errors.password && <p style={{ color: '#DC2626', fontSize: 12, marginTop: 4, fontFamily: 'Inter, system-ui, sans-serif' }}>{errors.password.message}</p>}
               </div>
@@ -304,8 +304,8 @@ export function SignIn() {
                   placeholder="you@example.com"
                   style={inputStyle}
                   onFocus={e => { e.currentTarget.style.borderColor = '#6366F1'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(99,102,241,0.12)' }}
-                  onBlur={e  => { e.currentTarget.style.borderColor = '#CBD5E1'; e.currentTarget.style.boxShadow = 'none' }}
                   {...registerReset('email')}
+                  onBlur={e  => { e.currentTarget.style.borderColor = '#CBD5E1'; e.currentTarget.style.boxShadow = 'none' }}
                 />
                 {resetErrors.email && <p style={{ color: '#DC2626', fontSize: 12, marginTop: 4, fontFamily: 'Inter, system-ui, sans-serif' }}>{resetErrors.email.message}</p>}
               </div>
@@ -351,8 +351,8 @@ export function SignIn() {
                   placeholder="123456"
                   style={{ ...inputStyle, textAlign: 'center', letterSpacing: '0.25em', fontSize: 18 }}
                   onFocus={e => { e.currentTarget.style.borderColor = '#6366F1'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(99,102,241,0.12)' }}
-                  onBlur={e  => { e.currentTarget.style.borderColor = '#CBD5E1'; e.currentTarget.style.boxShadow = 'none' }}
                   {...registerConfirmReset('code')}
+                  onBlur={e  => { e.currentTarget.style.borderColor = '#CBD5E1'; e.currentTarget.style.boxShadow = 'none' }}
                 />
                 {confirmResetErrors.code && <p style={{ color: '#DC2626', fontSize: 12, marginTop: 4, fontFamily: 'Inter, system-ui, sans-serif' }}>{confirmResetErrors.code.message}</p>}
               </div>
@@ -364,8 +364,8 @@ export function SignIn() {
                   placeholder="Min. 8 characters"
                   style={inputStyle}
                   onFocus={e => { e.currentTarget.style.borderColor = '#6366F1'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(99,102,241,0.12)' }}
-                  onBlur={e  => { e.currentTarget.style.borderColor = '#CBD5E1'; e.currentTarget.style.boxShadow = 'none' }}
                   {...registerConfirmReset('newPassword')}
+                  onBlur={e  => { e.currentTarget.style.borderColor = '#CBD5E1'; e.currentTarget.style.boxShadow = 'none' }}
                 />
                 {confirmResetErrors.newPassword && <p style={{ color: '#DC2626', fontSize: 12, marginTop: 4, fontFamily: 'Inter, system-ui, sans-serif' }}>{confirmResetErrors.newPassword.message}</p>}
               </div>

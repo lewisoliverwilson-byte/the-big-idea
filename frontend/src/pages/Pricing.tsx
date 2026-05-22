@@ -3,8 +3,6 @@ import { useMutation } from '@tanstack/react-query'
 import { Check, X, Brain, LayoutGrid, RefreshCw } from 'lucide-react'
 import { createCheckoutSession } from '../services/api'
 import { useAuthStore } from '../store/authStore'
-import { Logo } from '../components/layout/Navbar'
-import { Link } from 'react-router-dom'
 
 // ─── Plan data ────────────────────────────────────────────────────────────────
 

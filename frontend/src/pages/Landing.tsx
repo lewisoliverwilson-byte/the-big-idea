@@ -483,7 +483,6 @@ export function Landing() {
         <Wordmark />
 
         <div style={{ display: 'none', gap: 2, alignItems: 'center' }} className="hidden sm:flex">
-          {(['How it works', '#how-it-works'] as const) && null}
           <a href="#how-it-works" style={{ fontSize: 13, color: C.textSec, textDecoration: 'none', padding: '6px 12px', borderRadius: 7, transition: 'color 0.12s, background 0.12s' }}
             onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.color = C.text; (e.currentTarget as HTMLAnchorElement).style.background = '#F9FAFB' }}
             onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.color = C.textSec; (e.currentTarget as HTMLAnchorElement).style.background = 'transparent' }}
