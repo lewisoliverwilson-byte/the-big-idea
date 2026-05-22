@@ -6,10 +6,13 @@
   html {
     scroll-behavior: smooth;
     background-color: #070511;
+    color: #F0EEFF;
+    font-family: 'Outfit', sans-serif;
   }
   body {
     @apply antialiased;
     background-color: #070511;
     color: #F0EEFF;
+    font-family: 'Outfit', sans-serif;
   }
 }
