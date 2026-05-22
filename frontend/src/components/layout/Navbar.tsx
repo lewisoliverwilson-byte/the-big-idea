@@ -59,7 +59,7 @@ export function Navbar() {
           <div className="hidden md:flex items-center gap-6">
             <Link
               to="/pricing"
-              style={{ fontSize: 14, color: '#9B8ECF', textDecoration: 'none', transition: 'color 0.15s' }}
+              style={{ fontSize: 14, color: '#9B8ECF', textDecoration: 'none', transition: 'color 0.15s', padding: '12px 4px', display: 'inline-flex', alignItems: 'center' }}
               onMouseEnter={e => (e.currentTarget.style.color = '#F0EEFF')}
               onMouseLeave={e => (e.currentTarget.style.color = '#9B8ECF')}
             >
@@ -68,7 +68,7 @@ export function Navbar() {
             {!isAuthenticated && (
               <Link
                 to="/auth/signin"
-                style={{ fontSize: 14, color: '#9B8ECF', textDecoration: 'none', transition: 'color 0.15s' }}
+                style={{ fontSize: 14, color: '#9B8ECF', textDecoration: 'none', transition: 'color 0.15s', padding: '12px 4px', display: 'inline-flex', alignItems: 'center' }}
                 onMouseEnter={e => (e.currentTarget.style.color = '#F0EEFF')}
                 onMouseLeave={e => (e.currentTarget.style.color = '#9B8ECF')}
               >
