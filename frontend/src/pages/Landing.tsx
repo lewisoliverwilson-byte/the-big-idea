@@ -631,29 +631,6 @@ export function Landing() {
                 ))}
               </div>
 
-              {/* Platform pills */}
-              <div className="flex flex-col items-center lg:items-start" style={{ gap: 10 }}>
-                <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8 }}>
-                  <span style={{ fontSize: 11, color: C.textMut, fontWeight: 500, whiteSpace: 'nowrap' }}>Buy from</span>
-                  {PLATFORM_BUY.map(p => (
-                    <span key={p} style={{
-                      fontSize: 11, fontWeight: 600, color: C.textSec,
-                      background: '#F9FAFB', border: `1px solid ${C.border}`,
-                      borderRadius: 6, padding: '3px 9px',
-                    }}>{p}</span>
-                  ))}
-                </div>
-                <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8 }}>
-                  <span style={{ fontSize: 11, color: C.textMut, fontWeight: 500, whiteSpace: 'nowrap' }}>Sell on</span>
-                  {PLATFORM_SELL.map(p => (
-                    <span key={p} style={{
-                      fontSize: 11, fontWeight: 600, color: C.primary,
-                      background: C.primaryL, border: `1px solid ${C.primaryBdr}`,
-                      borderRadius: 6, padding: '3px 9px',
-                    }}>{p}</span>
-                  ))}
-                </div>
-              </div>
             </motion.div>
 
             {/* ── Right: Quiz card ── */}
