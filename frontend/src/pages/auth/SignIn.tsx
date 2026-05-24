@@ -162,7 +162,7 @@ export function SignIn() {
               letterSpacing: '-0.02em',
               color:         '#0F172A',
             }}>
-              The Big Idea
+              Scout<span style={{ color: '#6366F1' }}>r</span>
             </span>
           </Link>
 

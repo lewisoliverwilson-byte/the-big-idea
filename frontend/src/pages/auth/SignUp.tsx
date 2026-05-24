@@ -121,8 +121,8 @@ export function SignUp() {
         <div style={{ textAlign: 'center', marginBottom: 28 }}>
           <Link to="/" style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
             <Logo size={36} />
-            <span style={{ fontFamily: 'Inter, system-ui, sans-serif', fontWeight: 700, fontSize: 20, letterSpacing: '-0.02em', color: '#0F172A' }}>
-              The Big Idea
+            <span style={{ fontFamily: 'Inter, system-ui, sans-serif', fontWeight: 800, fontSize: 20, letterSpacing: '-0.03em', color: '#0F172A' }}>
+              Scout<span style={{ color: '#6366F1' }}>r</span>
             </span>
           </Link>
 

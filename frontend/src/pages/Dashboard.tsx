@@ -52,8 +52,8 @@ function TopNav({ user, isPro, onSignOut }: { user: any; isPro: boolean; onSignO
     }}>
       <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none' }}>
         <Logo size={22} />
-        <span style={{ fontFamily: 'Inter, system-ui, sans-serif', fontWeight: 700, fontSize: 15, letterSpacing: '-0.02em', color: C.text }}>
-          The Big Idea
+        <span style={{ fontFamily: 'Inter, system-ui, sans-serif', fontWeight: 800, fontSize: 15, letterSpacing: '-0.03em', color: C.text }}>
+          Scout<span style={{ color: '#6366F1' }}>r</span>
         </span>
       </Link>
 

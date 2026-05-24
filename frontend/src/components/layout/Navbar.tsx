@@ -6,21 +6,25 @@ import { LogOut, User, LayoutDashboard, TrendingUp } from 'lucide-react'
 
 export function Logo({ size = 28 }: { size?: number }) {
   return (
-    <svg viewBox="0 0 30 30" width={size} height={size} fill="none" aria-hidden="true">
-      {/* Bar chart */}
-      <rect x="2"  y="18" width="6" height="10" rx="1.5" fill="#4F46E5" opacity="0.45" />
-      <rect x="10" y="11" width="6" height="17" rx="1.5" fill="#4F46E5" opacity="0.7"  />
-      <rect x="18" y="4"  width="6" height="24" rx="1.5" fill="#4F46E5" />
-      {/* Trend line */}
-      <polyline
-        points="5,15 13,8 21,3"
-        stroke="#818CF8"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        fill="none"
-      />
-      <circle cx="21" cy="3" r="2.2" fill="#818CF8" />
+    <svg width={size} height={size} viewBox="0 0 32 32" fill="none" aria-hidden="true">
+      <defs>
+        <linearGradient id="scoutr-bg" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%"   stopColor="#6366F1" />
+          <stop offset="55%"  stopColor="#8B5CF6" />
+          <stop offset="100%" stopColor="#A855F7" />
+        </linearGradient>
+      </defs>
+      {/* Rounded square background */}
+      <rect width="32" height="32" rx="8" fill="url(#scoutr-bg)" />
+      {/* Sonar arcs — sweeping from focal point (bottom-left) to upper-right */}
+      <path d="M 10,18 A 7,7 0 0 1 17,23"
+        stroke="white" strokeWidth="2.4" strokeLinecap="round" fill="none" opacity="0.35" />
+      <path d="M 10,12 A 13,13 0 0 1 23,23"
+        stroke="white" strokeWidth="2.4" strokeLinecap="round" fill="none" opacity="0.65" />
+      <path d="M 10,6 A 19,19 0 0 1 29,23"
+        stroke="white" strokeWidth="2.4" strokeLinecap="round" fill="none" />
+      {/* Focal dot */}
+      <circle cx="10" cy="23" r="2.6" fill="white" />
     </svg>
   )
 }
@@ -35,13 +39,13 @@ export function Wordmark({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
       <Logo size={logoSize} />
       <span style={{
         fontFamily:    'Inter, system-ui, sans-serif',
-        fontWeight:    700,
+        fontWeight:    800,
         fontSize:      textSize,
-        letterSpacing: '-0.025em',
+        letterSpacing: '-0.03em',
         lineHeight:    1,
         color:         '#111827',
       }}>
-        The Big Idea
+        Scout<span style={{ color: '#6366F1' }}>r</span>
       </span>
     </div>
   )

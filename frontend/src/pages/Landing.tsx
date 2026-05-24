@@ -380,7 +380,7 @@ const TESTIMONIALS = [
     avatarColor: "#0891B2",
   },
   {
-    quote: "The comparison feature is genuinely brilliant. I had four products I was considering, ran them all, compared side-by-side and The Big Idea picked the winner automatically. It was right. Paid for itself in week one.",
+    quote: "The comparison feature is genuinely brilliant. I had four products I was considering, ran them all, compared side-by-side and Scoutr picked the winner automatically. It was right. Paid for itself in week one.",
     name: "Priya K.", role: "Multi-platform seller", location: "London, UK",
     avatarColor: "#059669",
   },
@@ -1100,7 +1100,7 @@ export function Landing() {
               They started. Now they profit.
             </h2>
             <p style={{ fontSize: 16, color: C.textSec, maxWidth: 380, margin: '0 auto', lineHeight: 1.68 }}>
-              Real sellers. Real earnings. Real products found with The Big Idea.
+              Real sellers. Real earnings. Real products found with Scoutr.
             </p>
           </FadeUp>
 
@@ -1458,7 +1458,7 @@ export function Landing() {
           )}
         </div>
         <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 12, color: C.textMut }}>
-          © {new Date().getFullYear()} The Big Idea
+          © {new Date().getFullYear()} Scoutr
         </p>
       </footer>
 

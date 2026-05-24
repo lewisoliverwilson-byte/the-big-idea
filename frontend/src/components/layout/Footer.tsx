@@ -21,7 +21,7 @@ export function Footer() {
               color:         '#0F172A',
               letterSpacing: '-0.02em',
             }}>
-              The Big Idea
+              Scout<span style={{ color: '#6366F1' }}>r</span>
             </span>
           </div>
 
@@ -43,7 +43,7 @@ export function Footer() {
           </div>
 
           <p style={{ fontSize: 12, color: '#94A3B8' }}>
-            © {new Date().getFullYear()} The Big Idea. All rights reserved.
+            © {new Date().getFullYear()} Scoutr. All rights reserved.
           </p>
         </div>
       </div>
