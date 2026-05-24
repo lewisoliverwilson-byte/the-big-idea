@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import type { ReactNode } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import type { CSSProperties } from 'react'
@@ -107,7 +107,7 @@ function SectionLabel({ children }: { children: ReactNode }) {
     <span style={{
       display: 'inline-flex', alignItems: 'center',
       fontSize: 11, fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase',
-      color: C.primary, background: C.primaryL, border: `1px solid ${C.primaryBdr}`,
+      color: C.text, background: C.primaryL, border: `1px solid ${C.primaryBdr}`,
       borderRadius: 99, padding: '4px 14px', marginBottom: 16,
       fontFamily: 'Inter, system-ui, sans-serif',
     }}>
@@ -226,13 +226,13 @@ function MetricTile({ label, value, sub, accent = false }: {
 }) {
   return (
     <div style={{ flex: 1, borderRadius: 8, padding: '10px 12px', background: accent ? C.primaryL : C.bgSubtle, border: `1px solid ${accent ? C.primaryBdr : C.border}` }}>
-      <p style={{ fontSize: 9, color: accent ? C.primary : C.textMut, textTransform: 'uppercase', letterSpacing: '0.07em', margin: '0 0 5px', fontWeight: 600 }}>
+      <p style={{ fontSize: 9, color: accent ? C.textSec : C.textMut, textTransform: 'uppercase', letterSpacing: '0.07em', margin: '0 0 5px', fontWeight: 600 }}>
         {label}
       </p>
-      <p style={{ fontSize: 18, fontWeight: 800, color: accent ? C.primary : C.text, lineHeight: 1, margin: 0, letterSpacing: '-0.02em' }}>
+      <p style={{ fontSize: 18, fontWeight: 800, color: C.text, lineHeight: 1, margin: 0, letterSpacing: '-0.02em' }}>
         {value}
       </p>
-      <p style={{ fontSize: 10, color: accent ? C.primary : C.textMut, margin: '4px 0 0' }}>
+      <p style={{ fontSize: 10, color: accent ? C.textSec : C.textMut, margin: '4px 0 0' }}>
         {sub}
       </p>
     </div>
@@ -247,10 +247,10 @@ function ScoreChip({ label, value, warn = false }: { label: string; value: strin
       background: warn ? '#FFFBEB' : C.primaryL,
       border: `1px solid ${warn ? '#FDE68A' : C.primaryBdr}`,
     }}>
-      <span style={{ fontSize: 9, fontWeight: 700, color: warn ? C.warning : C.primary, letterSpacing: '0.06em' }}>
+      <span style={{ fontSize: 9, fontWeight: 700, color: warn ? C.warning : C.text, letterSpacing: '0.06em' }}>
         {label}
       </span>
-      <span style={{ fontSize: 14, fontWeight: 800, color: warn ? C.warning : C.primary, letterSpacing: '-0.01em' }}>
+      <span style={{ fontSize: 14, fontWeight: 800, color: warn ? C.warning : C.text, letterSpacing: '-0.01em' }}>
         {value}
       </span>
     </div>
@@ -272,7 +272,7 @@ function PlatformBar({ name, pct, isTop = false }: { name: string; pct: number; 
           style={{ height: '100%', borderRadius: 99, background: isTop ? C.primary : '#C5BAA8' }}
         />
       </div>
-      <span style={{ fontSize: 11, color: isTop ? C.primary : C.textMut, width: 30, textAlign: 'right', flexShrink: 0, fontWeight: isTop ? 700 : 400, fontFamily: 'Inter, system-ui, sans-serif' }}>
+      <span style={{ fontSize: 11, color: isTop ? C.text : C.textMut, width: 30, textAlign: 'right', flexShrink: 0, fontWeight: isTop ? 700 : 400, fontFamily: 'Inter, system-ui, sans-serif' }}>
         {pct}%
       </span>
     </div>
@@ -464,8 +464,38 @@ export function Landing() {
   const step       = quizStep === 'email' ? STEPS + 1 : (quizStep as number)
   const emailValid = email.includes('@') && email.includes('.') && email.length > 5
 
+  // ── Cursor glow (direct DOM — zero re-renders) ──────────────────────────────
+  const glowRef = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    const handle = (e: MouseEvent) => {
+      if (glowRef.current) {
+        glowRef.current.style.transform = `translate(${e.clientX - 350}px, ${e.clientY - 350}px)`
+      }
+    }
+    window.addEventListener('mousemove', handle, { passive: true })
+    return () => window.removeEventListener('mousemove', handle)
+  }, [])
+
   return (
     <div style={{ background: C.bg, minHeight: '100vh', fontFamily: 'Inter, system-ui, sans-serif', color: C.text }}>
+
+      {/* ── Cursor glow ─────────────────────────────────────────────────── */}
+      <div
+        ref={glowRef}
+        style={{
+          position:     'fixed',
+          top:          0,
+          left:         0,
+          width:        700,
+          height:       700,
+          borderRadius: '50%',
+          background:   'radial-gradient(circle, rgba(200,245,12,0.09) 0%, rgba(200,245,12,0.03) 40%, transparent 68%)',
+          pointerEvents:'none',
+          zIndex:       0,
+          willChange:   'transform',
+          transform:    'translate(-1000px, -1000px)',
+        }}
+      />
 
       {/* ── Navbar ──────────────────────────────────────────────────────── */}
       <nav style={{
@@ -598,8 +628,9 @@ export function Landing() {
             </motion.div>
 
             {/* ── Right: Quiz card ── */}
+            <div style={{ flex: '0 0 auto', width: '100%', maxWidth: 490, animation: 'float 4s ease-in-out infinite 0.8s' }}>
             <motion.div
-              style={{ flex: '0 0 auto', width: '100%', maxWidth: 490 }}
+              style={{ width: '100%' }}
               initial={{ opacity: 0, y: 28, scale: 0.98 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               transition={{ duration: 0.65, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
@@ -619,15 +650,13 @@ export function Landing() {
                   borderRadius: '18px 18px 0 0',
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <BarChart2 style={{ width: 14, height: 14, color: C.primary }} />
+                    <BarChart2 style={{ width: 14, height: 14, color: C.textSec }} />
                     <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.07em', color: C.textSec, textTransform: 'uppercase' }}>
                       Find Products
                     </span>
                   </div>
-                  <div style={{ display: 'flex', gap: 5 }}>
-                    {['#FCA5A5', '#FCD34D', '#6EE7B7'].map((c, i) => (
-                      <div key={i} style={{ width: 9, height: 9, borderRadius: '50%', background: c }} />
-                    ))}
+                  <div style={{ fontSize: 10, color: C.textMut, letterSpacing: '0.04em', fontFamily: 'Inter, system-ui, sans-serif' }}>
+                    {quizStep === 'email' ? '✓ Almost done' : `${step} / ${STEPS}`}
                   </div>
                 </div>
 
@@ -641,7 +670,7 @@ export function Landing() {
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                         margin: '0 auto 16px',
                       }}>
-                        <TrendingUp size={22} style={{ color: C.primary }} />
+                        <TrendingUp size={22} style={{ color: C.text }} />
                       </div>
                       <p style={{ fontWeight: 700, fontSize: 16, color: C.text, marginBottom: 8 }}>Welcome back</p>
                       <p style={{ fontSize: 13, color: C.textSec, marginBottom: 22, lineHeight: 1.65 }}>
@@ -815,6 +844,7 @@ export function Landing() {
               </div>
 
             </motion.div>
+            </div>
 
           </div>
         </div>
@@ -865,7 +895,7 @@ export function Landing() {
                   display: 'inline-flex', padding: 11, borderRadius: 10, marginBottom: 18,
                   background: C.primaryL, border: `1px solid ${C.primaryBdr}`,
                 }}>
-                  <Icon style={{ width: 18, height: 18, color: C.primary }} />
+                  <Icon style={{ width: 18, height: 18, color: C.text }} />
                 </div>
 
                 <p style={{ fontWeight: 700, fontSize: 16, color: C.text, marginBottom: 10 }}>{title}</p>
@@ -953,10 +983,10 @@ export function Landing() {
                 <div style={{ borderTop: `1px solid ${C.border}`, paddingTop: 20, position: 'relative' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
                     <div style={{ padding: 7, borderRadius: 7, background: C.primaryL, border: `1px solid ${C.primaryBdr}` }}>
-                      <Sparkles style={{ width: 12, height: 12, color: C.primary }} />
+                      <Sparkles style={{ width: 12, height: 12, color: C.text }} />
                     </div>
                     <span style={{ fontSize: 11, color: C.textMut, textTransform: 'uppercase', letterSpacing: '0.07em', fontWeight: 600 }}>AI Analysis</span>
-                    <span style={{ fontSize: 10, fontWeight: 700, color: C.primary, background: C.primaryL, padding: '2px 9px', borderRadius: 99, border: `1px solid ${C.primaryBdr}` }}>
+                    <span style={{ fontSize: 10, fontWeight: 700, color: C.text, background: C.primaryL, padding: '2px 9px', borderRadius: 99, border: `1px solid ${C.primaryBdr}` }}>
                       GPT-4o · Pro
                     </span>
                   </div>
@@ -976,8 +1006,8 @@ export function Landing() {
                     display:    'flex', alignItems: 'flex-end', justifyContent: 'center', paddingBottom: 18,
                   }}>
                     <Link to="/pricing" style={{
-                      fontWeight: 600, fontSize: 13, color: C.primary,
-                      background: '#FFFFFF', border: `1px solid ${C.primaryBdr}`,
+                      fontWeight: 700, fontSize: 13, color: C.text,
+                      background: C.primary, border: 'none',
                       padding: '8px 20px', borderRadius: 99, textDecoration: 'none',
                       boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
                       fontFamily: 'Inter, system-ui, sans-serif',
@@ -1026,7 +1056,7 @@ export function Landing() {
                   display: 'inline-flex', padding: 10, borderRadius: 9, marginBottom: 16,
                   background: C.primaryL, border: `1px solid ${C.primaryBdr}`,
                 }}>
-                  <Icon style={{ width: 16, height: 16, color: C.primary }} />
+                  <Icon style={{ width: 16, height: 16, color: C.text }} />
                 </div>
                 <p style={{ fontWeight: 700, fontSize: 15, color: C.text, marginBottom: 8 }}>{title}</p>
                 <p style={{ fontSize: 13, color: C.textSec, lineHeight: 1.72 }}>{desc}</p>
@@ -1119,7 +1149,7 @@ export function Landing() {
                   'Source links to buy',
                 ].map(f => (
                   <li key={f} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, fontSize: 14, color: C.textSec }}>
-                    <Check style={{ width: 14, height: 14, color: C.primary, flexShrink: 0, marginTop: 2 }} />{f}
+                    <Check style={{ width: 14, height: 14, color: C.success, flexShrink: 0, marginTop: 2 }} />{f}
                   </li>
                 ))}
               </ul>
@@ -1159,14 +1189,14 @@ export function Landing() {
                   Most popular
                 </span>
               </div>
-              <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase', color: C.primary, marginBottom: 10 }}>
+              <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase', color: C.text, marginBottom: 10 }}>
                 Pro
               </p>
               <div style={{ marginBottom: 6 }}>
                 <span style={{ fontWeight: 800, fontSize: 44, color: C.text, letterSpacing: '-0.04em' }}>£10</span>
                 <span style={{ fontSize: 14, color: C.textSec, marginLeft: 4 }}>/month</span>
               </div>
-              <p style={{ fontSize: 12, color: C.primary, marginBottom: 24, fontWeight: 500 }}>
+              <p style={{ fontSize: 12, color: C.success, marginBottom: 24, fontWeight: 500 }}>
                 Less than £0.50 per report
               </p>
               <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 28px', display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -1181,7 +1211,7 @@ export function Landing() {
                   'Full report history',
                 ].map(f => (
                   <li key={f} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, fontSize: 14, color: C.text }}>
-                    <Check style={{ width: 14, height: 14, color: C.primary, flexShrink: 0, marginTop: 2 }} />{f}
+                    <Check style={{ width: 14, height: 14, color: C.success, flexShrink: 0, marginTop: 2 }} />{f}
                   </li>
                 ))}
               </ul>
@@ -1392,6 +1422,7 @@ export function Landing() {
       <style>{`
         @keyframes spin  { to { transform: rotate(360deg); } }
         @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
+        @keyframes float { 0%,100% { transform: translateY(0px); } 50% { transform: translateY(-7px); } }
       `}</style>
     </div>
   )

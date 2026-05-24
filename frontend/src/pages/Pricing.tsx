@@ -17,6 +17,7 @@ const C = {
   primaryH:  '#A8D104',
   primaryL:  '#EBF7B8',
   primaryBdr:'rgba(168,209,4,0.35)',
+  success:   '#5A7A47',
 } as const
 
 // ─── Plan data ────────────────────────────────────────────────────────────────
@@ -124,7 +125,7 @@ export function Pricing() {
               <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 16px', display: 'flex', flexDirection: 'column', gap: 9 }}>
                 {FREE_FEATURES.map((f) => (
                   <li key={f} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, fontSize: 13, color: C.textSec }}>
-                    <Check size={14} style={{ color: C.primary, flexShrink: 0, marginTop: 1 }} />
+                    <Check size={14} style={{ color: C.success, flexShrink: 0, marginTop: 1 }} />
                     {f}
                   </li>
                 ))}
@@ -179,7 +180,7 @@ export function Pricing() {
               <div style={{
                 display: 'inline-flex', alignItems: 'center',
                 fontSize: 11, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase',
-                color: C.primary, background: C.primaryL, border: `1px solid ${C.primaryBdr}`,
+                color: C.text, background: C.primaryL, border: `1px solid ${C.primaryBdr}`,
                 borderRadius: 99, padding: '3px 10px', marginBottom: 12,
               }}>
                 Pro
@@ -192,12 +193,12 @@ export function Pricing() {
                 <span style={{ fontSize: 40, fontWeight: 800, color: C.text, letterSpacing: '-0.03em' }}>£10</span>
                 <span style={{ color: C.textSec, fontSize: 13, marginLeft: 4 }}>/month</span>
               </div>
-              <p style={{ fontSize: 12, color: C.primary, marginBottom: 24, fontWeight: 500 }}>Less than £0.35 per report</p>
+              <p style={{ fontSize: 12, color: C.success, marginBottom: 24, fontWeight: 500 }}>Less than £0.35 per report</p>
 
               <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 28px', display: 'flex', flexDirection: 'column', gap: 9 }}>
                 {PRO_FEATURES.map((f) => (
                   <li key={f} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, fontSize: 13, color: C.textSec }}>
-                    <Check size={14} style={{ color: C.primary, flexShrink: 0, marginTop: 1 }} />
+                    <Check size={14} style={{ color: C.success, flexShrink: 0, marginTop: 1 }} />
                     {f}
                   </li>
                 ))}
@@ -279,7 +280,7 @@ export function Pricing() {
                   display: 'inline-flex', padding: 9, borderRadius: 8, marginBottom: 14,
                   background: C.primaryL, border: `1px solid ${C.primaryBdr}`,
                 }}>
-                  <Icon size={16} style={{ color: C.primary }} />
+                  <Icon size={16} style={{ color: C.text }} />
                 </div>
                 <h3 style={{ fontSize: 14, fontWeight: 700, color: C.text, marginBottom: 6 }}>{title}</h3>
                 <p style={{ fontSize: 13, color: C.textSec, lineHeight: 1.6 }}>{desc}</p>
