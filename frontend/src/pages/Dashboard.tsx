@@ -11,25 +11,25 @@ import { UpgradeBanner } from '../components/ui/UpgradeBanner'
 import { formatDate, USD_TO_GBP } from '../utils/formatters'
 import { getQuizFromStorage, clearQuizFromStorage } from './Landing'
 import { SearchParams, SellPlatform } from '../types'
-import { Logo } from '../components/layout/Navbar'
+import { Wordmark } from '../components/layout/Navbar'
 import { TrendingUp, BarChart2, LogOut, ChevronRight } from 'lucide-react'
 
 // ─── Design tokens ────────────────────────────────────────────────────────────
 const C = {
-  bg:      '#F8FAFC',
-  white:   '#FFFFFF',
-  border:  '#E2E8F0',
-  primary: '#4F46E5',
-  primaryL:'#EEF2FF',
-  text:    '#0F172A',
-  textSec: '#475569',
-  textMut: '#94A3B8',
-  green:   '#059669',
-  amber:   '#D97706',
-  red:     '#DC2626',
-  greenL:  '#ECFDF5',
-  amberL:  '#FFFBEB',
-  redL:    '#FEF2F2',
+  bg:      '#F4EFE5',
+  white:   '#FBF8F0',
+  border:  '#DDD3BC',
+  primary: '#C8F50C',
+  primaryL:'#EBF7B8',
+  text:    '#1A1817',
+  textSec: '#6B6359',
+  textMut: '#9A8B82',
+  green:   '#5A7A47',
+  amber:   '#B57828',
+  red:     '#9C3A3A',
+  greenL:  '#EBF7B8',
+  amberL:  '#FEF3CD',
+  redL:    '#FAEDED',
 }
 
 const CARD: React.CSSProperties = {
@@ -50,20 +50,17 @@ function TopNav({ user, isPro, onSignOut }: { user: any; isPro: boolean; onSignO
       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       padding: '0 24px',
     }}>
-      <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none' }}>
-        <Logo size={22} />
-        <span style={{ fontFamily: 'Inter, system-ui, sans-serif', fontWeight: 800, fontSize: 15, letterSpacing: '-0.03em', color: C.text }}>
-          Scout<span style={{ color: '#6366F1' }}>r</span>
-        </span>
+      <Link to="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
+        <Wordmark height={20} />
       </Link>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
         {isPro && (
           <span style={{
             display: 'inline-flex', alignItems: 'center', gap: 4,
-            fontSize: 11, fontWeight: 600, color: '#4F46E5',
-            background: '#EEF2FF', border: '1px solid #C7D2FE',
-            borderRadius: 99, padding: '3px 10px',
+            fontSize: 11, fontWeight: 700, color: '#1A1817',
+            background: '#C8F50C', border: '1px solid #A8D104',
+            borderRadius: 4, padding: '3px 10px', letterSpacing: '0.04em',
           }}>
             <TrendingUp size={10} />
             Pro

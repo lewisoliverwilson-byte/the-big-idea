@@ -2,56 +2,63 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../../store/authStore'
 import { LogOut, User, LayoutDashboard, TrendingUp } from 'lucide-react'
 
-// ─── Logo ─────────────────────────────────────────────────────────────────────
+// ─── Logo (favicon mark — lime square with 's') ───────────────────────────────
+// Used when a compact square icon is needed (dashboard topnav icon, CTA sections)
 
 export function Logo({ size = 28 }: { size?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 32 32" fill="none" aria-hidden="true">
-      <defs>
-        <linearGradient id="scoutr-bg" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%"   stopColor="#6366F1" />
-          <stop offset="55%"  stopColor="#8B5CF6" />
-          <stop offset="100%" stopColor="#A855F7" />
-        </linearGradient>
-      </defs>
-      {/* Rounded square background */}
-      <rect width="32" height="32" rx="8" fill="url(#scoutr-bg)" />
-      {/* Sonar arcs — sweeping from focal point (bottom-left) to upper-right */}
-      <path d="M 10,18 A 7,7 0 0 1 17,23"
-        stroke="white" strokeWidth="2.4" strokeLinecap="round" fill="none" opacity="0.35" />
-      <path d="M 10,12 A 13,13 0 0 1 23,23"
-        stroke="white" strokeWidth="2.4" strokeLinecap="round" fill="none" opacity="0.65" />
-      <path d="M 10,6 A 19,19 0 0 1 29,23"
-        stroke="white" strokeWidth="2.4" strokeLinecap="round" fill="none" />
-      {/* Focal dot */}
-      <circle cx="10" cy="23" r="2.6" fill="white" />
+    <svg width={size} height={size} viewBox="0 0 32 32" fill="none" role="img" aria-label="scoutr">
+      <rect width="32" height="32" rx="5" fill="#C8F50C"/>
+      <path
+        d="M278 -14Q225 -14 182.0 -4.5Q139 5 107.0 23.0Q75 41 54.5 66.5Q34 92 26 123L146 176Q153 159 170.5 141.5Q188 124 217.5 113.0Q247 102 289 102Q329 102 351.5 113.5Q374 125 374 147Q374 163 361.5 172.5Q349 182 324.0 189.5Q299 197 262 204Q224 212 185.0 222.5Q146 233 112.0 251.5Q78 270 57.5 300.5Q37 331 37 378Q37 427 63.0 463.5Q89 500 140.5 521.0Q192 542 266 542Q332 542 382.0 525.0Q432 508 465.5 476.5Q499 445 512 401L383 355Q378 377 362.5 393.0Q347 409 323.5 417.5Q300 426 268 426Q229 426 207.5 414.0Q186 402 186 382Q186 366 200.5 355.5Q215 345 242.0 338.0Q269 331 306 323Q345 315 383.5 304.5Q422 294 453.5 276.5Q485 259 503.5 230.5Q522 202 522 157Q522 104 494.0 65.5Q466 27 411.5 6.5Q357 -14 278 -14Z"
+        transform="translate(6.538 25.117) scale(0.034532 -0.034532)"
+        fill="#1A1817"
+      />
     </svg>
   )
 }
 
-// ─── Wordmark ─────────────────────────────────────────────────────────────────
+// ─── Wordmark (full horizontal lockup with lime highlight) ────────────────────
+// variant="light" = carbon text on lime  (for light / cream backgrounds)
+// variant="dark"  = cream text on lime   (for carbon / dark backgrounds)
 
-export function Wordmark({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
-  const logoSize = size === 'sm' ? 20 : size === 'lg' ? 32 : 26
-  const textSize = size === 'sm' ? 14 : size === 'lg' ? 22 : 17
+export function Wordmark({
+  height = 22,
+  variant = 'light',
+}: {
+  height?: number
+  variant?: 'light' | 'dark'
+}) {
+  const textFill = variant === 'dark' ? '#F4EFE5' : '#1A1817'
+  const w = Math.round(height * 4.189)
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 9, userSelect: 'none' }}>
-      <Logo size={logoSize} />
-      <span style={{
-        fontFamily:    'Inter, system-ui, sans-serif',
-        fontWeight:    800,
-        fontSize:      textSize,
-        letterSpacing: '-0.03em',
-        lineHeight:    1,
-        color:         '#111827',
-      }}>
-        Scout<span style={{ color: '#6366F1' }}>r</span>
-      </span>
-    </div>
+    <svg
+      width={w}
+      height={height}
+      viewBox="1.20 38.00 593.92 141.76"
+      role="img"
+      aria-label="scoutr"
+      style={{ display: 'block' }}
+    >
+      {/* lime highlight band */}
+      <rect x="23.200" y="68.000" width="549.920" height="89.760" fill="#C8F50C"/>
+      {/* s */}
+      <path d="M278 -14Q225 -14 182.0 -4.5Q139 5 107.0 23.0Q75 41 54.5 66.5Q34 92 26 123L146 176Q153 159 170.5 141.5Q188 124 217.5 113.0Q247 102 289 102Q329 102 351.5 113.5Q374 125 374 147Q374 163 361.5 172.5Q349 182 324.0 189.5Q299 197 262 204Q224 212 185.0 222.5Q146 233 112.0 251.5Q78 270 57.5 300.5Q37 331 37 378Q37 427 63.0 463.5Q89 500 140.5 521.0Q192 542 266 542Q332 542 382.0 525.0Q432 508 465.5 476.5Q499 445 512 401L383 355Q378 377 362.5 393.0Q347 409 323.5 417.5Q300 426 268 426Q229 426 207.5 414.0Q186 402 186 382Q186 366 200.5 355.5Q215 345 242.0 338.0Q269 331 306 323Q345 315 383.5 304.5Q422 294 453.5 276.5Q485 259 503.5 230.5Q522 202 522 157Q522 104 494.0 65.5Q466 27 411.5 6.5Q357 -14 278 -14Z" transform="translate(39.840 155.200) scale(0.16000 -0.16000)" fill={textFill}/>
+      {/* c */}
+      <path d="M311 -14Q243 -14 191.0 5.0Q139 24 104.0 59.5Q69 95 50.5 145.0Q32 195 32 257Q32 321 50.5 373.0Q69 425 104.0 463.0Q139 501 190.0 521.5Q241 542 307 542Q373 542 421.0 521.0Q469 500 499.5 462.0Q530 424 541 374L392 324Q389 357 376.0 378.0Q363 399 342.5 408.5Q322 418 298 418Q273 418 254.0 408.0Q235 398 222.0 378.0Q209 358 202.0 329.5Q195 301 195 264Q195 211 208.5 175.5Q222 140 248.5 122.0Q275 104 313 104Q352 104 374.0 120.0Q396 136 406.0 159.5Q416 183 418 206L558 175Q554 138 538.5 103.5Q523 69 493.0 42.5Q463 16 418.5 1.0Q374 -14 311 -14Z" transform="translate(127.680 155.200) scale(0.16000 -0.16000)" fill={textFill}/>
+      {/* o */}
+      <path d="M305 -14Q225 -14 163.5 17.0Q102 48 67.0 110.0Q32 172 32 265Q32 358 67.0 419.5Q102 481 164.0 511.5Q226 542 306 542Q386 542 448.0 511.0Q510 480 545.0 418.5Q580 357 580 264Q580 169 544.0 107.0Q508 45 445.5 15.5Q383 -14 305 -14ZM310 103Q346 103 370.0 119.5Q394 136 406.0 170.0Q418 204 418 254Q418 307 405.0 343.5Q392 380 366.5 399.5Q341 419 301 419Q267 419 242.5 402.5Q218 386 206.0 352.0Q194 318 194 267Q194 185 224.5 144.0Q255 103 310 103Z" transform="translate(219.040 155.200) scale(0.16000 -0.16000)" fill={textFill}/>
+      {/* u */}
+      <path d="M243 -14Q149 -14 101.5 49.5Q54 113 54 243V528H216V264Q216 190 238.0 153.5Q260 117 305 117Q332 117 351.5 130.5Q371 144 384.5 168.5Q398 193 404.5 225.0Q411 257 411 295V528H572V0H444L441 163H421Q406 101 383.5 61.5Q361 22 327.0 4.0Q293 -14 243 -14Z" transform="translate(316.960 155.200) scale(0.16000 -0.16000)" fill={textFill}/>
+      {/* t */}
+      <path d="M268 -13Q175 -13 131.0 36.5Q87 86 87 195V402H12L15 527H69Q101 528 117.5 537.0Q134 546 138 571L151 645H242V528H369V397H242V202Q242 168 258.5 152.0Q275 136 309 136Q328 136 345.0 140.0Q362 144 373 151V2Q341 -8 314.5 -10.5Q288 -13 268 -13Z" transform="translate(418.400 155.200) scale(0.16000 -0.16000)" fill={textFill}/>
+      {/* r */}
+      <path d="M62 0V528H194L197 349H217Q224 419 243.5 460.5Q263 502 299.5 521.0Q336 540 390 540Q398 540 408.0 539.5Q418 539 431 537L425 365Q409 373 390.5 375.5Q372 378 358 378Q319 378 290.5 363.0Q262 348 245.5 317.0Q229 286 224 239V0Z" transform="translate(483.360 155.200) scale(0.16000 -0.16000)" fill={textFill}/>
+    </svg>
   )
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
+// ─── Navbar ───────────────────────────────────────────────────────────────────
 
 export function Navbar() {
   const { user, isAuthenticated, signOut } = useAuthStore()
@@ -73,17 +80,17 @@ export function Navbar() {
   return (
     <nav style={{
       position: 'sticky', top: 0, zIndex: 50,
-      background: 'rgba(255,255,255,0.97)',
+      background: 'rgba(244,239,229,0.97)',
       backdropFilter: 'blur(8px)',
       WebkitBackdropFilter: 'blur(8px)',
-      borderBottom: '1px solid #E5E7EB',
+      borderBottom: '1px solid #DDD3BC',
     }}>
       <div style={{ maxWidth: 1280, margin: '0 auto', padding: '0 20px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 56 }}>
 
-          {/* Logo */}
+          {/* Wordmark */}
           <Link to="/" style={{ textDecoration: 'none' }}>
-            <Wordmark />
+            <Wordmark height={20} />
           </Link>
 
           {/* Center nav */}
@@ -92,11 +99,11 @@ export function Navbar() {
               to="/pricing"
               style={{
                 textDecoration: 'none', fontFamily: 'Inter, system-ui, sans-serif',
-                fontSize: 13, color: '#6B7280', fontWeight: 500,
-                padding: '6px 12px', borderRadius: 7, transition: 'color 0.12s, background 0.12s',
+                fontSize: 13, color: '#6B6359', fontWeight: 500,
+                padding: '6px 12px', borderRadius: 4, transition: 'color 0.12s, background 0.12s',
               }}
-              onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.color = '#111827'; (e.currentTarget as HTMLAnchorElement).style.background = '#F9FAFB' }}
-              onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.color = '#6B7280'; (e.currentTarget as HTMLAnchorElement).style.background = 'transparent' }}
+              onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.color = '#1A1817'; (e.currentTarget as HTMLAnchorElement).style.background = '#EDE6D2' }}
+              onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.color = '#6B6359'; (e.currentTarget as HTMLAnchorElement).style.background = 'transparent' }}
             >
               Pricing
             </Link>
@@ -109,21 +116,24 @@ export function Navbar() {
                 {isPro ? (
                   <span style={{
                     display: 'inline-flex', alignItems: 'center', gap: 4,
-                    fontSize: 11, fontWeight: 600, color: '#4F46E5',
-                    background: '#EEF2FF', border: '1px solid #C7D2FE',
-                    borderRadius: 99, padding: '3px 10px',
+                    fontSize: 11, fontWeight: 700, color: '#1A1817',
+                    background: '#C8F50C', border: '1px solid #A8D104',
+                    borderRadius: 4, padding: '3px 10px',
                     fontFamily: 'Inter, system-ui, sans-serif',
+                    letterSpacing: '0.04em',
                   }}>
                     <TrendingUp size={11} />
-                    Pro
+                    PRO
                   </span>
                 ) : (
                   <span style={{
-                    fontSize: 11, color: '#6B7280', background: '#F3F4F6',
-                    borderRadius: 99, padding: '3px 10px',
+                    fontSize: 11, color: '#9A8B82', background: '#EDE6D2',
+                    border: '1px solid #DDD3BC',
+                    borderRadius: 4, padding: '3px 10px',
                     fontFamily: 'Inter, system-ui, sans-serif',
+                    letterSpacing: '0.04em', fontWeight: 600,
                   }}>
-                    Free
+                    FREE
                   </span>
                 )}
 
@@ -131,13 +141,13 @@ export function Navbar() {
                   <button style={{
                     display: 'flex', alignItems: 'center', gap: 6,
                     fontFamily: 'Inter, system-ui, sans-serif',
-                    fontSize: 13, color: '#374151', fontWeight: 500,
-                    background: '#FFFFFF', border: '1px solid #E5E7EB',
-                    borderRadius: 8, padding: '6px 12px', cursor: 'pointer',
-                    transition: 'border-color 0.12s',
+                    fontSize: 13, color: '#1A1817', fontWeight: 500,
+                    background: '#FBF8F0', border: '1px solid #DDD3BC',
+                    borderRadius: 4, padding: '6px 12px', cursor: 'pointer',
+                    transition: 'border-color 0.12s, background 0.12s',
                   }}
-                    onMouseEnter={e => (e.currentTarget.style.borderColor = '#D1D5DB')}
-                    onMouseLeave={e => (e.currentTarget.style.borderColor = '#E5E7EB')}
+                    onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#9A8B82'; (e.currentTarget as HTMLButtonElement).style.background = '#EDE6D2' }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#DDD3BC'; (e.currentTarget as HTMLButtonElement).style.background = '#FBF8F0' }}
                   >
                     <LayoutDashboard size={14} />
                     <span>Dashboard</span>
@@ -147,13 +157,13 @@ export function Navbar() {
                 <Link to="/account" style={{ textDecoration: 'none' }}>
                   <button style={{
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    background: '#FFFFFF', border: '1px solid #E5E7EB',
-                    borderRadius: 8, padding: 7, cursor: 'pointer',
-                    transition: 'border-color 0.12s',
-                    color: '#6B7280',
+                    background: '#FBF8F0', border: '1px solid #DDD3BC',
+                    borderRadius: 4, padding: 7, cursor: 'pointer',
+                    transition: 'border-color 0.12s, background 0.12s',
+                    color: '#6B6359',
                   }}
-                    onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#D1D5DB'; (e.currentTarget as HTMLButtonElement).style.color = '#374151' }}
-                    onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#E5E7EB'; (e.currentTarget as HTMLButtonElement).style.color = '#6B7280' }}
+                    onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#9A8B82'; (e.currentTarget as HTMLButtonElement).style.color = '#1A1817'; (e.currentTarget as HTMLButtonElement).style.background = '#EDE6D2' }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#DDD3BC'; (e.currentTarget as HTMLButtonElement).style.color = '#6B6359'; (e.currentTarget as HTMLButtonElement).style.background = '#FBF8F0' }}
                   >
                     <User size={14} />
                   </button>
@@ -163,12 +173,12 @@ export function Navbar() {
                   onClick={handleSignOut}
                   style={{
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    background: '#FFFFFF', border: '1px solid #E5E7EB',
-                    borderRadius: 8, padding: 7, cursor: 'pointer',
-                    transition: 'border-color 0.12s', color: '#6B7280',
+                    background: '#FBF8F0', border: '1px solid #DDD3BC',
+                    borderRadius: 4, padding: 7, cursor: 'pointer',
+                    transition: 'border-color 0.12s, background 0.12s', color: '#6B6359',
                   }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#D1D5DB'; (e.currentTarget as HTMLButtonElement).style.color = '#374151' }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#E5E7EB'; (e.currentTarget as HTMLButtonElement).style.color = '#6B7280' }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#9A8B82'; (e.currentTarget as HTMLButtonElement).style.color = '#1A1817'; (e.currentTarget as HTMLButtonElement).style.background = '#EDE6D2' }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#DDD3BC'; (e.currentTarget as HTMLButtonElement).style.color = '#6B6359'; (e.currentTarget as HTMLButtonElement).style.background = '#FBF8F0' }}
                 >
                   <LogOut size={14} />
                 </button>
@@ -178,13 +188,13 @@ export function Navbar() {
                 <Link to="/auth/signin" style={{ textDecoration: 'none' }}>
                   <button style={{
                     fontFamily: 'Inter, system-ui, sans-serif',
-                    fontSize: 13, color: '#6B7280', fontWeight: 500,
+                    fontSize: 13, color: '#6B6359', fontWeight: 500,
                     background: 'none', border: 'none',
-                    padding: '6px 12px', borderRadius: 7, cursor: 'pointer',
+                    padding: '6px 12px', borderRadius: 4, cursor: 'pointer',
                     transition: 'color 0.12s',
                   }}
-                    onMouseEnter={e => (e.currentTarget.style.color = '#111827')}
-                    onMouseLeave={e => (e.currentTarget.style.color = '#6B7280')}
+                    onMouseEnter={e => (e.currentTarget.style.color = '#1A1817')}
+                    onMouseLeave={e => (e.currentTarget.style.color = '#6B6359')}
                   >
                     Sign in
                   </button>
@@ -192,14 +202,13 @@ export function Navbar() {
                 <Link to="/auth/signup" style={{ textDecoration: 'none' }}>
                   <button style={{
                     fontFamily: 'Inter, system-ui, sans-serif',
-                    fontSize: 13, color: '#FFFFFF', fontWeight: 600,
-                    background: '#4F46E5', border: 'none',
-                    padding: '7px 16px', borderRadius: 8, cursor: 'pointer',
+                    fontSize: 13, color: '#1A1817', fontWeight: 700,
+                    background: '#C8F50C', border: 'none',
+                    padding: '7px 16px', borderRadius: 4, cursor: 'pointer',
                     transition: 'background 0.12s',
-                    boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
                   }}
-                    onMouseEnter={e => (e.currentTarget.style.background = '#4338CA')}
-                    onMouseLeave={e => (e.currentTarget.style.background = '#4F46E5')}
+                    onMouseEnter={e => (e.currentTarget.style.background = '#A8D104')}
+                    onMouseLeave={e => (e.currentTarget.style.background = '#C8F50C')}
                   >
                     Start free
                   </button>

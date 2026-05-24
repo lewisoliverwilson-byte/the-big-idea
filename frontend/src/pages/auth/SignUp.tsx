@@ -5,7 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { signUp, signIn, signOut, confirmSignUp, signInWithRedirect } from 'aws-amplify/auth'
 import type { CSSProperties } from 'react'
-import { Logo } from '../../components/layout/Navbar'
+import { Wordmark } from '../../components/layout/Navbar'
 
 // ─── Schemas ──────────────────────────────────────────────────────────────────
 
@@ -30,11 +30,11 @@ type ConfirmData = z.infer<typeof confirmSchema>
 
 const inputStyle: CSSProperties = {
   width:        '100%',
-  background:   '#FFFFFF',
-  border:       '1px solid #CBD5E1',
-  borderRadius: 8,
+  background:   '#FBF8F0',
+  border:       '1px solid #DDD3BC',
+  borderRadius: 4,
   padding:      '10px 14px',
-  color:        '#0F172A',
+  color:        '#1A1817',
   fontSize:     14,
   outline:      'none',
   transition:   'border-color 0.15s, box-shadow 0.15s',
@@ -46,7 +46,7 @@ const labelStyle: CSSProperties = {
   display:      'block',
   fontSize:     13,
   fontWeight:   500,
-  color:        '#374151',
+  color:        '#1A1817',
   marginBottom: 6,
   fontFamily:   'Inter, system-ui, sans-serif',
 }
@@ -109,7 +109,7 @@ export function SignUp() {
   return (
     <div style={{
       minHeight:      '100vh',
-      background:     '#F8FAFC',
+      background:     '#F4EFE5',
       display:        'flex',
       alignItems:     'center',
       justifyContent: 'center',
@@ -119,17 +119,14 @@ export function SignUp() {
 
         {/* Logo */}
         <div style={{ textAlign: 'center', marginBottom: 28 }}>
-          <Link to="/" style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
-            <Logo size={36} />
-            <span style={{ fontFamily: 'Inter, system-ui, sans-serif', fontWeight: 800, fontSize: 20, letterSpacing: '-0.03em', color: '#0F172A' }}>
-              Scout<span style={{ color: '#6366F1' }}>r</span>
-            </span>
+          <Link to="/" style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: 12, textDecoration: 'none' }}>
+            <Wordmark height={26} />
           </Link>
 
-          <h1 style={{ fontSize: 22, fontWeight: 700, color: '#0F172A', marginTop: 20, marginBottom: 6, fontFamily: 'Inter, system-ui, sans-serif', letterSpacing: '-0.02em' }}>
+          <h1 style={{ fontSize: 22, fontWeight: 700, color: '#1A1817', marginTop: 24, marginBottom: 6, fontFamily: 'Inter, system-ui, sans-serif', letterSpacing: '-0.02em' }}>
             {stage === 'signup' ? 'Create your account' : 'Check your inbox'}
           </h1>
-          <p style={{ fontSize: 14, color: '#64748B', fontFamily: 'Inter, system-ui, sans-serif' }}>
+          <p style={{ fontSize: 14, color: '#6B6359', fontFamily: 'Inter, system-ui, sans-serif' }}>
             {stage === 'signup'
               ? '2 free reports — no credit card required'
               : `We sent a 6-digit code to ${email}`}
@@ -138,11 +135,11 @@ export function SignUp() {
 
         {/* Card */}
         <div style={{
-          background:   '#FFFFFF',
-          border:       '1px solid #E2E8F0',
-          borderRadius: 12,
+          background:   '#FBF8F0',
+          border:       '1px solid #DDD3BC',
+          borderRadius: 8,
           padding:      '28px',
-          boxShadow:    '0 1px 3px 0 rgba(0,0,0,0.07)',
+          boxShadow:    '0 1px 2px rgba(26,24,23,0.06), 0 4px 14px rgba(26,24,23,0.05)',
         }}>
 
           {stage === 'signup' ? (
@@ -153,11 +150,11 @@ export function SignUp() {
                   type="text"
                   placeholder="Alex Johnson"
                   style={inputStyle}
-                  onFocus={e => { e.currentTarget.style.borderColor = '#6366F1'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(99,102,241,0.12)' }}
+                  onFocus={e => { e.currentTarget.style.borderColor = '#C8F50C'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(200,245,12,0.2)' }}
                   {...register('fullName')}
-                  onBlur={e  => { e.currentTarget.style.borderColor = '#CBD5E1'; e.currentTarget.style.boxShadow = 'none' }}
+                  onBlur={e  => { e.currentTarget.style.borderColor = '#DDD3BC'; e.currentTarget.style.boxShadow = 'none' }}
                 />
-                {errors.fullName && <p style={{ color: '#DC2626', fontSize: 12, marginTop: 4, fontFamily: 'Inter, system-ui, sans-serif' }}>{errors.fullName.message}</p>}
+                {errors.fullName && <p style={{ color: '#9C3A3A', fontSize: 12, marginTop: 4, fontFamily: 'Inter, system-ui, sans-serif' }}>{errors.fullName.message}</p>}
               </div>
 
               <div>
@@ -166,11 +163,11 @@ export function SignUp() {
                   type="email"
                   placeholder="you@example.com"
                   style={inputStyle}
-                  onFocus={e => { e.currentTarget.style.borderColor = '#6366F1'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(99,102,241,0.12)' }}
+                  onFocus={e => { e.currentTarget.style.borderColor = '#C8F50C'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(200,245,12,0.2)' }}
                   {...register('email')}
-                  onBlur={e  => { e.currentTarget.style.borderColor = '#CBD5E1'; e.currentTarget.style.boxShadow = 'none' }}
+                  onBlur={e  => { e.currentTarget.style.borderColor = '#DDD3BC'; e.currentTarget.style.boxShadow = 'none' }}
                 />
-                {errors.email && <p style={{ color: '#DC2626', fontSize: 12, marginTop: 4, fontFamily: 'Inter, system-ui, sans-serif' }}>{errors.email.message}</p>}
+                {errors.email && <p style={{ color: '#9C3A3A', fontSize: 12, marginTop: 4, fontFamily: 'Inter, system-ui, sans-serif' }}>{errors.email.message}</p>}
               </div>
 
               <div>
@@ -179,15 +176,15 @@ export function SignUp() {
                   type="password"
                   placeholder="Min. 8 chars, 1 uppercase, 1 number"
                   style={inputStyle}
-                  onFocus={e => { e.currentTarget.style.borderColor = '#6366F1'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(99,102,241,0.12)' }}
+                  onFocus={e => { e.currentTarget.style.borderColor = '#C8F50C'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(200,245,12,0.2)' }}
                   {...register('password')}
-                  onBlur={e  => { e.currentTarget.style.borderColor = '#CBD5E1'; e.currentTarget.style.boxShadow = 'none' }}
+                  onBlur={e  => { e.currentTarget.style.borderColor = '#DDD3BC'; e.currentTarget.style.boxShadow = 'none' }}
                 />
-                {errors.password && <p style={{ color: '#DC2626', fontSize: 12, marginTop: 4, fontFamily: 'Inter, system-ui, sans-serif' }}>{errors.password.message}</p>}
+                {errors.password && <p style={{ color: '#9C3A3A', fontSize: 12, marginTop: 4, fontFamily: 'Inter, system-ui, sans-serif' }}>{errors.password.message}</p>}
               </div>
 
               {error && (
-                <div style={{ fontSize: 13, color: '#DC2626', background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 8, padding: '10px 14px', fontFamily: 'Inter, system-ui, sans-serif' }}>
+                <div style={{ fontSize: 13, color: '#9C3A3A', background: '#FAEDED', border: '1px solid rgba(156,58,58,0.25)', borderRadius: 8, padding: '10px 14px', fontFamily: 'Inter, system-ui, sans-serif' }}>
                   {error}
                 </div>
               )}
@@ -197,24 +194,24 @@ export function SignUp() {
                 disabled={isSubmitting}
                 style={{
                   width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  background: '#4F46E5', border: 'none', borderRadius: 8, padding: '11px 20px',
-                  color: '#fff', fontSize: 14, fontWeight: 600,
+                  background: '#C8F50C', border: 'none', borderRadius: 8, padding: '11px 20px',
+                  color: '#1A1817', fontSize: 14, fontWeight: 700,
                   cursor: isSubmitting ? 'default' : 'pointer',
                   opacity: isSubmitting ? 0.65 : 1, fontFamily: 'Inter, system-ui, sans-serif',
                   transition: 'background 0.15s',
                 }}
-                onMouseEnter={e => !isSubmitting && ((e.currentTarget as HTMLButtonElement).style.background = '#4338CA')}
-                onMouseLeave={e => !isSubmitting && ((e.currentTarget as HTMLButtonElement).style.background = '#4F46E5')}
+                onMouseEnter={e => !isSubmitting && ((e.currentTarget as HTMLButtonElement).style.background = '#A8D104')}
+                onMouseLeave={e => !isSubmitting && ((e.currentTarget as HTMLButtonElement).style.background = '#C8F50C')}
               >
                 {isSubmitting
-                  ? <div style={{ width: 16, height: 16, border: '2px solid rgba(255,255,255,0.4)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+                  ? <div style={{ width: 16, height: 16, border: '2px solid rgba(26,24,23,0.2)', borderTopColor: '#1A1817', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
                   : 'Create account →'}
               </button>
 
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <div style={{ flex: 1, height: 1, background: '#E2E8F0' }} />
-                <span style={{ fontSize: 12, color: '#94A3B8', fontFamily: 'Inter, system-ui, sans-serif' }}>or</span>
-                <div style={{ flex: 1, height: 1, background: '#E2E8F0' }} />
+                <div style={{ flex: 1, height: 1, background: '#DDD3BC' }} />
+                <span style={{ fontSize: 12, color: '#9A8B82', fontFamily: 'Inter, system-ui, sans-serif' }}>or</span>
+                <div style={{ flex: 1, height: 1, background: '#DDD3BC' }} />
               </div>
 
               <button
@@ -222,21 +219,21 @@ export function SignUp() {
                 onClick={() => signInWithRedirect({ provider: 'Google' })}
                 style={{
                   width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                  background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 8,
-                  padding: '10px 20px', color: '#374151', fontSize: 13, fontWeight: 500,
+                  background: '#FBF8F0', border: '1px solid #DDD3BC', borderRadius: 8,
+                  padding: '10px 20px', color: '#1A1817', fontSize: 13, fontWeight: 500,
                   cursor: 'pointer', transition: 'border-color 0.15s, background 0.15s',
                   fontFamily: 'Inter, system-ui, sans-serif',
                 }}
-                onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#CBD5E1'; (e.currentTarget as HTMLButtonElement).style.background = '#F9FAFB' }}
-                onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#E2E8F0'; (e.currentTarget as HTMLButtonElement).style.background = '#FFFFFF' }}
+                onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#9A8B82'; (e.currentTarget as HTMLButtonElement).style.background = '#EDE6D2' }}
+                onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#DDD3BC'; (e.currentTarget as HTMLButtonElement).style.background = '#FBF8F0' }}
               >
                 <img src="https://www.google.com/favicon.ico" alt="Google" style={{ width: 14, height: 14 }} />
                 Continue with Google
               </button>
 
-              <p style={{ textAlign: 'center', fontSize: 13, color: '#64748B', fontFamily: 'Inter, system-ui, sans-serif' }}>
+              <p style={{ textAlign: 'center', fontSize: 13, color: '#6B6359', fontFamily: 'Inter, system-ui, sans-serif' }}>
                 Already have an account?{' '}
-                <Link to="/auth/signin" style={{ color: '#4F46E5', fontWeight: 600, textDecoration: 'none' }}>
+                <Link to="/auth/signin" style={{ color: '#1A1817', fontWeight: 700, textDecoration: 'underline' }}>
                   Sign in
                 </Link>
               </p>
@@ -250,15 +247,15 @@ export function SignUp() {
                   placeholder="123456"
                   maxLength={6}
                   style={{ ...inputStyle, textAlign: 'center', letterSpacing: '0.3em', fontSize: 22 }}
-                  onFocus={e => { e.currentTarget.style.borderColor = '#6366F1'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(99,102,241,0.12)' }}
+                  onFocus={e => { e.currentTarget.style.borderColor = '#C8F50C'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(200,245,12,0.2)' }}
                   {...registerConfirm('code')}
-                  onBlur={e  => { e.currentTarget.style.borderColor = '#CBD5E1'; e.currentTarget.style.boxShadow = 'none' }}
+                  onBlur={e  => { e.currentTarget.style.borderColor = '#DDD3BC'; e.currentTarget.style.boxShadow = 'none' }}
                 />
-                {confirmErrors.code && <p style={{ color: '#DC2626', fontSize: 12, marginTop: 4, fontFamily: 'Inter, system-ui, sans-serif' }}>{confirmErrors.code.message}</p>}
+                {confirmErrors.code && <p style={{ color: '#9C3A3A', fontSize: 12, marginTop: 4, fontFamily: 'Inter, system-ui, sans-serif' }}>{confirmErrors.code.message}</p>}
               </div>
 
               {error && (
-                <div style={{ fontSize: 13, color: '#DC2626', background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 8, padding: '10px 14px', fontFamily: 'Inter, system-ui, sans-serif' }}>
+                <div style={{ fontSize: 13, color: '#9C3A3A', background: '#FAEDED', border: '1px solid rgba(156,58,58,0.25)', borderRadius: 8, padding: '10px 14px', fontFamily: 'Inter, system-ui, sans-serif' }}>
                   {error}
                 </div>
               )}
@@ -268,21 +265,21 @@ export function SignUp() {
                 disabled={isConfirming}
                 style={{
                   width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  background: '#4F46E5', border: 'none', borderRadius: 8, padding: '11px 20px',
-                  color: '#fff', fontSize: 14, fontWeight: 600,
+                  background: '#C8F50C', border: 'none', borderRadius: 8, padding: '11px 20px',
+                  color: '#1A1817', fontSize: 14, fontWeight: 700,
                   cursor: isConfirming ? 'default' : 'pointer',
                   opacity: isConfirming ? 0.65 : 1, fontFamily: 'Inter, system-ui, sans-serif',
                 }}
               >
                 {isConfirming
-                  ? <div style={{ width: 16, height: 16, border: '2px solid rgba(255,255,255,0.4)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+                  ? <div style={{ width: 16, height: 16, border: '2px solid rgba(26,24,23,0.2)', borderTopColor: '#1A1817', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
                   : 'Verify email →'}
               </button>
 
               <button
                 type="button"
                 onClick={() => setStage('signup')}
-                style={{ width: '100%', background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, color: '#64748B', fontFamily: 'Inter, system-ui, sans-serif' }}
+                style={{ width: '100%', background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, color: '#6B6359', fontFamily: 'Inter, system-ui, sans-serif' }}
               >
                 ← Back to sign up
               </button>

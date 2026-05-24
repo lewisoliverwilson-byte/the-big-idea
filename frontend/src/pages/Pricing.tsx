@@ -4,6 +4,21 @@ import { Check, X, Brain, LayoutGrid, RefreshCw } from 'lucide-react'
 import { createCheckoutSession } from '../services/api'
 import { useAuthStore } from '../store/authStore'
 
+// ─── Design tokens ─────────────────────────────────────────────────────────────
+const C = {
+  bg:        '#F4EFE5',
+  bgSubtle:  '#EDE6D2',
+  paper:     '#FBF8F0',
+  border:    '#DDD3BC',
+  text:      '#1A1817',
+  textSec:   '#6B6359',
+  textMut:   '#9A8B82',
+  primary:   '#C8F50C',
+  primaryH:  '#A8D104',
+  primaryL:  '#EBF7B8',
+  primaryBdr:'rgba(168,209,4,0.35)',
+} as const
+
 // ─── Plan data ────────────────────────────────────────────────────────────────
 
 const FREE_FEATURES = [
@@ -51,7 +66,7 @@ export function Pricing() {
   const isPro = user?.subscriptionStatus === 'active'
 
   return (
-    <div style={{ minHeight: '100vh', background: '#F8FAFC', color: '#0F172A', fontFamily: 'Inter, system-ui, sans-serif' }}>
+    <div style={{ minHeight: '100vh', background: C.bg, color: C.text, fontFamily: 'Inter, system-ui, sans-serif' }}>
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
 
@@ -60,7 +75,7 @@ export function Pricing() {
           <span style={{
             display: 'inline-flex', alignItems: 'center', gap: 6,
             fontSize: 12, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase',
-            color: '#4F46E5', background: '#EEF2FF', border: '1px solid #C7D2FE',
+            color: C.primary, background: C.primaryL, border: `1px solid ${C.primaryBdr}`,
             borderRadius: 99, padding: '4px 12px', marginBottom: 16,
           }}>
             Pricing
@@ -69,11 +84,11 @@ export function Pricing() {
           <h1 style={{
             fontWeight: 800, fontSize: 'clamp(28px,4vw,42px)',
             letterSpacing: '-0.03em', lineHeight: 1.1,
-            color: '#0F172A', marginBottom: 14,
+            color: C.text, marginBottom: 14,
           }}>
             Simple, transparent pricing
           </h1>
-          <p style={{ color: '#64748B', fontSize: 16, maxWidth: 440, margin: '0 auto', lineHeight: 1.65 }}>
+          <p style={{ color: C.textSec, fontSize: 16, maxWidth: 440, margin: '0 auto', lineHeight: 1.65 }}>
             Start free and upgrade when you're ready to scale your research.
           </p>
         </div>
@@ -83,43 +98,43 @@ export function Pricing() {
 
           {/* Free */}
           <div style={{
-            background: '#FFFFFF', border: '1px solid #E2E8F0',
+            background: C.paper, border: `1px solid ${C.border}`,
             borderRadius: 12, padding: 32, display: 'flex', flexDirection: 'column',
-            boxShadow: '0 1px 3px 0 rgba(0,0,0,0.07)',
+            boxShadow: '0 1px 3px rgba(26,24,23,0.07)',
           }}>
             <div style={{ flex: 1 }}>
               <div style={{
                 display: 'inline-flex', alignItems: 'center',
                 fontSize: 11, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase',
-                color: '#64748B', background: '#F1F5F9', border: '1px solid #E2E8F0',
+                color: C.textMut, background: C.bgSubtle, border: `1px solid ${C.border}`,
                 borderRadius: 99, padding: '3px 10px', marginBottom: 12,
               }}>
                 Starter
               </div>
 
-              <h2 style={{ fontSize: 20, fontWeight: 700, color: '#0F172A', marginBottom: 4 }}>Free</h2>
-              <p style={{ fontSize: 13, color: '#64748B', marginBottom: 20 }}>Try before you commit</p>
+              <h2 style={{ fontSize: 20, fontWeight: 700, color: C.text, marginBottom: 4 }}>Free</h2>
+              <p style={{ fontSize: 13, color: C.textSec, marginBottom: 20 }}>Try before you commit</p>
 
               <div style={{ marginBottom: 24 }}>
-                <span style={{ fontSize: 40, fontWeight: 800, color: '#0F172A', letterSpacing: '-0.03em' }}>£0</span>
-                <span style={{ color: '#94A3B8', fontSize: 13, marginLeft: 4 }}>/forever</span>
+                <span style={{ fontSize: 40, fontWeight: 800, color: C.text, letterSpacing: '-0.03em' }}>£0</span>
+                <span style={{ color: C.textMut, fontSize: 13, marginLeft: 4 }}>/forever</span>
               </div>
 
-              <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: '#94A3B8', marginBottom: 10 }}>Includes</p>
+              <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: C.textMut, marginBottom: 10 }}>Includes</p>
               <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 16px', display: 'flex', flexDirection: 'column', gap: 9 }}>
                 {FREE_FEATURES.map((f) => (
-                  <li key={f} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, fontSize: 13, color: '#475569' }}>
-                    <Check size={14} style={{ color: '#4F46E5', flexShrink: 0, marginTop: 1 }} />
+                  <li key={f} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, fontSize: 13, color: C.textSec }}>
+                    <Check size={14} style={{ color: C.primary, flexShrink: 0, marginTop: 1 }} />
                     {f}
                   </li>
                 ))}
               </ul>
 
-              <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: '#CBD5E1', marginBottom: 10 }}>Not included</p>
+              <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: C.border, marginBottom: 10 }}>Not included</p>
               <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 28px', display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {FREE_LIMITS.map((f) => (
-                  <li key={f} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, fontSize: 13, color: '#94A3B8' }}>
-                    <X size={13} style={{ color: '#CBD5E1', flexShrink: 0, marginTop: 1 }} />
+                  <li key={f} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, fontSize: 13, color: C.textMut }}>
+                    <X size={13} style={{ color: C.border, flexShrink: 0, marginTop: 1 }} />
                     {f}
                   </li>
                 ))}
@@ -129,13 +144,13 @@ export function Pricing() {
             <button
               onClick={() => navigate(isAuthenticated ? '/dashboard' : '/auth/signup')}
               style={{
-                width: '100%', background: '#FFFFFF', border: '1px solid #E2E8F0',
+                width: '100%', background: C.paper, border: `1px solid ${C.border}`,
                 borderRadius: 8, padding: '12px 20px',
-                color: '#374151', fontSize: 14, fontWeight: 600,
+                color: C.textSec, fontSize: 14, fontWeight: 600,
                 cursor: 'pointer', transition: 'border-color 0.15s, background 0.15s',
               }}
-              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#CBD5E1'; (e.currentTarget as HTMLButtonElement).style.background = '#F9FAFB' }}
-              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#E2E8F0'; (e.currentTarget as HTMLButtonElement).style.background = '#FFFFFF' }}
+              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = C.textMut; (e.currentTarget as HTMLButtonElement).style.background = C.bgSubtle }}
+              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = C.border; (e.currentTarget as HTMLButtonElement).style.background = C.paper }}
             >
               {isAuthenticated ? 'Go to Dashboard' : 'Start for free'}
             </button>
@@ -143,16 +158,16 @@ export function Pricing() {
 
           {/* Pro */}
           <div style={{
-            background: '#FFFFFF', border: '2px solid #4F46E5',
+            background: C.paper, border: `2px solid ${C.primary}`,
             borderRadius: 12, padding: 32, display: 'flex', flexDirection: 'column',
             position: 'relative', overflow: 'hidden',
-            boxShadow: '0 4px 24px 0 rgba(79,70,229,0.12)',
+            boxShadow: `0 4px 24px rgba(200,245,12,0.18)`,
           }}>
             {/* Badge */}
             <div style={{ position: 'absolute', top: 16, right: 16 }}>
               <span style={{
                 display: 'inline-flex', alignItems: 'center', gap: 4,
-                background: '#4F46E5', color: '#fff',
+                background: C.primary, color: C.text,
                 fontSize: 10, fontWeight: 700, padding: '4px 10px',
                 borderRadius: 99, letterSpacing: '0.05em',
               }}>
@@ -164,25 +179,25 @@ export function Pricing() {
               <div style={{
                 display: 'inline-flex', alignItems: 'center',
                 fontSize: 11, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase',
-                color: '#4F46E5', background: '#EEF2FF', border: '1px solid #C7D2FE',
+                color: C.primary, background: C.primaryL, border: `1px solid ${C.primaryBdr}`,
                 borderRadius: 99, padding: '3px 10px', marginBottom: 12,
               }}>
                 Pro
               </div>
 
-              <h2 style={{ fontSize: 20, fontWeight: 700, color: '#0F172A', marginBottom: 4 }}>Pro</h2>
-              <p style={{ fontSize: 13, color: '#64748B', marginBottom: 20 }}>Everything you need to scale</p>
+              <h2 style={{ fontSize: 20, fontWeight: 700, color: C.text, marginBottom: 4 }}>Pro</h2>
+              <p style={{ fontSize: 13, color: C.textSec, marginBottom: 20 }}>Everything you need to scale</p>
 
               <div style={{ marginBottom: 4 }}>
-                <span style={{ fontSize: 40, fontWeight: 800, color: '#0F172A', letterSpacing: '-0.03em' }}>£10</span>
-                <span style={{ color: '#64748B', fontSize: 13, marginLeft: 4 }}>/month</span>
+                <span style={{ fontSize: 40, fontWeight: 800, color: C.text, letterSpacing: '-0.03em' }}>£10</span>
+                <span style={{ color: C.textSec, fontSize: 13, marginLeft: 4 }}>/month</span>
               </div>
-              <p style={{ fontSize: 12, color: '#4F46E5', marginBottom: 24 }}>Less than £0.35 per report</p>
+              <p style={{ fontSize: 12, color: C.primary, marginBottom: 24, fontWeight: 500 }}>Less than £0.35 per report</p>
 
               <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 28px', display: 'flex', flexDirection: 'column', gap: 9 }}>
                 {PRO_FEATURES.map((f) => (
-                  <li key={f} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, fontSize: 13, color: '#475569' }}>
-                    <Check size={14} style={{ color: '#4F46E5', flexShrink: 0, marginTop: 1 }} />
+                  <li key={f} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, fontSize: 13, color: C.textSec }}>
+                    <Check size={14} style={{ color: C.primary, flexShrink: 0, marginTop: 1 }} />
                     {f}
                   </li>
                 ))}
@@ -193,12 +208,12 @@ export function Pricing() {
               <button
                 onClick={() => navigate('/account')}
                 style={{
-                  width: '100%', background: '#4F46E5', border: 'none', borderRadius: 8,
-                  padding: '13px 20px', color: '#fff', fontSize: 14, fontWeight: 700,
+                  width: '100%', background: C.primary, border: 'none', borderRadius: 8,
+                  padding: '13px 20px', color: C.text, fontSize: 14, fontWeight: 700,
                   cursor: 'pointer', transition: 'background 0.15s',
                 }}
-                onMouseEnter={e => ((e.currentTarget as HTMLButtonElement).style.background = '#4338CA')}
-                onMouseLeave={e => ((e.currentTarget as HTMLButtonElement).style.background = '#4F46E5')}
+                onMouseEnter={e => ((e.currentTarget as HTMLButtonElement).style.background = C.primaryH)}
+                onMouseLeave={e => ((e.currentTarget as HTMLButtonElement).style.background = C.primary)}
               >
                 Manage subscription
               </button>
@@ -208,22 +223,22 @@ export function Pricing() {
                 disabled={checkoutMutation.isPending}
                 style={{
                   width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                  background: '#4F46E5', border: 'none', borderRadius: 8,
-                  padding: '13px 20px', color: '#fff', fontSize: 14, fontWeight: 700,
+                  background: C.primary, border: 'none', borderRadius: 8,
+                  padding: '13px 20px', color: C.text, fontSize: 14, fontWeight: 700,
                   cursor: checkoutMutation.isPending ? 'wait' : 'pointer',
                   opacity: checkoutMutation.isPending ? 0.6 : 1, transition: 'background 0.15s',
                 }}
-                onMouseEnter={e => !checkoutMutation.isPending && ((e.currentTarget as HTMLButtonElement).style.background = '#4338CA')}
-                onMouseLeave={e => !checkoutMutation.isPending && ((e.currentTarget as HTMLButtonElement).style.background = '#4F46E5')}
+                onMouseEnter={e => !checkoutMutation.isPending && ((e.currentTarget as HTMLButtonElement).style.background = C.primaryH)}
+                onMouseLeave={e => !checkoutMutation.isPending && ((e.currentTarget as HTMLButtonElement).style.background = C.primary)}
               >
                 {checkoutMutation.isPending ? (
-                  <div style={{ width: 18, height: 18, border: '2px solid rgba(255,255,255,0.4)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+                  <div style={{ width: 18, height: 18, border: '2px solid rgba(26,24,23,0.2)', borderTopColor: C.text, borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
                 ) : (
                   'Upgrade to Pro — £10/mo'
                 )}
               </button>
             )}
-            <p style={{ textAlign: 'center', color: '#94A3B8', fontSize: 12, marginTop: 10 }}>
+            <p style={{ textAlign: 'center', color: C.textMut, fontSize: 12, marginTop: 10 }}>
               Cancel anytime. No long-term commitment.
             </p>
           </div>
@@ -233,7 +248,7 @@ export function Pricing() {
         <div style={{ marginTop: 72, maxWidth: 720, margin: '72px auto 0' }}>
           <h2 style={{
             textAlign: 'center', fontSize: 'clamp(18px,2.5vw,24px)',
-            fontWeight: 700, color: '#0F172A', marginBottom: 32, letterSpacing: '-0.02em',
+            fontWeight: 700, color: C.text, marginBottom: 32, letterSpacing: '-0.02em',
           }}>
             What Pro unlocks
           </h2>
@@ -256,18 +271,18 @@ export function Pricing() {
               },
             ].map(({ Icon, title, desc }) => (
               <div key={title} style={{
-                background: '#FFFFFF', border: '1px solid #E2E8F0',
+                background: C.paper, border: `1px solid ${C.border}`,
                 borderRadius: 10, padding: 22,
-                boxShadow: '0 1px 3px 0 rgba(0,0,0,0.05)',
+                boxShadow: '0 1px 3px rgba(26,24,23,0.05)',
               }}>
                 <div style={{
                   display: 'inline-flex', padding: 9, borderRadius: 8, marginBottom: 14,
-                  background: '#EEF2FF', border: '1px solid #C7D2FE',
+                  background: C.primaryL, border: `1px solid ${C.primaryBdr}`,
                 }}>
-                  <Icon size={16} style={{ color: '#4F46E5' }} />
+                  <Icon size={16} style={{ color: C.primary }} />
                 </div>
-                <h3 style={{ fontSize: 14, fontWeight: 700, color: '#0F172A', marginBottom: 6 }}>{title}</h3>
-                <p style={{ fontSize: 13, color: '#64748B', lineHeight: 1.6 }}>{desc}</p>
+                <h3 style={{ fontSize: 14, fontWeight: 700, color: C.text, marginBottom: 6 }}>{title}</h3>
+                <p style={{ fontSize: 13, color: C.textSec, lineHeight: 1.6 }}>{desc}</p>
               </div>
             ))}
           </div>
@@ -277,7 +292,7 @@ export function Pricing() {
         <div style={{ marginTop: 64, maxWidth: 640, margin: '64px auto 0' }}>
           <h2 style={{
             textAlign: 'center', fontSize: 'clamp(18px,2vw,22px)',
-            fontWeight: 700, color: '#0F172A', marginBottom: 24, letterSpacing: '-0.02em',
+            fontWeight: 700, color: C.text, marginBottom: 24, letterSpacing: '-0.02em',
           }}>
             Frequently asked questions
           </h2>
@@ -295,26 +310,27 @@ export function Pricing() {
               <details
                 key={q}
                 style={{
-                  background: '#FFFFFF', border: '1px solid #E2E8F0',
+                  background: C.paper, border: `1px solid ${C.border}`,
                   borderRadius: 10, padding: '14px 18px',
-                  boxShadow: '0 1px 2px 0 rgba(0,0,0,0.05)',
+                  boxShadow: '0 1px 2px rgba(26,24,23,0.05)',
                 }}
               >
                 <summary style={{
                   display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                   cursor: 'pointer', listStyle: 'none',
-                  fontWeight: 600, fontSize: 14, color: '#0F172A',
+                  fontWeight: 600, fontSize: 14, color: C.text,
                 }}>
                   {q}
-                  <span style={{ color: '#94A3B8', marginLeft: 12 }}>▾</span>
+                  <span style={{ color: C.textMut, marginLeft: 12 }}>▾</span>
                 </summary>
-                <p style={{ fontSize: 13, color: '#64748B', lineHeight: 1.65, marginTop: 10 }}>{a}</p>
+                <p style={{ fontSize: 13, color: C.textSec, lineHeight: 1.65, marginTop: 10 }}>{a}</p>
               </details>
             ))}
           </div>
         </div>
 
       </div>
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   )
 }

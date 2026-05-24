@@ -12,26 +12,27 @@ import {
 import type { LucideIcon } from 'lucide-react'
 import { useAuthStore } from '../store/authStore'
 import type { QuizAnswers } from '../types'
-import { Logo, Wordmark } from '../components/layout/Navbar'
+import { Wordmark } from '../components/layout/Navbar'
 
 // ─── Design tokens ─────────────────────────────────────────────────────────────
 const C = {
-  bg:          '#FFFFFF',
-  bgSubtle:    '#F9FAFB',
-  bgDark:      '#111827',
-  border:      '#E5E7EB',
-  borderLight: '#F3F4F6',
-  primary:     '#4F46E5',
-  primaryH:    '#4338CA',
-  primaryL:    '#EEF2FF',
-  primaryBdr:  '#C7D2FE',
-  text:        '#111827',
-  textSec:     '#6B7280',
-  textMut:     '#9CA3AF',
-  success:     '#059669',
-  warning:     '#D97706',
-  error:       '#DC2626',
-  amber:       '#F59E0B',
+  bg:          '#F4EFE5',
+  bgSubtle:    '#EDE6D2',
+  bgDark:      '#1A1817',
+  border:      '#DDD3BC',
+  borderLight: '#EDE6D2',
+  primary:     '#C8F50C',
+  primaryH:    '#A8D104',
+  primaryL:    '#EBF7B8',
+  primaryBdr:  'rgba(168,209,4,0.35)',
+  paper:       '#FBF8F0',
+  text:        '#1A1817',
+  textSec:     '#6B6359',
+  textMut:     '#9A8B82',
+  success:     '#5A7A47',
+  warning:     '#B57828',
+  error:       '#9C3A3A',
+  amber:       '#B57828',
 } as const
 
 // ─── Storage helpers ──────────────────────────────────────────────────────────
@@ -145,7 +146,7 @@ function QuizProgress({ step, total }: { step: number; total: number }) {
       <div style={{ marginBottom: 8, fontSize: 11, color: C.textMut, fontFamily: 'Inter, system-ui, sans-serif' }}>
         <span>Step {step} of {total}</span>
       </div>
-      <div style={{ height: 3, borderRadius: 99, background: '#F3F4F6', overflow: 'hidden' }}>
+      <div style={{ height: 3, borderRadius: 99, background: C.border, overflow: 'hidden' }}>
         <motion.div
           style={{ height: '100%', borderRadius: 99, background: C.primary }}
           initial={{ width: '0%' }}
@@ -164,26 +165,26 @@ function QuizOpt({ option, selected, onClick }: { option: QuizOption; selected: 
       onClick={onClick}
       style={{
         padding: '11px 13px', borderRadius: 9,
-        background: selected ? C.primaryL : '#FFFFFF',
+        background: selected ? C.primaryL : C.paper,
         border: `1.5px solid ${selected ? C.primary : C.border}`,
         display: 'flex', alignItems: 'center', gap: 11,
         width: '100%', textAlign: 'left',
         cursor: 'pointer', transition: 'all 140ms',
-        boxShadow: selected ? `0 0 0 3px rgba(79,70,229,0.1)` : '0 1px 2px rgba(0,0,0,0.04)',
+        boxShadow: selected ? `0 0 0 3px rgba(200,245,12,0.2)` : '0 1px 2px rgba(0,0,0,0.04)',
         fontFamily: 'Inter, system-ui, sans-serif',
       }}
     >
       <div style={{
         width: 32, height: 32, borderRadius: 8, flexShrink: 0,
-        background: selected ? C.primary : '#F9FAFB',
+        background: selected ? C.primary : C.bgSubtle,
         border: `1px solid ${selected ? C.primary : C.border}`,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         transition: 'all 140ms',
       }}>
-        <option.icon style={{ width: 15, height: 15, color: selected ? '#fff' : C.textSec }} />
+        <option.icon style={{ width: 15, height: 15, color: selected ? C.text : C.textSec }} />
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <p style={{ fontWeight: 600, fontSize: 13, color: selected ? C.primary : C.text, margin: 0 }}>
+        <p style={{ fontWeight: 600, fontSize: 13, color: C.text, margin: 0 }}>
           {option.label}
         </p>
         <p style={{ fontSize: 11, color: C.textMut, margin: '2px 0 0' }}>
@@ -195,7 +196,7 @@ function QuizOpt({ option, selected, onClick }: { option: QuizOption; selected: 
           width: 18, height: 18, borderRadius: '50%', background: C.primary,
           flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}>
-          <Check style={{ width: 10, height: 10, color: '#fff' }} />
+          <Check style={{ width: 10, height: 10, color: C.text }} />
         </div>
       )}
     </button>
@@ -212,8 +213,8 @@ function Sparkline() {
         <div key={i} style={{
           height: `${h}%`, flex: 1, borderRadius: '3px 3px 0 0',
           background: i < 8
-            ? `rgba(79,70,229,${0.2 + i * 0.04})`
-            : `rgba(79,70,229,${0.6 + (i - 8) * 0.13})`,
+            ? `rgba(200,245,12,${0.2 + i * 0.04})`
+            : `rgba(200,245,12,${0.6 + (i - 8) * 0.13})`,
         }} />
       ))}
     </div>
@@ -224,7 +225,7 @@ function MetricTile({ label, value, sub, accent = false }: {
   label: string; value: string; sub: string; accent?: boolean
 }) {
   return (
-    <div style={{ flex: 1, borderRadius: 8, padding: '10px 12px', background: accent ? C.primaryL : '#F9FAFB', border: `1px solid ${accent ? C.primaryBdr : C.border}` }}>
+    <div style={{ flex: 1, borderRadius: 8, padding: '10px 12px', background: accent ? C.primaryL : C.bgSubtle, border: `1px solid ${accent ? C.primaryBdr : C.border}` }}>
       <p style={{ fontSize: 9, color: accent ? C.primary : C.textMut, textTransform: 'uppercase', letterSpacing: '0.07em', margin: '0 0 5px', fontWeight: 600 }}>
         {label}
       </p>
@@ -262,13 +263,13 @@ function PlatformBar({ name, pct, isTop = false }: { name: string; pct: number; 
       <span style={{ fontSize: 11, color: isTop ? C.text : C.textSec, width: 48, flexShrink: 0, fontWeight: isTop ? 600 : 400, fontFamily: 'Inter, system-ui, sans-serif' }}>
         {name}
       </span>
-      <div style={{ flex: 1, height: 6, borderRadius: 99, background: '#F3F4F6', overflow: 'hidden' }}>
+      <div style={{ flex: 1, height: 6, borderRadius: 99, background: C.border, overflow: 'hidden' }}>
         <motion.div
           initial={{ width: 0 }}
           whileInView={{ width: `${pct}%` }}
           viewport={{ once: true }}
           transition={{ duration: 0.7, delay: 0.2, ease: 'easeOut' }}
-          style={{ height: '100%', borderRadius: 99, background: isTop ? C.primary : '#A5B4FC' }}
+          style={{ height: '100%', borderRadius: 99, background: isTop ? C.primary : '#C5BAA8' }}
         />
       </div>
       <span style={{ fontSize: 11, color: isTop ? C.primary : C.textMut, width: 30, textAlign: 'right', flexShrink: 0, fontWeight: isTop ? 700 : 400, fontFamily: 'Inter, system-ui, sans-serif' }}>
@@ -286,7 +287,7 @@ function TestimonialCard({ quote, name, role, location, avatarColor }: {
   const initials = name.split(' ').map(n => n[0]).join('')
   return (
     <div style={{
-      background: '#FFFFFF', border: `1px solid ${C.border}`,
+      background: C.paper, border: `1px solid ${C.border}`,
       borderRadius: 14, padding: '24px 22px',
       boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
       display: 'flex', flexDirection: 'column', gap: 16,
@@ -295,11 +296,11 @@ function TestimonialCard({ quote, name, role, location, avatarColor }: {
       {/* Stars */}
       <div style={{ display: 'flex', gap: 2 }}>
         {[1, 2, 3, 4, 5].map(i => (
-          <Star key={i} size={14} style={{ color: '#F59E0B', fill: '#F59E0B' }} />
+          <Star key={i} size={14} style={{ color: C.amber, fill: C.amber }} />
         ))}
       </div>
       {/* Quote */}
-      <p style={{ fontSize: 14, color: '#374151', lineHeight: 1.72, margin: 0, flex: 1 }}>
+      <p style={{ fontSize: 14, color: C.textSec, lineHeight: 1.72, margin: 0, flex: 1 }}>
         "{quote}"
       </p>
       {/* Author */}
@@ -372,17 +373,17 @@ const TESTIMONIALS = [
   {
     quote: "I was spending three hours every Sunday doing product research. Now it takes 30 seconds and the data is better than anything I was finding manually. The trend charts alone saved me from a product that peaked in March and died by June.",
     name: "James T.", role: "Amazon FBA seller", location: "Manchester, UK",
-    avatarColor: "#4F46E5",
+    avatarColor: "#6B6359",
   },
   {
     quote: "Found a product earning me £800/month net profit within the first week of signing up. The margin calculator is what really sold me — it shows exactly what you make after every fee. I was guessing before.",
     name: "Sarah M.", role: "eBay & Etsy seller", location: "Bristol, UK",
-    avatarColor: "#0891B2",
+    avatarColor: "#5A7A47",
   },
   {
     quote: "The comparison feature is genuinely brilliant. I had four products I was considering, ran them all, compared side-by-side and Scoutr picked the winner automatically. It was right. Paid for itself in week one.",
     name: "Priya K.", role: "Multi-platform seller", location: "London, UK",
-    avatarColor: "#059669",
+    avatarColor: "#B57828",
   },
 ]
 
@@ -469,7 +470,7 @@ export function Landing() {
       {/* ── Navbar ──────────────────────────────────────────────────────── */}
       <nav style={{
         position:             'fixed', top: 0, left: 0, right: 0, zIndex: 100,
-        background:           'rgba(255,255,255,0.96)',
+        background:           'rgba(244,239,229,0.97)',
         backdropFilter:       'blur(12px)',
         WebkitBackdropFilter: 'blur(12px)',
         borderBottom:         `1px solid ${C.border}`,
@@ -481,13 +482,13 @@ export function Landing() {
 
         <div style={{ display: 'none', gap: 2, alignItems: 'center' }} className="hidden sm:flex">
           <a href="#how-it-works" style={{ fontSize: 13, color: C.textSec, textDecoration: 'none', padding: '6px 12px', borderRadius: 7, transition: 'color 0.12s, background 0.12s' }}
-            onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.color = C.text; (e.currentTarget as HTMLAnchorElement).style.background = '#F9FAFB' }}
+            onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.color = C.text; (e.currentTarget as HTMLAnchorElement).style.background = C.bgSubtle }}
             onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.color = C.textSec; (e.currentTarget as HTMLAnchorElement).style.background = 'transparent' }}
           >
             How it works
           </a>
           <a href="#pricing" style={{ fontSize: 13, color: C.textSec, textDecoration: 'none', padding: '6px 12px', borderRadius: 7, transition: 'color 0.12s, background 0.12s' }}
-            onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.color = C.text; (e.currentTarget as HTMLAnchorElement).style.background = '#F9FAFB' }}
+            onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.color = C.text; (e.currentTarget as HTMLAnchorElement).style.background = C.bgSubtle }}
             onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.color = C.textSec; (e.currentTarget as HTMLAnchorElement).style.background = 'transparent' }}
           >
             Pricing
@@ -497,13 +498,13 @@ export function Landing() {
         {/* Right desktop nav */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
           <a href="#how-it-works" className="hidden sm:block" style={{ fontSize: 13, color: C.textSec, textDecoration: 'none', padding: '6px 12px', borderRadius: 7, transition: 'color 0.12s, background 0.12s' }}
-            onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.color = C.text; (e.currentTarget as HTMLAnchorElement).style.background = '#F9FAFB' }}
+            onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.color = C.text; (e.currentTarget as HTMLAnchorElement).style.background = C.bgSubtle }}
             onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.color = C.textSec; (e.currentTarget as HTMLAnchorElement).style.background = 'transparent' }}
           >
             How it works
           </a>
           <a href="#pricing" className="hidden sm:block" style={{ fontSize: 13, color: C.textSec, textDecoration: 'none', padding: '6px 12px', borderRadius: 7, transition: 'color 0.12s, background 0.12s' }}
-            onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.color = C.text; (e.currentTarget as HTMLAnchorElement).style.background = '#F9FAFB' }}
+            onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.color = C.text; (e.currentTarget as HTMLAnchorElement).style.background = C.bgSubtle }}
             onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.color = C.textSec; (e.currentTarget as HTMLAnchorElement).style.background = 'transparent' }}
           >
             Pricing
@@ -515,12 +516,11 @@ export function Landing() {
             Sign in
           </Link>
           <Link to="/auth/signup" style={{
-            fontSize: 13, fontWeight: 600, color: '#fff',
+            fontSize: 13, fontWeight: 700, color: C.text,
             background: C.primary, padding: '7px 16px',
             borderRadius: 8, textDecoration: 'none',
             display: 'inline-flex', alignItems: 'center',
             transition: 'background 0.12s',
-            boxShadow: '0 1px 3px rgba(79,70,229,0.25)',
           }}
             onMouseEnter={e => (e.currentTarget.style.background = C.primaryH)}
             onMouseLeave={e => (e.currentTarget.style.background = C.primary)}
@@ -532,48 +532,14 @@ export function Landing() {
 
       {/* ── Hero ────────────────────────────────────────────────────────── */}
       <section style={{
-        paddingTop:    58,
-        minHeight:     '100vh',
-        display:       'flex',
-        alignItems:    'center',
-        position:      'relative',
-        overflow:      'hidden',
-        background:    'linear-gradient(155deg, #F5F3FF 0%, #FAFAFA 45%, #FFF7ED 100%)',
+        paddingTop: 58,
+        minHeight:  '100vh',
+        display:    'flex',
+        alignItems: 'center',
+        background: C.bg,
       }}>
-        {/* Large purple orb top-right */}
-        <div style={{
-          position:      'absolute',
-          top:           '-15%',
-          right:         '-8%',
-          width:          780,
-          height:         780,
-          borderRadius:   '50%',
-          background:     'radial-gradient(circle, rgba(99,102,241,0.18) 0%, rgba(139,92,246,0.06) 50%, transparent 70%)',
-          pointerEvents:  'none',
-          zIndex:         0,
-        }} />
-        {/* Pink orb bottom-left */}
-        <div style={{
-          position:      'absolute',
-          bottom:        '-10%',
-          left:          '-8%',
-          width:          560,
-          height:         560,
-          borderRadius:   '50%',
-          background:     'radial-gradient(circle, rgba(236,72,153,0.1) 0%, rgba(139,92,246,0.05) 50%, transparent 70%)',
-          pointerEvents:  'none',
-          zIndex:         0,
-        }} />
-        {/* Faint grid overlay */}
-        <div style={{
-          position:     'absolute', inset: 0,
-          backgroundImage: 'linear-gradient(rgba(99,102,241,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(99,102,241,0.04) 1px, transparent 1px)',
-          backgroundSize: '60px 60px',
-          pointerEvents: 'none',
-          zIndex:         0,
-        }} />
 
-        <div style={{ maxWidth: 1160, width: '100%', margin: '0 auto', padding: '64px 24px', position: 'relative', zIndex: 1 }}>
+        <div style={{ maxWidth: 1160, width: '100%', margin: '0 auto', padding: '64px 24px' }}>
           <div className="flex flex-col lg:flex-row items-center" style={{ gap: 64 }}>
 
             {/* ── Left: text ── */}
@@ -592,15 +558,15 @@ export function Landing() {
                 letterSpacing: '-0.035em',
                 color:         C.text,
                 marginBottom:  22,
+                fontFamily:    'Bricolage Grotesque, Inter, system-ui, sans-serif',
               }}>
-                Find products that<br />
+                Find what{' '}
                 <span style={{
-                  background:           'linear-gradient(135deg, #6366F1 0%, #8B5CF6 45%, #EC4899 100%)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor:  'transparent',
-                  backgroundClip:       'text',
+                  background:   C.primary,
+                  padding:      '0 6px',
+                  borderRadius: 4,
                 }}>
-                  make you money.
+                  others miss.
                 </span>
               </h1>
 
@@ -614,17 +580,17 @@ export function Landing() {
               {/* Stats row */}
               <div className="flex flex-wrap justify-center lg:justify-start" style={{ gap: 10, marginBottom: 36 }}>
                 {[
-                  { v: '30s',   l: 'Results',      grad: 'linear-gradient(135deg,#6366F1,#8B5CF6)' },
-                  { v: '80%',   l: 'Max margin',   grad: 'linear-gradient(135deg,#8B5CF6,#EC4899)' },
-                  { v: '4',     l: 'Platforms',    grad: 'linear-gradient(135deg,#EC4899,#F97316)' },
-                  { v: '£0',    l: 'To start',     grad: 'linear-gradient(135deg,#059669,#10B981)' },
-                ].map(({ v, l, grad }) => (
+                  { v: '30s', l: 'Results' },
+                  { v: '80%', l: 'Max margin' },
+                  { v: '4',   l: 'Platforms' },
+                  { v: '£0',  l: 'To start' },
+                ].map(({ v, l }) => (
                   <div key={l} style={{
-                    background: grad, borderRadius: 10, padding: '10px 18px', textAlign: 'center',
-                    boxShadow: '0 2px 12px rgba(0,0,0,0.1)',
+                    background: C.paper, border: `1px solid ${C.border}`,
+                    borderRadius: 10, padding: '10px 18px', textAlign: 'center',
                   }}>
-                    <p style={{ fontWeight: 800, fontSize: 22, lineHeight: 1, color: '#fff', margin: 0, letterSpacing: '-0.03em' }}>{v}</p>
-                    <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)', margin: '4px 0 0', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{l}</p>
+                    <p style={{ fontWeight: 800, fontSize: 22, lineHeight: 1, color: C.text, margin: 0, letterSpacing: '-0.03em' }}>{v}</p>
+                    <p style={{ fontSize: 10, color: C.textMut, margin: '4px 0 0', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{l}</p>
                   </div>
                 ))}
               </div>
@@ -639,17 +605,17 @@ export function Landing() {
               transition={{ duration: 0.65, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
             >
               <div style={{
-                background:   '#FFFFFF',
-                border:       `1px solid rgba(99,102,241,0.2)`,
+                background:   C.paper,
+                border:       `1px solid ${C.border}`,
                 borderRadius: 18,
-                boxShadow:    '0 0 0 4px rgba(99,102,241,0.06), 0 24px 60px 0 rgba(99,102,241,0.18), 0 4px 12px 0 rgba(15,23,42,0.06)',
+                boxShadow:    '0 1px 3px rgba(26,24,23,0.06), 0 8px 32px rgba(26,24,23,0.08)',
               }}>
                 {/* Card chrome */}
                 <div style={{
                   display:      'flex', alignItems: 'center', justifyContent: 'space-between',
                   padding:      '12px 20px',
-                  borderBottom: `1px solid rgba(99,102,241,0.12)`,
-                  background:   'linear-gradient(135deg, #EEF2FF 0%, #F5F3FF 100%)',
+                  borderBottom: `1px solid ${C.border}`,
+                  background:   C.bgSubtle,
                   borderRadius: '18px 18px 0 0',
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -685,7 +651,7 @@ export function Landing() {
                         onClick={() => navigate('/dashboard')}
                         style={{
                           width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                          fontWeight: 600, fontSize: 14, color: '#fff',
+                          fontWeight: 600, fontSize: 14, color: C.text,
                           background: C.primary, border: 'none', borderRadius: 10,
                           padding: '12px 16px', cursor: 'pointer', transition: 'background 0.12s',
                           fontFamily: 'Inter, system-ui, sans-serif',
@@ -710,7 +676,7 @@ export function Landing() {
                         onClick={() => navigate('/pricing')}
                         style={{
                           width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                          fontWeight: 700, fontSize: 14, color: '#fff',
+                          fontWeight: 700, fontSize: 14, color: C.text,
                           background: C.primary, border: 'none', borderRadius: 10,
                           padding: '12px 16px', cursor: 'pointer', marginBottom: 10,
                           fontFamily: 'Inter, system-ui, sans-serif', transition: 'background 0.12s',
@@ -792,14 +758,14 @@ export function Landing() {
                         style={{
                           width: '100%', boxSizing: 'border-box',
                           fontSize: 14, color: C.text,
-                          background: '#FFFFFF',
+                          background: C.paper,
                           border: `1.5px solid ${emailTouched && !emailValid ? C.error : C.border}`,
                           borderRadius: 9, padding: '11px 14px', outline: 'none',
                           transition: 'border-color 0.12s, box-shadow 0.12s',
                           marginBottom: emailTouched && !emailValid ? 5 : 0,
                           fontFamily: 'Inter, system-ui, sans-serif',
                         }}
-                        onFocus={e  => { e.target.style.borderColor = C.primary; e.target.style.boxShadow = '0 0 0 3px rgba(79,70,229,0.1)' }}
+                        onFocus={e  => { e.target.style.borderColor = C.primary; e.target.style.boxShadow = '0 0 0 3px rgba(200,245,12,0.2)' }}
                         onBlur={e   => { e.target.style.borderColor = emailTouched && !emailValid ? C.error : C.border; e.target.style.boxShadow = 'none' }}
                       />
                       {emailTouched && !emailValid && (
@@ -813,7 +779,7 @@ export function Landing() {
                         disabled={isSubmitting}
                         style={{
                           width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                          fontWeight: 700, fontSize: 14, color: '#fff',
+                          fontWeight: 700, fontSize: 14, color: C.text,
                           background: C.primary, border: 'none', borderRadius: 10,
                           padding: '12px 16px', cursor: isSubmitting ? 'default' : 'pointer',
                           opacity: isSubmitting ? 0.65 : 1, transition: 'all 150ms',
@@ -823,7 +789,7 @@ export function Landing() {
                         onMouseLeave={e => !isSubmitting && (e.currentTarget.style.background = C.primary)}
                       >
                         {isSubmitting
-                          ? <div style={{ width: 16, height: 16, border: '2px solid rgba(255,255,255,0.35)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+                          ? <div style={{ width: 16, height: 16, border: '2px solid rgba(26,24,23,0.2)', borderTopColor: C.text, borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
                           : <><span>Get my free report</span><ArrowRight style={{ width: 16, height: 16 }} /></>}
                       </button>
                       <p style={{ fontSize: 11, color: C.textMut, textAlign: 'center', marginTop: 12, fontFamily: 'Inter, system-ui, sans-serif' }}>
@@ -855,7 +821,7 @@ export function Landing() {
       </section>
 
       {/* ── How it works ──────────────────────────────────────────────── */}
-      <div style={{ background: 'linear-gradient(180deg, #F5F3FF 0%, #F9FAFB 100%)', borderTop: `1px solid rgba(99,102,241,0.12)`, borderBottom: `1px solid ${C.border}` }}>
+      <div style={{ background: C.bgSubtle, borderTop: `1px solid ${C.border}`, borderBottom: `1px solid ${C.border}` }}>
         <section id="how-it-works" style={{ padding: '88px 24px', maxWidth: 1120, margin: '0 auto' }}>
           <FadeUp style={{ textAlign: 'center', marginBottom: 60 }}>
             <SectionLabel>How it works</SectionLabel>
@@ -872,13 +838,7 @@ export function Landing() {
           </FadeUp>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(280px,1fr))', gap: 20 }}>
-            {HOW_STEPS.map(({ n, icon: Icon, title, desc }, idx) => {
-              const stepGrad = idx === 0
-                ? 'linear-gradient(135deg,#6366F1,#8B5CF6)'
-                : idx === 1
-                  ? 'linear-gradient(135deg,#8B5CF6,#EC4899)'
-                  : 'linear-gradient(135deg,#EC4899,#F97316)'
-              return (
+            {HOW_STEPS.map(({ n, icon: Icon, title, desc }, idx) => (
               <motion.div
                 key={n}
                 initial={{ opacity: 0, y: 28 }}
@@ -886,14 +846,14 @@ export function Landing() {
                 viewport={{ once: true, margin: '-40px' }}
                 transition={{ duration: 0.5, delay: idx * 0.1, ease: [0.22, 1, 0.36, 1] }}
                 style={{
-                  background: '#FFFFFF', border: `1px solid ${C.border}`,
+                  background: C.paper, border: `1px solid ${C.border}`,
                   borderRadius: 14, padding: '28px 26px', position: 'relative', overflow: 'hidden',
                   boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
                   borderTop: 'none',
                 }}
               >
-                {/* Coloured top bar */}
-                <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 4, background: stepGrad, borderRadius: '14px 14px 0 0' }} />
+                {/* Lime top bar */}
+                <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 4, background: C.primary, borderRadius: '14px 14px 0 0' }} />
                 {/* Watermark number */}
                 <div style={{
                   position: 'absolute', top: -8, right: 14,
@@ -911,7 +871,7 @@ export function Landing() {
                 <p style={{ fontWeight: 700, fontSize: 16, color: C.text, marginBottom: 10 }}>{title}</p>
                 <p style={{ fontSize: 14, color: C.textSec, lineHeight: 1.72 }}>{desc}</p>
               </motion.div>
-            )})}
+            ))}
           </div>
         </section>
       </div>
@@ -934,13 +894,13 @@ export function Landing() {
 
           <FadeUp delay={0.1}>
             <div style={{
-              background: '#FFFFFF', border: `1px solid ${C.border}`,
+              background: C.paper, border: `1px solid ${C.border}`,
               borderRadius: 16, maxWidth: 660, margin: '0 auto',
-              boxShadow: '0 4px 24px rgba(15,23,42,0.08)',
+              boxShadow: '0 4px 24px rgba(26,24,23,0.08)',
               overflow: 'hidden',
             }}>
               {/* Report header */}
-              <div style={{ padding: '18px 22px', borderBottom: `1px solid ${C.border}`, background: '#FAFAFA' }}>
+              <div style={{ padding: '18px 22px', borderBottom: `1px solid ${C.border}`, background: C.bgSubtle }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10 }}>
                   <div>
                     <span style={{ fontSize: 10, color: C.textMut, textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 600 }}>
@@ -1009,10 +969,10 @@ export function Landing() {
                       Market saturation sits at moderate risk — approximately 4,200 competing listings on Amazon UK. Differentiation through bundle offers, premium packaging, and content-creator bundles can command a 15–20% price premium and significantly reduce listing competition. Recommended entry strategy is to start with a small MOQ of 50 units via Temu at $2.40/unit, test with Sponsored Products at £15/day for two weeks, and scale only if ACoS stays below 25%.
                     </p>
                   </div>
-                  {/* Fade-to-white overlay */}
+                  {/* Fade-to-paper overlay */}
                   <div style={{
                     position:   'absolute', bottom: 0, left: 0, right: 0, top: '45%',
-                    background: 'linear-gradient(to bottom, transparent 0%, rgba(255,255,255,0.98) 70%)',
+                    background: 'linear-gradient(to bottom, transparent 0%, rgba(251,248,240,0.98) 70%)',
                     display:    'flex', alignItems: 'flex-end', justifyContent: 'center', paddingBottom: 18,
                   }}>
                     <Link to="/pricing" style={{
@@ -1035,7 +995,7 @@ export function Landing() {
       <Divider />
 
       {/* ── Features ──────────────────────────────────────────────────── */}
-      <section style={{ padding: '88px 24px', background: 'linear-gradient(180deg, #FAFAFA 0%, #F5F3FF 100%)' }}>
+      <section style={{ padding: '88px 24px', background: C.bg }}>
         <div style={{ maxWidth: 1120, margin: '0 auto' }}>
           <FadeUp style={{ textAlign: 'center', marginBottom: 52 }}>
             <SectionLabel>Features</SectionLabel>
@@ -1047,25 +1007,16 @@ export function Landing() {
             </h2>
           </FadeUp>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(290px,1fr))', gap: 14 }}>
-            {FEATURES.map(({ icon: Icon, title, desc }, i) => {
-              const iconGrads = [
-                'linear-gradient(135deg,#6366F1,#8B5CF6)',
-                'linear-gradient(135deg,#8B5CF6,#A855F7)',
-                'linear-gradient(135deg,#EC4899,#F97316)',
-                'linear-gradient(135deg,#059669,#10B981)',
-                'linear-gradient(135deg,#0EA5E9,#6366F1)',
-                'linear-gradient(135deg,#F59E0B,#EF4444)',
-              ]
-              return (
+            {FEATURES.map(({ icon: Icon, title, desc }, i) => (
               <motion.div
                 key={title}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: '-30px' }}
                 transition={{ duration: 0.45, delay: i * 0.05, ease: [0.22, 1, 0.36, 1] }}
-                whileHover={{ y: -3, boxShadow: '0 12px 32px rgba(99,102,241,0.12)' }}
+                whileHover={{ y: -3, boxShadow: '0 12px 32px rgba(200,245,12,0.18)' }}
                 style={{
-                  background: '#FFFFFF', border: `1px solid ${C.border}`,
+                  background: C.paper, border: `1px solid ${C.border}`,
                   borderRadius: 12, padding: '24px',
                   boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
                   transition: 'box-shadow 0.2s, transform 0.2s',
@@ -1073,15 +1024,14 @@ export function Landing() {
               >
                 <div style={{
                   display: 'inline-flex', padding: 10, borderRadius: 9, marginBottom: 16,
-                  background: iconGrads[i],
-                  boxShadow: `0 4px 12px rgba(99,102,241,0.25)`,
+                  background: C.primaryL, border: `1px solid ${C.primaryBdr}`,
                 }}>
-                  <Icon style={{ width: 16, height: 16, color: '#fff' }} />
+                  <Icon style={{ width: 16, height: 16, color: C.primary }} />
                 </div>
                 <p style={{ fontWeight: 700, fontSize: 15, color: C.text, marginBottom: 8 }}>{title}</p>
                 <p style={{ fontSize: 13, color: C.textSec, lineHeight: 1.72 }}>{desc}</p>
               </motion.div>
-            )})}
+            ))}
           </div>
         </div>
       </section>
@@ -1148,7 +1098,7 @@ export function Landing() {
               viewport={{ once: true }}
               transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
               style={{
-                background: '#FFFFFF', border: `1px solid ${C.border}`,
+                background: C.paper, border: `1px solid ${C.border}`,
                 borderRadius: 14, padding: '30px 28px',
                 boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
               }}
@@ -1194,16 +1144,16 @@ export function Landing() {
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
               style={{
-                background: '#FFFFFF', border: `2px solid ${C.primary}`,
+                background: C.paper, border: `2px solid ${C.primary}`,
                 borderRadius: 14, padding: '30px 28px', position: 'relative', overflow: 'hidden',
-                boxShadow: '0 8px 32px rgba(79,70,229,0.12)',
+                boxShadow: `0 8px 32px rgba(200,245,12,0.18)`,
               }}
             >
               {/* Popular badge */}
               <div style={{ position: 'absolute', top: 14, right: 14 }}>
                 <span style={{
                   fontWeight: 700, fontSize: 10, letterSpacing: '0.05em',
-                  color: '#fff', background: C.primary, padding: '3px 10px', borderRadius: 99,
+                  color: C.text, background: C.primary, padding: '3px 10px', borderRadius: 99,
                   fontFamily: 'Inter, system-ui, sans-serif',
                 }}>
                   Most popular
@@ -1237,7 +1187,7 @@ export function Landing() {
               </ul>
               <Link to="/pricing" style={{
                 display: 'block', textAlign: 'center', textDecoration: 'none',
-                fontWeight: 700, fontSize: 14, color: '#fff',
+                fontWeight: 700, fontSize: 14, color: C.text,
                 background: C.primary, borderRadius: 9, padding: '12px 18px',
                 transition: 'background 0.12s',
                 fontFamily: 'Inter, system-ui, sans-serif',
@@ -1316,7 +1266,7 @@ export function Landing() {
                 viewport={{ once: true, margin: '-20px' }}
                 transition={{ duration: 0.38, delay: i * 0.04 }}
                 style={{
-                  background: '#FFFFFF', border: `1px solid ${C.border}`,
+                  background: C.paper, border: `1px solid ${C.border}`,
                   borderRadius: 11, boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
                   fontFamily: 'Inter, system-ui, sans-serif',
                 }}
@@ -1344,47 +1294,25 @@ export function Landing() {
 
       {/* ── Final CTA ─────────────────────────────────────────────────── */}
       <section style={{
-        padding:    '100px 24px',
-        textAlign:  'center',
-        background: 'linear-gradient(135deg, #1E1B4B 0%, #312E81 30%, #4C1D95 60%, #6D28D9 100%)',
-        position:   'relative',
-        overflow:   'hidden',
+        padding:   '100px 24px',
+        textAlign: 'center',
+        background: C.bgDark,
       }}>
-        {/* Bright radial highlight */}
-        <div style={{
-          position: 'absolute', top: '-20%', left: '50%', transform: 'translateX(-50%)',
-          width: 900, height: 700,
-          background: 'radial-gradient(ellipse, rgba(139,92,246,0.5) 0%, rgba(236,72,153,0.2) 40%, transparent 70%)',
-          pointerEvents: 'none',
-        }} />
-        {/* Bottom pink accent */}
-        <div style={{
-          position: 'absolute', bottom: '-10%', right: '-5%',
-          width: 500, height: 500,
-          background: 'radial-gradient(circle, rgba(236,72,153,0.25) 0%, transparent 65%)',
-          pointerEvents: 'none',
-        }} />
-
-        <div style={{ maxWidth: 580, margin: '0 auto', position: 'relative', zIndex: 1 }}>
-          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 24 }}>
-            <div style={{
-              background: 'rgba(255,255,255,0.08)',
-              border: '1px solid rgba(255,255,255,0.12)',
-              borderRadius: 12, padding: 12,
-            }}>
-              <Logo size={36} />
-            </div>
+        <div style={{ maxWidth: 580, margin: '0 auto' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 28 }}>
+            <Wordmark height={28} variant="dark" />
           </div>
 
           <h2 style={{
             fontWeight: 800, fontSize: 'clamp(30px, 5vw, 52px)', lineHeight: 1.08,
-            letterSpacing: '-0.04em', marginBottom: 20, color: '#FFFFFF',
+            letterSpacing: '-0.04em', marginBottom: 20, color: C.bg,
+            fontFamily: 'Bricolage Grotesque, Inter, system-ui, sans-serif',
           }}>
             Your next winning product<br />is waiting right now.
           </h2>
 
           <p style={{
-            fontSize: 17, color: 'rgba(255,255,255,0.65)',
+            fontSize: 17, color: 'rgba(244,239,229,0.6)',
             maxWidth: 440, margin: '0 auto 44px', lineHeight: 1.68,
           }}>
             Built for people who want to make money quickly. The fastest, most accurate reselling research tool available. Start free — no credit card needed.
@@ -1397,33 +1325,32 @@ export function Landing() {
               style={{
                 display: 'inline-flex', alignItems: 'center', gap: 9,
                 fontWeight: 700, fontSize: 15,
-                color: C.primary, background: '#FFFFFF', textDecoration: 'none',
+                color: C.text, background: C.primary, textDecoration: 'none',
                 padding: '14px 32px', borderRadius: 10,
-                boxShadow: '0 4px 16px rgba(0,0,0,0.2)',
-                transition: 'transform 0.15s, box-shadow 0.15s',
+                transition: 'background 0.15s',
                 fontFamily: 'Inter, system-ui, sans-serif',
               }}
-              onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.transform = 'translateY(-1px)'; (e.currentTarget as HTMLAnchorElement).style.boxShadow = '0 8px 24px rgba(0,0,0,0.25)' }}
-              onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.transform = 'none'; (e.currentTarget as HTMLAnchorElement).style.boxShadow = '0 4px 16px rgba(0,0,0,0.2)' }}
+              onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.background = C.primaryH }}
+              onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.background = C.primary }}
             >
               Start for free
               <ArrowRight style={{ width: 17, height: 17 }} />
             </a>
             <Link to="/pricing" style={{
               display: 'inline-flex', alignItems: 'center',
-              fontSize: 14, color: 'rgba(255,255,255,0.65)', textDecoration: 'none',
+              fontSize: 14, color: 'rgba(244,239,229,0.6)', textDecoration: 'none',
               padding: '14px 18px', transition: 'color 0.12s',
               fontFamily: 'Inter, system-ui, sans-serif',
             }}
-              onMouseEnter={e => (e.currentTarget.style.color = '#FFFFFF')}
-              onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.65)')}
+              onMouseEnter={e => (e.currentTarget.style.color = C.bg)}
+              onMouseLeave={e => (e.currentTarget.style.color = 'rgba(244,239,229,0.6)')}
             >
               See Pro features →
             </Link>
           </div>
 
           <p style={{
-            fontSize: 12, color: 'rgba(255,255,255,0.35)',
+            fontSize: 12, color: 'rgba(244,239,229,0.3)',
             marginTop: 24, letterSpacing: '0.06em', fontWeight: 500,
           }}>
             2 FREE REPORTS · NO CREDIT CARD · CANCEL ANYTIME
@@ -1438,7 +1365,7 @@ export function Landing() {
         background: C.bg,
         display:    'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 16,
       }}>
-        <Wordmark size="sm" />
+        <Wordmark height={20} />
         <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap' }}>
           {[
             { label: 'How it works', href: '#how-it-works', isAnchor: true  },
